@@ -5,4 +5,6 @@ meta:
 
 build:
   dockerfile: dockerfile
+
+run:
   containerPort: 8080
