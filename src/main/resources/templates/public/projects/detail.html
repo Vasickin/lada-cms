@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="fragments/header :: html-head(${project.effectiveMetaTitle})">
+</head>
+
+<body>
+<div th:replace="fragments/navigation :: main-navigation"></div>
+
+<!-- Хлебные крошки -->
+<nav class="bg-light py-3">
+    <div class="container">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a th:href="@{/}" class="text-decoration-none">Главная</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a th:href="@{/projects}" class="text-decoration-none">Проекты</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <span th:text="${project.title}">Название проекта</span>
+            </li>
+        </ol>
+    </div>
+</nav>
+
+<!-- Баннер с названием проекта -->
+<header class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <!-- Категория и статус -->
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="badge bg-white text-primary fs-6 px-3 py-2">
+                        <i class="bi bi-tag me-2"></i>
+                        <span th:text="${project.category}">Категория</span>
+                    </span>
+                    <span th:classappend="${project.currentlyActive} ? 'bg-success' : (${project.archived} ? 'bg-secondary' : 'bg-warning')"
+                          class="badge fs-6 px-3 py-2">
+                        <i class="bi bi-flag me-2"></i>
+                        <span th:text="${project.currentlyActive} ? 'Активный' : (${project.archived} ? 'Архивный' : 'Ежегодный')"></span>
+                    </span>
+                </div>
+
+                <!-- Название проекта -->
+                <h1 class="display-4 fw-bold mb-4" th:text="${project.title}">
+                    Название проекта
+                </h1>
+
+                <!-- Краткое описание -->
+                <p class="lead mb-4 opacity-75" th:text="${project.shortDescription}">
+                    Краткое описание проекта
+                </p>
+
+                <!-- Даты и место -->
+                <div class="row g-4">
+                    <div th:if="${project.eventDate}" class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-calendar-event fs-4 me-3"></i>
+                            <div>
+                                <small class="opacity-75">Дата события</small>
+                                <div class="fw-bold" th:text="${#temporals.format(project.eventDate, 'dd MMMM yyyy')}">
+                                    15 мая 2024
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${project.location}" class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-geo-alt fs-4 me-3"></i>
+                            <div>
+                                <small class="opacity-75">Место проведения</small>
+                                <div class="fw-bold" th:text="${project.location}">
+                                    Москва, Кремль
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-clock-history fs-4 me-3"></i>
+                            <div>
+                                <small class="opacity-75">Обновлено</small>
+                                <div class="fw-bold" th:text="${#temporals.format(project.updatedAt, 'dd.MM.yyyy')}">
+                                    01.01.2024
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая часть баннера -->
+            <div class="col-lg-4 text-center mt-5 mt-lg-0">
+                <div class="bg-white bg-opacity-10 p-4 rounded-3">
+                    <i class="bi bi-rocket-takeoff display-1 mb-3"></i>
+                    <h4 class="mb-3">Проект организации "ЛАДА"</h4>
+                    <p class="small opacity-75">
+                        Часть нашей миссии по развитию культуры и искусства
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container my-5">
+    <div class="row">
+        <!-- ЛЕВАЯ КОЛОНКА: ОСНОВНОЙ КОНТЕНТ -->
+        <div class="col-lg-8">
+            <!-- 1. ГАЛЕРЕЯ КЛЮЧЕВЫХ ФОТО -->
+            <section id="gallery" th:if="${project.showPhotos} and ${project.hasKeyPhotos}" class="card border-0 shadow-sm mb-5">
+                <div class="card-header bg-white border-0 py-4">
+                    <h2 class="h3 fw-bold mb-0">
+                        <i class="bi bi-images text-primary me-2"></i> Фотогалерея проекта
+                    </h2>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.size(project.keyPhotos) == 1}" class="p-4">
+                        <!-- Одно фото -->
+                        <div class="single-image-container">
+                            <img th:src="${project.keyPhotos[0].publicWebPath}"
+                                 th:alt="${project.title}"
+                                 class="single-project-image">
+                        </div>
+                    </div>
+                    <div th:if="${#lists.size(project.keyPhotos) > 1}" class="p-4">
+                        <!-- Несколько фото - слайдер -->
+                        <div id="projectGallery" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                <button th:each="photo, iterStat : ${project.keyPhotos}"
+                                        type="button"
+                                        data-bs-target="#projectGallery"
+                                        th:data-bs-slide-to="${iterStat.index}"
+                                        th:classappend="${iterStat.first} ? 'active' : ''"
+                                        aria-label="Фото ${iterStat.index + 1}"></button>
+                            </div>
+                            <div class="carousel-inner rounded-3">
+                                <div th:each="photo, iterStat : ${project.keyPhotos}"
+                                     th:classappend="${iterStat.first} ? 'carousel-item active' : 'carousel-item'">
+                                    <div class="carousel-image-container">
+                                        <img th:src="${photo.publicWebPath}"
+                                             th:alt="${photo.title ?: project.title}"
+                                             class="carousel-image">
+                                        <div class="image-gradient"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#projectGallery" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#projectGallery" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+
+                        <!-- Миниатюры -->
+                        <!--
+                        <div class="row g-2 mt-3">
+                            <div th:each="photo, iterStat : ${project.keyPhotos}" class="col-3">
+                                <a href="javascript:void(0)"
+                                   th:onclick="|showGallerySlide(${iterStat.index})|"
+                                   class="d-block">
+                                    <img th:src="${photo.thumbnailPath ?: photo.webPath}"
+                                         th:alt="${photo.title ?: 'Миниатюра ' + (iterStat.index + 1)}"
+                                         class="img-fluid rounded-2"
+                                         style="height: 80px; width: 100%; object-fit: cover; cursor: pointer;">
+                                </a>
+                            </div>
+                        </div>
+                        -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. ПОЛНОЕ ОПИСАНИЕ -->
+            <section id="description" th:if="${project.showDescription} and ${project.fullDescription != null}" class="card border-0 shadow-sm mb-5">
+                <div class="card-header bg-white border-0 py-4">
+                    <h2 class="h3 fw-bold mb-0">
+                        <i class="bi bi-file-text text-primary me-2"></i> О проекте
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="project-description" th:utext="${project.fullDescription}">
+                        <!-- HTML контент будет вставлен здесь -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. ВИДЕО -->
+            <section id="video" th:if="${project.showVideos} and ${project.hasVideo}" class="card border-0 shadow-sm mb-5">
+                <div class="card-header bg-white border-0 py-4">
+                    <h2 class="h3 fw-bold mb-0">
+                        <i class="bi bi-camera-video text-primary me-2"></i> Видео проекта
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <!-- Используем новый метод getVideoEmbedUrl() -->
+                    <div class="ratio ratio-16x9" th:if="${project.videoEmbedUrl != null}">
+                        <iframe th:src="${project.videoEmbedUrl}"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                                style="border-radius: 8px;">
+                        </iframe>
+                    </div>
+
+                    <!-- Если embed URL не удалось создать (неизвестная платформа или ошибка) -->
+                    <div th:if="${project.videoEmbedUrl == null}" class="text-center py-4">
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Видео не может быть встроено на страницу</strong>
+                            <p class="mb-0 mt-2">
+                                Вы можете посмотреть его по ссылке:
+                            </p>
+                            <a th:href="${project.videoUrl}"
+                               target="_blank"
+                               class="btn btn-primary mt-2">
+                                <i class="bi bi-play-circle me-2"></i> Смотреть видео на внешней платформе
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Ссылка на оригинальное видео -->
+                    <div class="mt-3 text-center">
+                        <a th:href="${project.videoUrl}"
+                           target="_blank"
+                           class="text-decoration-none small text-muted">
+                            <i class="bi bi-box-arrow-up-right me-1"></i> Открыть оригинал на
+                            <span th:switch="${project.videoPlatform}">
+                    <span th:case="'youtube'">YouTube</span>
+                    <span th:case="'vimeo'">Vimeo</span>
+                    <span th:case="'rutube'">Rutube</span>
+                    <span th:case="'unknown'">внешней платформе</span>
+                </span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. КОМАНДА ПРОЕКТА -->
+            <section id="team" th:if="${project.showTeam} and ${project.teamMembers != null} and ${!#lists.isEmpty(project.teamMembers)}" class="card border-0 shadow-sm mb-5">
+                    <div class="card-header bg-white border-0 py-4">
+                        <h2 class="h3 fw-bold mb-0">
+                            <i class="bi bi-people text-primary me-2"></i> Команда проекта
+                        </h2>
+                    </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div th:each="member : ${project.teamMembers}" class="col-md-6 col-lg-4">
+                            <div class="card border h-100 team-member-card">
+                                <!-- Фото участника -->
+                                <div class="text-center p-3">
+                                    <div class="rounded-circle overflow-hidden mx-auto mb-3"
+                                         style="width: 120px; height: 120px;">
+                                        <!-- Используем avatarPath -->
+                                        <img th:if="${member.avatarPath != null}"
+                                             th:src="${member.avatarPath}"
+                                             th:alt="${member.fullName}"
+                                             class="img-fluid w-100 h-100 object-fit-cover">
+                                        <!-- Если нет фото, показываем инициалы -->
+                                        <div th:unless="${member.avatarPath != null}"
+                                             class="w-100 h-100 bg-primary text-white d-flex align-items-center justify-content-center">
+                                <span class="fw-bold fs-3">
+                                    <!-- Используем initials если есть, иначе вычисляем -->
+                                    <span th:if="${member.initials != null}" th:text="${member.initials}"></span>
+                                    <span th:unless="${member.initials != null}">
+                                        [[${#strings.substring(member.fullName, 0, 1)}]]
+                                        <span th:if="${#strings.contains(member.fullName, ' ')}"
+                                              th:text="${#strings.substring(member.fullName, #strings.indexOf(member.fullName, ' ') + 1, #strings.indexOf(member.fullName, ' ') + 2)}"></span>
+                                    </span>
+                                </span>
+                                        </div>
+                                    </div>
+                                    <!-- Имя и должность -->
+                                    <h5 class="fw-bold mb-1" th:text="${member.fullName}">
+                                        Имя Фамилия
+                                    </h5>
+                                    <p class="text-muted small mb-2" th:text="${member.position}">
+                                        Должность
+                                    </p>
+
+                                    <!-- Краткая биография -->
+                                    <p class="small text-muted mb-3"
+                                       th:if="${member.bio != null} and ${#strings.length(member.bio) > 0}"
+                                       th:text="${#strings.abbreviate(member.bio, 100)} + '...'">
+                                        Краткое описание
+                                    </p>
+
+                                    <!-- Контакты -->
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a th:if="${member.email != null}"
+                                           th:href="|mailto:${member.email}|"
+                                           class="text-decoration-none"
+                                           title="Email">
+                                            <i class="bi bi-envelope text-primary"></i>
+                                        </a>
+                                        <a th:if="${member.phone != null}"
+                                           th:href="|tel:${member.phone}|"
+                                           class="text-decoration-none"
+                                           title="Телефон">
+                                            <i class="bi bi-telephone text-primary"></i>
+                                        </a>
+                                        <!-- Социальные сети -->
+                                        <a th:if="${member.socialLinks != null} and ${member.socialLinks.containsKey('linkedin')}"
+                                           th:href="${member.socialLinks.get('linkedin')}"
+                                           target="_blank"
+                                           class="text-decoration-none"
+                                           title="LinkedIn">
+                                            <i class="bi bi-linkedin text-primary"></i>
+                                        </a>
+                                        <a th:if="${member.socialLinks != null} and ${member.socialLinks.containsKey('facebook')}"
+                                           th:href="${member.socialLinks.get('facebook')}"
+                                           target="_blank"
+                                           class="text-decoration-none"
+                                           title="Facebook">
+                                            <i class="bi bi-facebook text-primary"></i>
+                                        </a>
+                                        <a th:if="${member.socialLinks != null} and ${member.socialLinks.containsKey('instagram')}"
+                                           th:href="${member.socialLinks.get('instagram')}"
+                                           target="_blank"
+                                           class="text-decoration-none"
+                                           title="Instagram">
+                                            <i class="bi bi-instagram text-primary"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. ПАРТНЕРЫ -->
+            <section id="partners" th:if="${project.showPartners} and ${project.partners != null} and ${!#lists.isEmpty(project.partners)}" class="card border-0 shadow-sm mb-5">
+                <div class="card-header bg-white border-0 py-4">
+                    <h2 class="h3 fw-bold mb-0">
+                        <i class="bi bi-handshake text-primary me-2"></i> Партнеры проекта
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4 align-items-center">
+                        <div th:each="partner : ${project.partners}" class="col-6 col-md-4 col-lg-3">
+                            <div class="text-center p-3">
+                                <!-- Логотип партнера -->
+                                <div class="mb-3" style="height: 80px;">
+                                    <img th:if="${partner.getLogoUrl != null}"
+                                         th:src="${partner.getLogoUrl}"
+                                         th:alt="${partner.name}"
+                                         class="img-fluid h-100 object-fit-contain">
+                                    <div th:unless="${partner.getLogoUrl != null}"
+                                         class="h-100 bg-light d-flex align-items-center justify-content-center rounded">
+                                        <span class="fw-bold text-muted" th:text="${partner.name}">
+                                            Партнер
+                                        </span>
+                                    </div>
+                                </div>
+                                <!-- Название партнера -->
+                                <h6 class="fw-bold mb-1" th:text="${partner.name}">
+                                    Название компании
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. КАК УЧАСТВОВАТЬ -->
+            <section id="participation" th:if="${project.showParticipation}" class="card border-0 shadow-sm mb-5">
+                <div class="card-header bg-white border-0 py-4">
+                    <h2 class="h3 fw-bold mb-0">
+                        <i class="bi bi-megaphone text-primary me-2"></i> Как участвовать
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Для участия в проекте свяжитесь с нами через контактную форму или по телефону
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start p-3 border rounded">
+                                <i class="bi bi-envelope fs-4 text-primary me-3 mt-1"></i>
+                                <div>
+                                    <h5 class="h6 fw-bold mb-2">Написать письмо</h5>
+                                    <p class="small text-muted mb-0">
+                                        Отправьте заявку на участие на наш email с пометкой названия проекта
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start p-3 border rounded">
+                                <i class="bi bi-telephone fs-4 text-primary me-3 mt-1"></i>
+                                <div>
+                                    <h5 class="h6 fw-bold mb-2">Позвонить</h5>
+                                    <p class="small text-muted mb-0">
+                                        Свяжитесь с координатором проекта по телефону для уточнения деталей
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ПРАВАЯ КОЛОНКА: САЙДБАР -->
+        <div class="col-lg-4">
+            <!-- 1. ИНФО-КАРТОЧКА ПРОЕКТА -->
+            <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i> Информация о проекте
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <!-- Статус -->
+                        <li class="list-group-item px-0 py-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Статус:</span>
+                                <span th:classappend="${project.currentlyActive} ? 'text-success fw-bold' : 'text-secondary'">
+                                    <i th:classappend="${project.currentlyActive} ? 'bi bi-check-circle' : 'bi bi-archive'"
+                                       class="me-1"></i>
+                                    <span th:text="${project.currentlyActive} ? 'Активный' : 'Архивный'"></span>
+                                </span>
+                            </div>
+                        </li>
+                        <!-- Категория -->
+                        <li class="list-group-item px-0 py-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Категория:</span>
+                                <span class="fw-bold" th:text="${project.category}"></span>
+                            </div>
+                        </li>
+                        <!-- Дата создания -->
+                        <li class="list-group-item px-0 py-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Добавлен:</span>
+                                <span th:text="${#temporals.format(project.createdAt, 'dd.MM.yyyy')}"></span>
+                            </div>
+                        </li>
+                        <!-- Длительность -->
+                        <li th:if="${project.startDate != null} and ${project.endDate != null}" class="list-group-item px-0 py-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Период:</span>
+                                <span>
+                                    <span th:text="${#temporals.format(project.startDate, 'dd.MM.yy')}"></span> -
+                                    <span th:text="${#temporals.format(project.endDate, 'dd.MM.yy')}"></span>
+                                </span>
+                            </div>
+                        </li>
+                        <!-- Фотографии -->
+                        <li th:if="${project.hasKeyPhotos}" class="list-group-item px-0 py-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Фотографии:</span>
+                                <span class="badge bg-info">
+                                    <i class="bi bi-image me-1"></i>
+                                    <span th:text="${#lists.size(project.keyPhotos)}"></span>
+                                </span>
+                            </div>
+                        </li>
+                        <!-- Видео -->
+                        <li th:if="${project.hasVideo}" class="list-group-item px-0 py-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Видео:</span>
+                                <span class="text-success">
+                                    <i class="bi bi-check-circle me-1"></i> Есть
+                                </span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Кнопки действий -->
+                <div class="card-footer bg-light">
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/contact}" class="btn btn-primary">
+                            <i class="bi bi-envelope me-2"></i> Связаться с нами
+                        </a>
+                        <button type="button" class="btn btn-outline-primary" onclick="shareProject()">
+                            <i class="bi bi-share me-2"></i> Поделиться
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. БЫСТРЫЕ ССЫЛКИ -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-light py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-link-45deg me-2"></i> Быстрые ссылки
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a th:if="${project.showDescription} and ${project.fullDescription != null}"
+                           href="#description" class="list-group-item list-group-item-action">
+                            <i class="bi bi-file-text me-2"></i> Описание проекта
+                        </a>
+                        <a th:if="${project.showPhotos} and ${project.hasKeyPhotos}"
+                           href="#gallery" class="list-group-item list-group-item-action">
+                            <i class="bi bi-images me-2"></i> Фотогалерея
+                        </a>
+                        <a th:if="${project.showVideos} and ${project.hasVideo}"
+                           href="#video" class="list-group-item list-group-item-action">
+                            <i class="bi bi-camera-video me-2"></i> Видео
+                        </a>
+                        <a th:if="${project.showTeam} and ${project.teamMembers != null} and ${!#lists.isEmpty(project.teamMembers)}"
+                           href="#team" class="list-group-item list-group-item-action">
+                            <i class="bi bi-people me-2"></i> Команда
+                        </a>
+                        <a th:if="${project.showParticipation}"
+                           href="#participation" class="list-group-item list-group-item-action">
+                            <i class="bi bi-megaphone me-2"></i> Как участвовать
+                        </a>
+                        <a th:if="${project.showPartners} and ${project.partners != null} and ${!#lists.isEmpty(project.partners)}"
+                           href="#partners" class="list-group-item list-group-item-action">
+                            <i class="bi bi-handshake me-2"></i> Партнеры
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. ПОХОЖИЕ ПРОЕКТЫ -->
+            <div th:if="${project.showRelated} and ${similarProjects != null} and ${!#lists.isEmpty(similarProjects)}"
+                 class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-light py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-stars me-2"></i> Похожие проекты
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div th:each="similar : ${similarProjects}" class="list-group-item px-0 py-3">
+                            <div class="d-flex align-items-center">
+                                <!-- Миниатюра -->
+                                <div class="flex-shrink-0 me-3">
+                                    <div style="width: 60px; height: 60px; overflow: hidden;" class="rounded">
+                                        <img th:if="${similar.keyPhotos != null and !similar.keyPhotos.isEmpty() and similar.keyPhotos[0].publicWebPath != null}"
+                                             th:src="${similar.keyPhotos[0].publicWebPath}"
+                                             th:alt="${similar.title}"
+                                             class="img-fluid w-100 h-100 object-fit-cover">
+                                        <div th:unless="${similar.keyPhotos != null} and ${!#lists.isEmpty(similar.keyPhotos)}"
+                                             class="w-100 h-100 bg-light d-flex align-items-center justify-content-center">
+                                            <i class="bi bi-image text-muted"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Информация -->
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">
+                                        <a th:href="${similar.detailUrl}"
+                                           class="text-dark text-decoration-none">
+                                            <span th:text="${similar.title}"></span>
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted">
+                                        <span th:text="${similar.category}"></span> •
+                                        <span th:text="${#temporals.format(similar.eventDate, 'MMM yyyy')}"></span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a th:href="@{/projects}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-arrow-right me-1"></i> Все проекты
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="fragments/footer :: main-footer"></div>
+
+<div th:replace="fragments/scripts :: main-scripts"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Детальная страница проекта загружена');
+
+        // Функция для навигации по галерее
+        window.showGallerySlide = function(index) {
+            const carousel = new bootstrap.Carousel(document.getElementById('projectGallery'));
+            carousel.to(index);
+        };
+
+        // Сделать навигацию по быстрым ссылкам плавной
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+            });
+        });
+    });
+
+    // Функция для кнопки "Поделиться"
+    function shareProject() {
+        const title = document.querySelector('h1').textContent;
+        const url = window.location.href;
+
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                url: url
+            });
+        } else {
+            // Копирование ссылки в буфер обмена
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Ссылка скопирована в буфер обмена!');
+            });
+        }
+    }
+</script>
+
+<style>
+    /* Стили для детальной страницы */
+    .team-member-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .team-member-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .project-description img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+
+/* Основные стили для контента */
+    .project-description {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 1.125rem; /* 18px */
+        line-height: 1.7;
+        color: #333;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+
+    /* Заголовки */
+    .project-description h1 {
+        font-size: 2rem;
+        margin: 2rem 0 1rem;
+        color: #2c3e50;
+        font-weight: 600;
+        border-bottom: 3px solid #3498db;
+        padding-bottom: 0.5rem;
+    }
+
+    .project-description h2 {
+        font-size: 1.75rem;
+        margin: 1.75rem 0 0.875rem;
+        color: #2c3e50;
+        font-weight: 600;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 0.4rem;
+    }
+
+    .project-description h3 {
+        font-size: 1.5rem;
+        margin: 1.5rem 0 0.75rem;
+        color: #34495e;
+        font-weight: 600;
+    }
+
+    /* Параграфы */
+    .project-description p {
+        margin-bottom: 0rem;
+        text-align: justify;
+        /*padding-left: -1.5em;*/
+        /*text-indent: 1.5em;*/
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    /* Убираем отступ у первого параграфа */
+    .project-description > p:first-child {
+        margin-top: 0;
+    }
+
+    /* Списки */
+    .project-description ul,
+    .project-description ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+    }
+
+    .project-description li {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+    }
+
+    /* Маркированный список с синими точками */
+    .project-description ul {
+        list-style-type: none;
+    }
+
+    .project-description ul li::before {
+        content: "•";
+        color: #3498db;
+        font-weight: bold;
+        display: inline-block;
+        width: 1em;
+        margin-left: -1em;
+    }
+
+    /* Нумерованный список с синими цифрами */
+    .project-description ol {
+        counter-reset: item;
+        list-style-type: none;
+    }
+
+    .project-description ol li::before {
+        content: counter(item) ".";
+        counter-increment: item;
+        color: #3498db;
+        font-weight: bold;
+        display: inline-block;
+        width: 2em;
+        margin-left: -2em;
+    }
+
+    /* Форматирование текста */
+    .project-description strong,
+    .project-description b {
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .project-description em,
+    .project-description i {
+        font-style: italic;
+    }
+
+    .project-description u {
+        text-decoration: underline;
+        text-decoration-color: #3498db;
+    }
+
+    /* Ссылки */
+    .project-description a {
+        color: #3498db;
+        text-decoration: none;
+        border-bottom: 1px solid RGBA(52, 152, 219, 0.3);
+        transition: all 0.2s ease;
+        padding-bottom: 1px;
+    }
+
+    .project-description a:hover {
+        color: #2980b9;
+        border-bottom-color: #2980b9;
+    }
+
+    /* Цитаты */
+    .project-description blockquote {
+        border-left: 4px solid #3498db;
+        margin: 1.5rem 0;
+        padding: 1rem 1.5rem;
+        background-color: #f8f9fa;
+        font-style: italic;
+        color: #555;
+    }
+
+    .project-description blockquote p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Адаптивность для мобильных */
+    @media (max-width: 768px) {
+        .project-description {
+            font-size: 1rem; /* 16px на мобильных */
+            line-height: 1.6;
+        }
+
+        .project-description h1 {
+            font-size: 1.75rem;
+        }
+
+        .project-description h2 {
+            font-size: 1.5rem;
+        }
+
+        .project-description h3 {
+            font-size: 1.25rem;
+        }
+
+        .project-description ul,
+        .project-description ol {
+            padding-left: 1.5rem;
+        }
+    }
+
+    /* Для очень длинных слов - предотвращаем выход за границы */
+    .project-description {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+
+    /* СТИЛИ ВЫРАВНИВАНИЯ ТЕКСТА (Quill alignment) */
+.project-description .ql-align-left {
+    text-align: left !important;
+}
+
+.project-description .ql-align-center {
+    text-align: center !important;
+}
+
+.project-description .ql-align-right {
+    text-align: right !important;
+}
+
+.project-description .ql-align-justify {
+    text-align: justify !important;
+}
+
+/* Для заголовков и параграфов с выравниванием */
+.project-description p.ql-align-center,
+.project-description h2.ql-align-center,
+.project-description h3.ql-align-center {
+    text-align: center !important;
+}
+
+.project-description p.ql-align-right,
+.project-description h2.ql-align-right,
+.project-description h3.ql-align-right {
+    text-align: right !important;
+}
+
+    .list-group-item-action {
+        border-left: 3px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+    .list-group-item-action:hover {
+        border-left-color: var(--bs-primary);
+        background-color: rgba(var(--bs-primary-rgb), 0.05);
+    }
+
+    /* Стили для мобильных устройств */
+    @media (max-width: 768px) {
+        .display-4 {
+            font-size: 2rem;
+        }
+    }
+
+    /* ==== СЛАЙДЕР ==== */
+
+/* Контейнер для фото с градиентом */
+.carousel-image-container {
+    position: relative;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(90deg,
+        RGBA(248,249,250,0.9) 0%,
+        RGBA(233,236,239,0.7) 20%,
+        RGBA(233,236,239,0.7) 80%,
+        RGBA(248,249,250,0.9) 100%);
+    overflow: hidden;
+}
+
+/* Само изображение */
+.carousel-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain; /* Важно: вмещает целиком */
+    display: block;
+    margin: 0 auto;
+}
+
+/* Дополнительный градиент поверх (опционально) */
+.image-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg,
+        RGBA(255,255,255,0.4) 0%,
+        RGBA(255,255,255,0) 10%,
+        RGBA(255,255,255,0) 90%,
+        RGBA(255,255,255,0.4) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Индикаторы карусели - поднять повыше */
+#projectGallery .carousel-indicators {
+    bottom: -50px; /* Опустить ниже если мешает */
+    z-index: 2;
+}
+
+/* Кнопки навигации */
+#projectGallery .carousel-control-prev,
+#projectGallery .carousel-control-next {
+    z-index: 2;
+}
+
+/* Для одного фото тоже обновляем */
+#gallery .img-fluid {
+    object-fit: contain !important;
+    background: linear-gradient(90deg,
+        RGBA(248,249,250,0.9) 0%,
+        RGBA(233,236,239,0.7) 20%,
+        RGBA(233,236,239,0.7) 80%,
+        RGBA(248,249,250,0.9) 100%);
+    padding: 20px;
+    border-radius: 12px;
+}
+
+    /* Контейнер для одного фото */
+.single-image-container {
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(90deg,
+        RGBA(248,249,250,0.9) 0%,
+        RGBA(233,236,239,0.7) 20%,
+        RGBA(233,236,239,0.7) 80%,
+        RGBA(248,249,250,0.9) 100%);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* Изображение для одного фото */
+.single-project-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+}
+</style>
+
+</body>
+</html>

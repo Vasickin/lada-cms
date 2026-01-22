@@ -1,0 +1,53 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+*.swo
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Spring Boot
+application.properties# Backup files
+/backups/mysql/*.sql.gz
+/backups/project/*.tar.gz
+/backups/logs/*.log
+uploads
+
+# ================================
+# Amvera/Docker files (EXCEPT CONFIGURATION FILES!)
+# ================================
+# NOTE: amvera.yaml and application-cloud.properties are NOT ignored!
+# They are required for deployment.
+.dockerignore
+Dockerfile
+
+# Local IDE files for Amvera branch
+.idea/amvera/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files (except those we need)
+*.backup
+*.bak

@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Предпросмотр элемента фото-галереи</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <!-- Подключаем стили для предпросмотра -->
+    <link rel="stylesheet" th:href="@{/css/photo-gallery-preview.css}">
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container-fluid">
+        <!-- ========== ЗАГОЛОВОК И НАВИГАЦИЯ ========== -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/admin/photo-gallery}" class="text-decoration-none">
+                                <i class="bi bi-images me-1"></i>
+                                <span>Фото-галерея</span>
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/admin/photo-gallery/edit/{id}(id=${item.id})}" class="text-decoration-none">
+                                <i class="bi bi-pencil me-1"></i>
+                                <span>Редактирование</span>
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            <i class="bi bi-eye me-1"></i>
+                            <span>Предпросмотр</span>
+                        </li>
+                    </ol>
+                </nav>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="h2 mb-0">
+                        <i class="bi bi-eye me-2"></i>
+                        <span>Предпросмотр элемента</span>
+                        <small class="text-muted ms-2">"<span th:text="${item.title}"></span>"</small>
+                    </h1>
+
+                    <div class="btn-group">
+                        <a th:href="@{/admin/photo-gallery/edit/{id}(id=${item.id})}"
+                           class="btn btn-primary">
+                            <i class="bi bi-pencil me-1"></i>
+                            <span>Редактировать</span>
+                        </a>
+                        <a th:href="@{/admin/photo-gallery}"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>
+                            <span>Назад к списку</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== СТАТУС ЭЛЕМЕНТА ========== -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span th:if="${item.published}" class="badge bg-success fs-6">
+                                    <i class="bi bi-eye-fill me-1"></i>
+                                    <span>Опубликовано</span>
+                                </span>
+                                <span th:unless="${item.published}" class="badge bg-warning text-dark fs-6">
+                                    <i class="bi bi-eye-slash-fill me-1"></i>
+                                    <span>Черновик</span>
+                                </span>
+
+                                <span class="ms-3">
+                                    <i class="bi bi-calendar me-1"></i>
+                                    <strong>Год:</strong>
+                                    <span th:text="${item.year}" class="ms-1"></span>
+                                </span>
+
+                                <span class="ms-3">
+                                    <i class="bi bi-clock me-1"></i>
+                                    <strong>Создано:</strong>
+                                    <span th:text="${#temporals.format(item.createdAt, 'dd.MM.yyyy HH:mm')}"
+                                          class="ms-1"></span>
+                                </span>
+                            </div>
+
+                            <div>
+                                <span class="badge bg-info fs-6">
+                                    <i class="bi bi-images me-1"></i>
+                                    <span>Изображений:</span>
+                                    <span th:text="${item.imagesCount}" class="ms-1"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- ========== ЛЕВАЯ КОЛОНКА: ИЗОБРАЖЕНИЯ ========== -->
+            <div class="col-lg-8">
+                <!-- Основное изображение -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">
+                            <i class="bi bi-star-fill text-warning me-2"></i>
+                            <span>Основное изображение</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${item.primaryImage}" class="text-center">
+                            <div class="main-image-container">
+                                <img th:src="${item.primaryImage.webPath}"
+                                     th:alt="${item.title}"
+                                     class="img-fluid rounded shadow main-image"
+                                     style="max-height: 500px; object-fit: contain;">
+                            </div>
+                            <div class="mt-3">
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    <span>Основное изображение</span>
+                                </small>
+                            </div>
+                        </div>
+                        <div th:unless="${item.primaryImage}" class="text-center py-5">
+                            <i class="bi bi-image text-muted display-4 d-block mb-3"></i>
+                            <p class="text-muted mb-0">Основное изображение не задано</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Все изображения -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">
+                            <i class="bi bi-images me-2"></i>
+                            <span>Все изображения</span>
+                            <small class="text-muted">(<span th:text="${item.imagesCount}">0</span>)</small>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${item.imagesCount > 0}">
+                            <div class="row g-3" id="gallery">
+                                <div th:each="image, iter : ${item.images}"
+                                     class="col-md-3 col-6">
+                                    <div class="thumbnail-container">
+                                        <div class="gallery-thumbnail"
+                                             th:data-image-index="${iter.index}"
+                                             th:data-image-src="${image.webPath}"
+                                             th:data-image-full="@{'/admin/photo-gallery/image/' + ${image.filePath}}"
+                                             th:data-image-title="${item.title} + ' - ' + ${image.fileName}">
+                                            <img th:src="${image.webPath}"
+                                                 th:alt="${image.fileName}"
+                                                 class="thumbnail-image">
+                                        </div>
+                                        <div class="thumbnail-badge">
+                                            <span th:if="${image.isPrimary}"
+                                                  class="badge bg-warning">
+                                                <i class="bi bi-star-fill"></i>
+                                            </span>
+                                        </div>
+                                        <div class="thumbnail-info">
+                                            <small class="thumbnail-filename">
+                                                <span th:text="${image.fileName}"></span>
+                                            </small>
+                                            <small class="thumbnail-size">
+                                                <span th:text="${image.formattedFileSize}"></span>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:unless="${item.imagesCount > 0}" class="text-center py-5">
+                            <i class="bi bi-image text-muted display-4 d-block mb-3"></i>
+                            <p class="text-muted mb-0">Нет изображений</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== ПРАВАЯ КОЛОНКА: ИНФОРМАЦИЯ ========== -->
+            <div class="col-lg-4">
+                <!-- Основная информация -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <span>Информация об элементе</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <h6 class="fw-semibold text-primary mb-2">
+                                <i class="bi bi-card-heading me-2"></i>
+                                <span>Название</span>
+                            </h6>
+                            <p class="fs-5" th:text="${item.title}"></p>
+                        </div>
+
+                        <div class="mb-4" th:if="${item.description}">
+                            <h6 class="fw-semibold text-primary mb-2">
+                                <i class="bi bi-text-paragraph me-2"></i>
+                                <span>Описание</span>
+                            </h6>
+                            <div class="bg-light p-3 rounded" th:utext="${item.description}"></div>
+                        </div>
+
+                        <div>
+                            <h6 class="fw-semibold text-primary mb-2">
+                                <i class="bi bi-calendar3 me-2"></i>
+                                <span>Год</span>
+                            </h6>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-secondary fs-6" th:text="${item.year}"></span>
+                                <small class="text-muted ms-3">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    <span>Год проведения мероприятия или создания контента</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Категории публикации -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">
+                            <i class="bi bi-tags me-2"></i>
+                            <span>Категории публикации</span>
+                            <small class="text-muted">(<span th:text="${#lists.size(item.categories)}">0</span>)</small>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${#lists.size(item.categories) > 0}">
+                            <div class="d-flex flex-wrap gap-2">
+                                <span th:each="category : ${item.categories}"
+                                      class="badge fs-6 py-2 px-3 bg-info">
+                                    <i class="bi bi-tag me-2"></i>
+                                    <span th:text="${category.name}"></span>
+                                </span>
+                            </div>
+                            <div class="mt-3">
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    <span>Элемент будет опубликован в выбранных категориях</span>
+                                </small>
+                            </div>
+                        </div>
+                        <div th:unless="${#lists.size(item.categories) > 0}" class="text-center py-3">
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                <span>Категории не выбраны</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Техническая информация -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0">
+                            <i class="bi bi-gear me-2"></i>
+                            <span>Техническая информация</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6 class="fw-semibold text-primary mb-2">
+                                <i class="bi bi-calendar-plus me-2"></i>
+                                <span>Дата создания</span>
+                            </h6>
+                            <p class="mb-0">
+                                <i class="bi bi-clock-history me-1"></i>
+                                <span th:text="${#temporals.format(item.createdAt, 'dd.MM.yyyy HH:mm:ss')}"></span>
+                            </p>
+                        </div>
+
+                        <div class="mb-3" th:if="${item.updatedAt}">
+                            <h6 class="fw-semibold text-primary mb-2">
+                                <i class="bi bi-calendar-check me-2"></i>
+                                <span>Дата обновления</span>
+                            </h6>
+                            <p class="mb-0">
+                                <i class="bi bi-clock me-1"></i>
+                                <span th:text="${#temporals.format(item.updatedAt, 'dd.MM.yyyy HH:mm:ss')}"></span>
+                            </p>
+                        </div>
+
+                        <div>
+                            <h6 class="fw-semibold text-primary mb-2">
+                                <i class="bi bi-hash me-2"></i>
+                                <span>ID элемента</span>
+                            </h6>
+                            <div class="input-group">
+                                <input type="text"
+                                       class="form-control"
+                                       th:value="${item.id}"
+                                       readonly
+                                       id="itemId">
+                                <button class="btn btn-outline-secondary"
+                                        type="button"
+                                        onclick="copyToClipboard('itemId')">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== КНОПКИ ДЕЙСТВИЙ ========== -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <a th:href="@{/admin/photo-gallery}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-1"></i>
+                                    <span>Назад к списку</span>
+                                </a>
+                            </div>
+                            <div class="btn-group">
+                                <a th:href="@{/admin/photo-gallery/edit/{id}(id=${item.id})}"
+                                   class="btn btn-primary">
+                                    <i class="bi bi-pencil me-1"></i>
+                                    <span>Редактировать</span>
+                                </a>
+
+                                <button type="button"
+                                        class="btn btn-outline-info"
+                                        onclick="window.print()">
+                                    <i class="bi bi-printer me-1"></i>
+                                    <span>Распечатать</span>
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-outline-success"
+                                        onclick="sharePreview()">
+                                    <i class="bi bi-share me-1"></i>
+                                    <span>Поделиться</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== КАСТОМНОЕ МОДАЛЬНОЕ ОКНО ДЛЯ ГАЛЕРЕИ ========== -->
+<div id="customGalleryModal" class="custom-modal">
+    <!-- Полупрозрачный оверлей -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <!-- Кнопка закрытия -->
+    <button class="modal-close-btn" id="modalCloseBtn" aria-label="Закрыть">
+        <i class="bi bi-x-lg"></i>
+    </button>
+
+    <!-- Контейнер для навигации и изображения -->
+    <div class="modal-container">
+        <!-- Кнопка "Назад" -->
+        <button class="modal-nav-btn modal-prev-btn" id="customPrevBtn" aria-label="Предыдущее">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <!-- Область для изображения -->
+        <div class="modal-image-container">
+            <div class="image-wrapper" id="imageWrapper">
+                <img id="customModalImage"
+                     src=""
+                     alt=""
+                     class="modal-image">
+
+                <!-- Индикатор загрузки -->
+                <div class="modal-loader" id="customModalLoader">
+                    <div class="spinner"></div>
+                </div>
+
+                <!-- Подпись изображения -->
+                <div class="image-caption">
+                    <h5 id="customImageTitle"></h5>
+                    <div class="image-counter" id="customImageCounter"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопка "Вперед" -->
+        <button class="modal-nav-btn modal-next-btn" id="customNextBtn" aria-label="Следующее">
+            <i class="bi bi-chevron-right"></i>
+        </button>
+    </div>
+</div>
+
+<!-- JavaScript для предпросмотра -->
+<script>
+    // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ДЛЯ ГАЛЕРЕИ ==========
+    let galleryImages = [];
+    let currentImageIndex = 0;
+    let isAnimating = false;
+    let animationStartRect = null;
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    // Получаем элементы новой модалки
+    const customModal = document.getElementById('customGalleryModal');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const customPrevBtn = document.getElementById('customPrevBtn');
+    const customNextBtn = document.getElementById('customNextBtn');
+    const customModalImage = document.getElementById('customModalImage');
+    const customModalLoader = document.getElementById('customModalLoader');
+    const customImageTitle = document.getElementById('customImageTitle');
+    const customImageCounter = document.getElementById('customImageCounter');
+    const imageWrapper = document.getElementById('imageWrapper');
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Собираем все изображения (ТОЛЬКО превьюшки, основное не включаем)
+        initGallery();
+
+        // Настройка обработчиков для новой модалки
+        setupCustomModalHandlers();
+
+        // Настройка навигации
+        setupGalleryNavigation();
+
+        // Обработчики для превьюшек
+        setupThumbnailClickHandlers();
+
+        // ========== ОРИГИНАЛЬНЫЙ КОД (БИЗНЕС-ЛОГИКА) ==========
+        // Копирование ID в буфер обмена
+        window.copyToClipboard = function(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            element.select();
+            element.setSelectionRange(0, 99999);
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast('ID скопирован в буфер обмена', 'success');
+                }
+            } catch (err) {
+                console.error('Ошибка при копировании: ', err);
+            }
+        };
+
+        // Поделиться предпросмотром
+        window.sharePreview = function() {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    text: 'Предпросмотр элемента фото-галереи',
+                    url: window.location.href
+                })
+                .then(() => console.log('Успешный шаринг'))
+                .catch((error) => console.log('Ошибка шаринга:', error));
+            } else {
+                copyToClipboard('shareUrl');
+            }
+        };
+
+        // Показ toast-уведомлений
+        window.showToast = function(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-bg-${type} border-0 position-fixed`;
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.style.zIndex = '9999';
+
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="bi ${type === 'success' ? 'bi-check-circle' : 'bi-info-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+            bsToast.show();
+
+            toast.addEventListener('hidden.bs.toast', () => {
+                toast.remove();
+            });
+        };
+
+        // Инициализация при загрузке страницы
+        if (!navigator.share) {
+            const shareBtn = document.querySelector('button[onclick="sharePreview()"]');
+            if (shareBtn) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.id = 'shareUrl';
+                input.value = window.location.href;
+                input.style.position = 'absolute';
+                input.style.left = '-9999px';
+                document.body.appendChild(input);
+
+                shareBtn.querySelector('span').textContent = 'Копировать ссылку';
+            }
+        }
+    });
+
+    // ========== ФУНКЦИИ ДЛЯ ГАЛЕРЕИ (НОВАЯ РЕАЛИЗАЦИЯ) ==========
+    function initGallery() {
+        galleryImages = [];
+
+        // Собираем ТОЛЬКО превьюшки (пропускаем основное изображение)
+        document.querySelectorAll('.gallery-thumbnail').forEach((element, index) => {
+            galleryImages.push({
+                index: index,
+                src: element.getAttribute('data-image-src'),
+                full: element.getAttribute('data-image-full'),
+                title: element.getAttribute('data-image-title'),
+                element: element,
+                thumbnail: element.querySelector('.thumbnail-image')
+            });
+        });
+
+        console.log('Загружено превьюшек в галерею:', galleryImages.length);
+    }
+
+    function setupThumbnailClickHandlers() {
+        document.querySelectorAll('.gallery-thumbnail').forEach(element => {
+            element.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (isAnimating) return;
+
+                const clickedIndex = parseInt(this.getAttribute('data-image-index'));
+                showCustomImage(clickedIndex, this);
+            });
+        });
+    }
+
+    function setupCustomModalHandlers() {
+        // Закрытие по клику на оверлей
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === this && !isAnimating) {
+                closeCustomModal();
+            }
+        });
+
+        // Закрытие по кнопке
+        modalCloseBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (!isAnimating) {
+                closeCustomModal();
+            }
+        });
+
+        // Навигация
+        customPrevBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (!isAnimating && currentImageIndex > 0) {
+                navigateToImage(currentImageIndex - 1);
+            }
+        });
+
+        customNextBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (!isAnimating && currentImageIndex < galleryImages.length - 1) {
+                navigateToImage(currentImageIndex + 1);
+            }
+        });
+
+        // Закрытие по Escape
+        document.addEventListener('keydown', function(e) {
+            if (!customModal.classList.contains('active')) return;
+
+            if (e.key === 'Escape' && !isAnimating) {
+                closeCustomModal();
+            }
+        });
+
+        // Свайпы для мобильных
+        customModal.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].clientX;
+        }, { passive: true });
+
+        customModal.addEventListener('touchend', function(e) {
+            if (isAnimating) return;
+
+            touchEndX = e.changedTouches[0].clientX;
+            handleSwipeGesture();
+        }, { passive: true });
+    }
+
+    function showCustomImage(index, clickedElement = null) {
+        if (isAnimating || index < 0 || index >= galleryImages.length) return;
+
+        isAnimating = true;
+        currentImageIndex = index;
+        const image = galleryImages[index];
+
+        // Сохраняем позицию и размер превьюшки для анимации
+        if (clickedElement && clickedElement.querySelector('.thumbnail-image')) {
+            const thumbRect = clickedElement.querySelector('.thumbnail-image').getBoundingClientRect();
+            const modalRect = customModal.getBoundingClientRect();
+
+            // Вычисляем разницу для анимации
+            const scaleX = thumbRect.width / modalRect.width;
+            const scaleY = thumbRect.height / modalRect.height;
+            const startScale = Math.min(scaleX, scaleY) * 0.9;
+
+            const startX = (thumbRect.left + thumbRect.width/2) - (modalRect.left + modalRect.width/2);
+            const startY = (thumbRect.top + thumbRect.height/2) - (modalRect.top + modalRect.height/2);
+
+            // Сохраняем данные для анимации
+            animationStartRect = {
+                scale: startScale,
+                x: startX,
+                y: startY,
+                borderRadius: '8px'
+            };
+
+            // Применяем начальные стили для анимации
+            customModalImage.style.setProperty('--start-scale', startScale);
+            customModalImage.style.setProperty('--start-x', startX + 'px');
+            customModalImage.style.setProperty('--start-y', startY + 'px');
+            customModalImage.style.setProperty('--start-radius', animationStartRect.borderRadius);
+        }
+
+        // Скрываем изображение и показываем загрузчик
+        customModalImage.classList.remove('loaded');
+        customModalLoader.style.display = 'flex';
+        customModalImage.style.opacity = '0';
+
+        // Устанавливаем информацию
+        customImageTitle.textContent = image.title;
+        customImageCounter.textContent = `${index + 1} / ${galleryImages.length}`;
+
+        // Загружаем изображение
+        const img = new Image();
+        img.onload = function() {
+            // Устанавливаем изображение
+            customModalImage.src = image.full || image.src;
+            customModalImage.alt = image.title;
+
+            // Показываем модалку
+            customModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Небольшая задержка для начала анимации
+            setTimeout(() => {
+                // Запускаем анимацию открытия
+                if (animationStartRect) {
+                    customModalImage.classList.add('animating-open');
+
+                    customModalImage.addEventListener('animationend', function onOpenEnd() {
+                        customModalImage.classList.remove('animating-open');
+                        customModalImage.removeEventListener('animationend', onOpenEnd);
+
+                        // Показываем изображение
+                        customModalLoader.style.display = 'none';
+                        customModalImage.classList.add('loaded');
+                        customModalImage.style.opacity = '1';
+
+                        isAnimating = false;
+                        updateNavigationButtons();
+                    }, { once: true });
+                } else {
+                    // Без анимации из превьюшки
+                    customModalLoader.style.display = 'none';
+                    customModalImage.classList.add('loaded');
+                    customModalImage.style.opacity = '1';
+                    isAnimating = false;
+                    updateNavigationButtons();
+                }
+            }, 50);
+        };
+
+        img.onerror = function() {
+            customModalLoader.style.display = 'none';
+            customModalImage.src = '';
+            customModalImage.alt = 'Ошибка загрузки изображения';
+            customImageTitle.textContent = 'Ошибка загрузки изображения';
+            isAnimating = false;
+        };
+
+        img.src = image.full || image.src;
+    }
+
+    function closeCustomModal() {
+        if (isAnimating) return;
+
+        isAnimating = true;
+        const currentImage = galleryImages[currentImageIndex];
+
+        if (currentImage && currentImage.element && animationStartRect) {
+            // Применяем конечные стили для анимации
+            customModalImage.style.setProperty('--end-scale', animationStartRect.scale);
+            customModalImage.style.setProperty('--end-x', animationStartRect.x + 'px');
+            customModalImage.style.setProperty('--end-y', animationStartRect.y + 'px');
+            customModalImage.style.setProperty('--end-radius', animationStartRect.borderRadius);
+
+            // Запускаем анимацию закрытия
+            customModalImage.classList.add('animating-close');
+
+            customModalImage.addEventListener('animationend', function onCloseEnd() {
+                customModalImage.classList.remove('animating-close');
+                customModalImage.removeEventListener('animationend', onCloseEnd);
+
+                // Скрываем модалку
+                customModal.classList.remove('active');
+                document.body.style.overflow = '';
+
+                // Сбрасываем стили
+                customModalImage.classList.remove('loaded');
+                customModalImage.style.opacity = '0';
+                customModalImage.src = '';
+
+                // Сбрасываем данные анимации
+                animationStartRect = null;
+
+                isAnimating = false;
+            }, { once: true });
+        } else {
+            // Без анимации возврата
+            customModal.classList.remove('active');
+            document.body.style.overflow = '';
+            customModalImage.classList.remove('loaded');
+            customModalImage.style.opacity = '0';
+            customModalImage.src = '';
+            animationStartRect = null;
+            isAnimating = false;
+        }
+    }
+
+    function navigateToImage(newIndex) {
+        if (isAnimating || newIndex < 0 || newIndex >= galleryImages.length) return;
+
+        isAnimating = true;
+
+        // Анимация выхода текущего изображения
+        customModalImage.classList.add('image-exit');
+
+        customModalImage.addEventListener('animationend', function onExitEnd() {
+            customModalImage.classList.remove('image-exit');
+            customModalImage.removeEventListener('animationend', onExitEnd);
+
+            // Меняем индекс
+            currentImageIndex = newIndex;
+            const image = galleryImages[newIndex];
+
+            // Скрываем изображение и показываем загрузчик
+            customModalImage.classList.remove('loaded');
+            customModalLoader.style.display = 'flex';
+            customModalImage.style.opacity = '0';
+
+            // Обновляем информацию
+            customImageTitle.textContent = image.title;
+            customImageCounter.textContent = `${newIndex + 1} / ${galleryImages.length}`;
+
+            // Загружаем новое изображение
+            const img = new Image();
+            img.onload = function() {
+                customModalImage.src = image.full || image.src;
+                customModalImage.alt = image.title;
+
+                // Анимация входа нового изображения
+                setTimeout(() => {
+                    customModalImage.classList.add('image-enter');
+                    customModalLoader.style.display = 'none';
+
+                    customModalImage.addEventListener('animationend', function onEnterEnd() {
+                        customModalImage.classList.remove('image-enter');
+                        customModalImage.removeEventListener('animationend', onEnterEnd);
+
+                        customModalImage.classList.add('loaded');
+                        customModalImage.style.opacity = '1';
+                        isAnimating = false;
+                        updateNavigationButtons();
+                    }, { once: true });
+                }, 50);
+            };
+
+            img.onerror = function() {
+                customModalLoader.style.display = 'none';
+                customModalImage.src = '';
+                customModalImage.alt = 'Ошибка загрузки изображения';
+                customImageTitle.textContent = 'Ошибка загрузки изображения';
+                isAnimating = false;
+            };
+
+            img.src = image.full || image.src;
+
+        }, { once: true });
+    }
+
+    function updateNavigationButtons() {
+        // Обновляем состояние кнопок навигации
+        customPrevBtn.style.opacity = currentImageIndex === 0 ? '0.3' : '0.8';
+        customPrevBtn.disabled = currentImageIndex === 0;
+
+        customNextBtn.style.opacity = currentImageIndex === galleryImages.length - 1 ? '0.3' : '0.8';
+        customNextBtn.disabled = currentImageIndex === galleryImages.length - 1;
+    }
+
+    function setupGalleryNavigation() {
+        // Навигация клавишами
+        document.addEventListener('keydown', function(e) {
+            if (!customModal.classList.contains('active') || isAnimating) return;
+
+            switch(e.key) {
+                case 'ArrowLeft':
+                    if (currentImageIndex > 0) {
+                        e.preventDefault();
+                        navigateToImage(currentImageIndex - 1);
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (currentImageIndex < galleryImages.length - 1) {
+                        e.preventDefault();
+                        navigateToImage(currentImageIndex + 1);
+                    }
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    closeCustomModal();
+                    break;
+            }
+        });
+    }
+
+    function handleSwipeGesture() {
+        if (isAnimating) return;
+
+        const swipeThreshold = 50;
+        const diff = touchStartX - touchEndX;
+
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0 && currentImageIndex < galleryImages.length - 1) {
+                // Свайп влево - следующее изображение
+                navigateToImage(currentImageIndex + 1);
+            } else if (diff < 0 && currentImageIndex > 0) {
+                // Свайп вправо - предыдущее изображение
+                navigateToImage(currentImageIndex - 1);
+            }
+        }
+    }
+</script>
+
+<!-- Стили для предпросмотра -->
+<style>
+    /* ========== ОБЩИЕ СТИЛИ ========== */
+    .badge {
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    /* ========== СТИЛИ ДЛЯ ИЗОБРАЖЕНИЙ ========== */
+    /* Основное изображение - не кликабельное */
+    .main-image-container {
+        cursor: default;
+    }
+
+    .main-image {
+        transition: transform 0.3s ease;
+    }
+
+    .main-image:hover {
+        transform: scale(1.01);
+    }
+
+    /* Контейнер для превьюшек */
+    .thumbnail-container {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+    }
+
+    /* Эффект увеличения при наведении на превьюшки */
+    .thumbnail-container:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+        z-index: 10;
+    }
+
+    /* Превьюшка */
+    .gallery-thumbnail {
+        cursor: pointer;
+        display: block;
+        height: 150px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Изображение превьюшки */
+    .thumbnail-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .thumbnail-container:hover .thumbnail-image {
+        transform: scale(1.1);
+    }
+
+    /* Бейдж для основного изображения */
+    .thumbnail-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+    }
+
+    .thumbnail-badge .badge {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Информация под превьюшкой */
+    .thumbnail-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+        padding: 12px;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .thumbnail-container:hover .thumbnail-info {
+        transform: translateY(0);
+    }
+
+    .thumbnail-filename {
+        color: white;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.85rem;
+    }
+
+    .thumbnail-size {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.75rem;
+    }
+
+    /* ========== КАСТОМНОЕ МОДАЛЬНОЕ ОКНО ========== */
+    .custom-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .custom-modal.active {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Полупрозрачный оверлей */
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.92);
+        backdrop-filter: blur(8px);
+        opacity: 0;
+        transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .custom-modal.active .modal-overlay {
+        opacity: 1;
+    }
+
+    /* Кнопка закрытия */
+    .modal-close-btn {
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.12);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        transform: scale(0.8) rotate(90deg);
+    }
+
+    .custom-modal.active .modal-close-btn {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+        transition-delay: 0.2s;
+    }
+
+    .modal-close-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1) rotate(90deg);
+    }
+
+    /* Контейнер для навигации */
+    .modal-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 100px;
+        box-sizing: border-box;
+    }
+
+    /* Кнопки навигации */
+    .modal-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.12);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 1.8rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 10000;
+        opacity: 0;
+    }
+
+    .custom-modal.active .modal-nav-btn {
+        opacity: 0.8;
+        transition-delay: 0.3s;
+    }
+
+    .modal-prev-btn {
+        left: 30px;
+        transform: translateY(-50%) translateX(-20px);
+    }
+
+    .modal-next-btn {
+        right: 30px;
+        transform: translateY(-50%) translateX(20px);
+    }
+
+    .custom-modal.active .modal-prev-btn {
+        transform: translateY(-50%) translateX(0);
+    }
+
+    .custom-modal.active .modal-next-btn {
+        transform: translateY(-50%) translateX(0);
+    }
+
+    .modal-nav-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        opacity: 1 !important;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    /* Контейнер изображения */
+    .modal-image-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .image-wrapper {
+        position: relative;
+        max-width: 90%;
+        max-height: 90%;
+        opacity: 0;
+        transform: scale(0.95);
+        transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .custom-modal.active .image-wrapper {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Само изображение */
+    .modal-image {
+        max-width: 100%;
+        max-height: 85vh;
+        object-fit: contain;
+        border-radius: 4px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transform: scale(0.9);
+        transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-image.loaded {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Индикатор загрузки */
+    .modal-loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-loader .spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Подпись изображения */
+    .image-caption {
+        position: absolute;
+        bottom: -60px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        color: white;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.4s ease;
+        transition-delay: 0.2s;
+    }
+
+    .custom-modal.active .image-caption {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .image-caption h5 {
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+        font-weight: 500;
+        opacity: 0.9;
+    }
+
+    .image-counter {
+        font-size: 0.9rem;
+        opacity: 0.7;
+    }
+
+    /* Анимация для смены изображений */
+    .image-exit {
+        animation: slideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .image-enter {
+        animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes slideOut {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: scale(1.05);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Анимация открытия из превьюшки */
+    @keyframes openFromThumbnail {
+        0% {
+            transform: scale(var(--start-scale)) translate(var(--start-x), var(--start-y));
+            border-radius: var(--start-radius);
+        }
+        100% {
+            transform: scale(1) translate(0, 0);
+            border-radius: 4px;
+        }
+    }
+
+    /* Анимация закрытия к превьюшке */
+    @keyframes closeToThumbnail {
+        0% {
+            transform: scale(1) translate(0, 0);
+            border-radius: 4px;
+        }
+        100% {
+            transform: scale(var(--end-scale)) translate(var(--end-x), var(--end-y));
+            border-radius: var(--end-radius);
+            opacity: 0;
+        }
+    }
+
+    /* Классы для анимаций */
+    .animating-open {
+        animation: openFromThumbnail 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .animating-close {
+        animation: closeToThumbnail 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    /* ========== АДАПТИВНОСТЬ ========== */
+    @media (max-width: 992px) {
+        .modal-container {
+            padding: 80px 60px;
+        }
+
+        .modal-nav-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+        }
+
+        .modal-prev-btn {
+            left: 15px;
+        }
+
+        .modal-next-btn {
+            right: 15px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .modal-container {
+            padding: 80px 20px;
+        }
+
+        .image-wrapper {
+            max-width: 95%;
+            max-height: 95%;
+        }
+
+        .modal-close-btn {
+            top: 15px;
+            right: 15px;
+            width: 45px;
+            height: 45px;
+        }
+
+        .modal-nav-btn {
+            opacity: 0.6;
+            width: 45px;
+            height: 45px;
+        }
+
+        .image-caption {
+            bottom: -50px;
+        }
+
+        .image-caption h5 {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .modal-nav-btn {
+            display: none !important;
+        }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.96);
+        }
+
+        .thumbnail-container:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .thumbnail-info {
+            transform: translateY(0);
+            padding: 8px;
+        }
+
+        .gallery-thumbnail {
+            height: 120px;
+        }
+    }
+
+    /* ========== СТИЛИ ДЛЯ ПЕЧАТИ ========== */
+    @media print {
+        .breadcrumb,
+        .btn,
+        .card-header,
+        .badge.bg-warning,
+        .thumbnail-badge,
+        .thumbnail-info,
+        .custom-modal {
+            display: none !important;
+        }
+
+        .card {
+            border: 1px solid #dee2e6 !important;
+            box-shadow: none !important;
+        }
+
+        .container-fluid {
+            max-width: 100% !important;
+            padding: 0 !important;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: #000 !important;
+        }
+
+        .thumbnail-container {
+            break-inside: avoid;
+            border: 1px solid #ddd !important;
+        }
+    }
+</style>
+</body>
+</html>

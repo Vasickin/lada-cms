@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<!--
+    PUBLIC PHOTO GALLERY PAGE / ПУБЛИЧНАЯ СТРАНИЦА ФОТО-ГАЛЕРЕИ
+    Beautiful photo gallery with filtering by year and title search
+    Красивая фото-галерея с фильтрацией по году и поиском по названию
+
+    Fragment Usage / Использование фрагментов:
+    - Header: Meta tags, SEO optimization, CSS styles
+    - Navigation: Main menu with active states and Spring Security
+    - Banner: Responsive header images with accessibility
+    - Footer: Complete contact information and links
+    - Scripts: JavaScript functionality and Bootstrap
+-->
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- HEADER FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА ХЕДЕРА -->
+<head th:replace="fragments/header :: html-head('Фото-галерея')">
+    <!-- Content will be replaced by header fragment / Контент будет заменен фрагментом хедера -->
+</head>
+
+<body>
+<!-- NAVIGATION FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА НАВИГАЦИИ -->
+<div th:replace="fragments/navigation :: main-navigation"></div>
+
+<!-- BANNER FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА БАННЕРА -->
+<div th:replace="fragments/banner :: header-banner('Общественная организация Лада - Фото-галерея мероприятий и проектов')"></div>
+
+<!--
+    MAIN CONTENT SECTION / СЕКЦИЯ ОСНОВНОГО КОНТЕНТА
+    Beautiful photo gallery with filtering, search and masonry grid
+    Красивая фото-галерея с фильтрами, поиском и masonry сеткой
+-->
+<main class="container my-5 py-4">
+    <!--
+        PAGE HEADER SECTION / СЕКЦИЯ ЗАГОЛОВКА СТРАНИЦЫ
+        Main title and description for the gallery page
+        Основной заголовок и описание для страницы галереи
+    -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="section-title">Фото-галерея</h1>
+            <p class="lead text-muted">Фотографии с наших мероприятий, проектов и событий. Все галереи отсортированы по годам.</p>
+        </div>
+    </div>
+
+    <!--
+        FILTERS AND SEARCH SECTION / СЕКЦИЯ ФИЛЬТРОВ И ПОИСКА
+        Year filter, category filter and search functionality
+        Фильтр по годам, категориям и функция поиска
+    -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <!-- Search by title -->
+                        <div class="col-lg-4 mb-3 mb-lg-0">
+                            <form th:action="@{/photo-gallery}" method="get" class="search-form">
+                                <div class="input-group">
+                                    <input type="text"
+                                           class="form-control form-control-lg border-end-0"
+                                           placeholder="Поиск по названию галереи..."
+                                           name="search"
+                                           th:value="${selectedSearch ?: ''}"
+                                           aria-label="Поиск галерей">
+                                    <button class="btn btn-primary btn-lg border-start-0" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Year filter -->
+                        <div class="col-lg-4 mb-3 mb-lg-0">
+                            <form th:action="@{/photo-gallery}" method="get" class="year-filter-form">
+                                <div class="input-group">
+                                    <select class="form-select form-select-lg" name="year" onchange="this.form.submit()">
+                                        <option value="">Все года</option>
+                                        <option th:each="year : ${availableYears}"
+                                                th:value="${year}"
+                                                th:text="${year}"
+                                                th:selected="${selectedYear == year}">
+                                        </option>
+                                    </select>
+                                    <span class="input-group-text bg-transparent border-start-0">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </span>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Category filter -->
+                        <div class="col-lg-4">
+                            <form th:action="@{/photo-gallery}" method="get" class="category-filter-form">
+                                <div class="input-group">
+                                    <select class="form-select form-select-lg" name="category" onchange="this.form.submit()">
+                                        <option value="">Все категории</option>
+                                        <option th:each="category : ${allCategories}"
+                                                th:value="${category}"
+                                                th:text="${category}"
+                                                th:selected="${selectedCategory == category}">
+                                        </option>
+                                    </select>
+                                    <span class="input-group-text bg-transparent border-start-0">
+                                        <i class="fas fa-tags"></i>
+                                    </span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Active filters display -->
+                    <div th:if="${selectedYear != null or selectedCategory != null}" class="mt-3">
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-primary p-2">
+                                <i class="fas fa-filter me-1"></i>
+                                Активные фильтры:
+                            </span>
+                            <span th:if="${selectedYear != null}"
+                                  class="badge bg-info p-2 d-flex align-items-center">
+                                Год: <span th:text="${selectedYear}" class="ms-1"></span>
+                                <a th:href="@{/photo-gallery}" class="text-white ms-2">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </span>
+                            <span th:if="${selectedCategory != null}"
+                                  class="badge bg-success p-2 d-flex align-items-center">
+                                Категория: <span th:text="${selectedCategory}" class="ms-1"></span>
+                                <a th:href="@{/photo-gallery}" class="text-white ms-2">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </span>
+                            <a th:href="@{/photo-gallery}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-times-circle me-1"></i> Сбросить все
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--
+        GALLERY CONTENT SECTION / СЕКЦИЯ СОДЕРЖАНИЯ ГАЛЕРЕИ
+        Masonry grid with photo gallery cards
+        Masonry сетка с карточками фото-галерей
+    -->
+    <div class="row">
+        <!-- Statistics and info -->
+        <div class="col-12 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+            <span class="text-muted">
+                <i class="fas fa-images me-1"></i>
+                Найдено галерей: <span class="fw-bold" th:text="${totalItems}">0</span>
+            </span>
+                </div>
+                <div th:if="${totalItems > 0}" class="text-muted">
+            <span class="me-3">
+                <i class="fas fa-camera me-1"></i>
+                Всего фото: <span class="fw-bold" th:text="${totalPhotos}">0</span>
+            </span>
+                    <span>
+                <i class="fas fa-calendar me-1"></i>
+                Период:
+                <span th:if="${availableYears != null and not availableYears.empty}">
+                    <span th:text="${availableYears[0]}"></span> - <span th:text="${availableYears[availableYears.size() - 1]}"></span>
+                </span>
+            </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gallery cards grid -->
+        <div th:if="${hasContent}">
+            <!-- Masonry grid container -->
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" data-masonry='{"percentPosition": true}'>
+                <!-- Gallery card template -->
+                <div th:each="gallery : ${galleries}" class="col">
+                    <div class="card gallery-card h-100 shadow-sm border-0 hover-lift">
+                        <!-- Gallery image -->
+                        <div class="gallery-image-container position-relative">
+                            <!-- Placeholder if no images -->
+                            <div th:unless="${gallery.hasImages()}" class="placeholder-image">
+                                <div class="placeholder-content">
+                                    <i class="fas fa-images fa-3x text-muted"></i>
+                                    <p class="mt-2 text-muted">Нет изображений</p>
+                                </div>
+                            </div>
+
+                            <!-- Actual image if available -->
+                            <img th:if="${gallery.hasImages() and gallery.images[0].publicWebPath != null}"
+                                 th:src="${gallery.images[0].publicWebPath}"
+                                 class="card-img-top gallery-img"
+                                 th:alt="${gallery.title}"
+                                 loading="lazy">
+
+                            <!-- Image overlay with info -->
+                            <div class="gallery-overlay">
+                                <div class="overlay-content">
+                                    <span class="badge bg-primary mb-2">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        <span th:text="${gallery.year}"></span>
+                                    </span>
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-image me-1"></i>
+                                        <span th:text="${gallery.imagesCount}"></span> фото
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card body -->
+                        <div class="card-body">
+                            <h5 class="card-title gallery-title">
+                                <a th:href="@{/photo-gallery/{id}(id=${gallery.id})}"
+                                   class="text-decoration-none text-dark">
+                                    <span th:text="${gallery.title}"></span>
+                                </a>
+                            </h5>
+
+                            <!-- Description -->
+                            <p class="card-text text-muted gallery-description"
+                               th:if="${gallery.description != null and gallery.description.length() > 0}"
+                               th:text="${#strings.abbreviate(gallery.description, 120)}">
+                            </p>
+
+
+
+                            <!-- Stats -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-images me-1"></i>
+                                    <span th:text="${gallery.imagesCount}"></span> фото
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    <span th:text="${gallery.year}"></span>
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Card footer -->
+                        <div class="card-footer bg-transparent border-top-0">
+                            <a th:href="@{/photo-gallery/{id}(id=${gallery.id})}"
+                               class="btn btn-outline-primary w-100">
+                                <i class="fas fa-eye me-1"></i> Смотреть галерею
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--
+                PAGINATION SECTION / СЕКЦИЯ ПАГИНАЦИИ
+                Bootstrap pagination for gallery navigation
+                Пагинация Bootstrap для навигации по галереям
+            -->
+            <div th:if="${totalPages > 1}" class="row mt-5">
+                <div class="col-12">
+                    <nav aria-label="Навигация по галереям">
+                        <ul class="pagination justify-content-center">
+                            <!-- Previous page -->
+                            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                                <a class="page-link"
+                                   th:href="@{/photo-gallery(page=${currentPage - 1}, size=${pageSize}, year=${selectedYear}, category=${selectedCategory})}"
+                                   aria-label="Предыдущая">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            <!-- Page numbers -->
+                            <li th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                                class="page-item"
+                                th:classappend="${pageNum == currentPage} ? 'active' : ''">
+                                <a class="page-link"
+                                   th:href="@{/photo-gallery(page=${pageNum}, size=${pageSize}, year=${selectedYear}, category=${selectedCategory})}"
+                                   th:text="${pageNum + 1}">
+                                </a>
+                            </li>
+
+                            <!-- Next page -->
+                            <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                                <a class="page-link"
+                                   th:href="@{/photo-gallery(page=${currentPage + 1}, size=${pageSize}, year=${selectedYear}, category=${selectedCategory})}"
+                                   aria-label="Следующая">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!--
+            EMPTY STATE / СОСТОЯНИЕ ПУСТОТЫ
+            Displayed when no galleries are found
+            Отображается когда галереи не найдены
+        -->
+        <div th:unless="${hasContent}" class="col-12">
+            <div class="text-center py-5 my-5">
+                <div class="empty-state-icon mb-4">
+                    <i class="fas fa-images fa-4x text-muted"></i>
+                </div>
+                <h3 class="text-muted mb-3">Галереи не найдены</h3>
+                <p class="text-muted mb-4">
+                    <span th:if="${selectedYear != null or selectedCategory != null or (selectedSearch != null and selectedSearch != '')}">
+                        По вашему запросу ничего не найдено. Попробуйте изменить параметры поиска.
+                    </span>
+                    <span th:unless="${selectedYear != null or selectedCategory != null or (selectedSearch != null and selectedSearch != '')}">
+                        В данный момент нет доступных фото-галерей. Загляните позже!
+                    </span>
+                </p>
+                <a th:href="@{/photo-gallery}" class="btn btn-primary">
+                    <i class="fas fa-sync-alt me-1"></i> Показать все галереи
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!--
+        GALLERY TIPS SECTION / СЕКЦИЯ СОВЕТОВ ПО ГАЛЕРЕЕ
+        Helpful information for users
+        Полезная информация для пользователей
+    -->
+    <div th:if="${hasContent}" class="row mt-5 pt-5">
+        <div class="col-12">
+            <div class="card bg-light border-0">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-1 text-center mb-3 mb-md-0">
+                            <i class="fas fa-lightbulb fa-2x text-warning"></i>
+                        </div>
+                        <div class="col-md-11">
+                            <h5 class="card-title">Советы по использованию галереи</h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p class="mb-1"><i class="fas fa-search text-primary me-2"></i>Используйте поиск по названию</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="mb-1"><i class="fas fa-filter text-success me-2"></i>Фильтруйте галереи по году и категориям</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p class="mb-1"><i class="fas fa-images text-info me-2"></i>Нажмите на карточку для просмотра всех фото</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!--
+    FOOTER FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА ФУТЕРА
+    Footer with contact information, social links and copyright
+    Футер с контактной информацией, ссылками на соцсети и копирайтом
+-->
+<footer th:replace="fragments/footer :: main-footer"></footer>
+
+<!--
+    SCRIPTS FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА СКРИПТОВ
+    JavaScript libraries, Bootstrap JS and custom scripts
+    JavaScript библиотеки, Bootstrap JS и пользовательские скрипты
+-->
+<div th:replace="fragments/scripts :: main-scripts"></div>
+
+<!--
+    CUSTOM GALLERY STYLES AND SCRIPTS / ПОЛЬЗОВАТЕЛЬСКИЕ СТИЛИ И СКРИПТЫ ДЛЯ ГАЛЕРЕИ
+    Additional styling and functionality for gallery page
+    Дополнительные стили и функциональность для страницы галереи
+-->
+<style>
+    /* Gallery card hover effects */
+    .gallery-card {
+        transition: all 0.3s ease;
+        overflow: hidden;
+        border-radius: 12px;
+    }
+
+    .gallery-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .gallery-card .gallery-image-container {
+        height: 250px;
+        overflow: hidden;
+        background-color: #f8f9fa;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .gallery-card .gallery-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .gallery-card:hover .gallery-img {
+        transform: scale(1.05);
+    }
+
+    .gallery-card .placeholder-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+
+    .gallery-card .placeholder-content {
+        text-align: center;
+        color: #6c757d;
+    }
+
+    .gallery-card .gallery-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+        padding: 15px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .gallery-card:hover .gallery-overlay {
+        opacity: 1;
+    }
+
+    .gallery-card .overlay-content {
+        color: white;
+    }
+
+    .gallery-card .gallery-title {
+        font-weight: 600;
+        margin-bottom: 10px;
+        line-height: 1.3;
+    }
+
+    .gallery-card .gallery-title a:hover {
+        color: #0d6efd !important;
+    }
+
+    .gallery-card .gallery-description {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 15px;
+        color: #6c757d;
+    }
+
+    /* Search and filter forms */
+    .search-form .input-group {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .search-form input {
+        border-radius: 10px 0 0 10px !important;
+    }
+
+    .search-form button {
+        border-radius: 0 10px 10px 0 !important;
+    }
+
+    .year-filter-form .input-group,
+    .category-filter-form .input-group {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .year-filter-form select,
+    .category-filter-form select {
+        border-radius: 10px !important;
+    }
+
+    /* Empty state styling */
+    .empty-state-icon {
+        opacity: 0.5;
+    }
+
+    /* Badge styling */
+    .badge {
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+
+    /* Masonry grid adjustments */
+    [data-masonry] {
+        margin: 0 auto;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .gallery-card .gallery-image-container {
+            height: 200px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .gallery-card .gallery-image-container {
+            height: 180px;
+        }
+
+        .search-form,
+        .year-filter-form,
+        .category-filter-form {
+            margin-bottom: 15px;
+        }
+    }
+</style>
+
+<!-- Masonry layout script -->
+<script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script>
+<script>
+    // Initialize masonry layout
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize masonry
+        var grid = document.querySelector('[data-masonry]');
+        if (grid) {
+            var msnry = new Masonry(grid, {
+                itemSelector: '.col',
+                percentPosition: true,
+                transitionDuration: '0.2s'
+            });
+
+            // Refresh masonry after images load
+            imagesLoaded(grid, function() {
+                msnry.layout();
+            });
+        }
+
+        // Add loading state to cards
+        document.querySelectorAll('.gallery-card').forEach(function(card) {
+            card.addEventListener('click', function() {
+                this.classList.add('loading');
+            });
+        });
+
+        // Filter form enhancements
+        document.querySelectorAll('select[name="year"], select[name="category"]').forEach(function(select) {
+            select.addEventListener('change', function() {
+                this.form.classList.add('submitting');
+            });
+        });
+    });
+
+    // Helper function for image loading detection
+    var imagesLoaded = function(container, callback) {
+        var images = container.querySelectorAll('img');
+        var loaded = 0;
+
+        if (images.length === 0) {
+            callback();
+            return;
+        }
+
+        images.forEach(function(img) {
+            if (img.complete) {
+                imageLoaded();
+            } else {
+                img.addEventListener('load', imageLoaded);
+                img.addEventListener('error', imageLoaded);
+            }
+        });
+
+        function imageLoaded() {
+            loaded++;
+            if (loaded === images.length) {
+                callback();
+            }
+        }
+    };
+</script>
+
+</body>
+</html>

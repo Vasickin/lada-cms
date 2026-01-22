@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Создание партнера - Админ панель</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        .partner-form-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .logo-preview {
+            width: 150px;
+            height: 150px;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: #f8f9fa;
+            margin: 0 auto 20px;
+        }
+
+        .logo-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .logo-preview-placeholder {
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .logo-preview-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            color: #0d6efd;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container-fluid partner-form-container">
+        <!-- ========== ЗАГОЛОВОК ========== -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-0">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Создание нового партнера
+                        </h1>
+                        <p class="text-muted mb-0 mt-1">
+                            Заполните информацию о партнерской организации
+                        </p>
+                    </div>
+                    <div>
+                        <a th:href="@{/admin/partners}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Назад к списку
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ФОРМА СОЗДАНИЯ ========== -->
+        <div class="row">
+            <div class="col-12">
+                <form th:action="@{/admin/partners/create}" method="post" th:object="${partner}" enctype="multipart/form-data" class="needs-validation" novalidate>
+
+                    <!-- ========== ОСНОВНАЯ ИНФОРМАЦИЯ ========== -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Основная информация
+                        </h3>
+
+                        <div class="row">
+                            <!-- Название организации -->
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-building me-1"></i>Название организации *
+                                </label>
+                                <input type="text"
+                                       th:field="*{name}"
+                                       class="form-control"
+                                       placeholder="Введите название организации"
+                                       required>
+                                <div class="invalid-feedback">
+                                    Пожалуйста, введите название организации.
+                                </div>
+                                <div th:if="${#fields.hasErrors('name')}" class="text-danger small mt-1">
+                                    <span th:errors="*{name}"></span>
+                                </div>
+                            </div>
+
+                            <!-- Тип партнерства -->
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-tag me-1"></i>Тип партнерства
+                                </label>
+                                <select th:field="*{type}" class="form-select">
+                                    <option value="">Выберите тип</option>
+                                    <option th:each="type : ${partnerTypes}"
+                                            th:value="${type}"
+                                            th:text="${type.displayName}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Описание -->
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-card-text me-1"></i>Описание партнера
+                                </label>
+                                <textarea th:field="*{description}"
+                                          class="form-control"
+                                          rows="4"
+                                          placeholder="Опишите деятельность партнера, сотрудничество и т.д."></textarea>
+                                <div class="form-text">
+                                    Поддерживает HTML разметку. Можно использовать для форматирования текста.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== ЛОГОТИП ========== -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="bi bi-image me-2"></i>
+                            Логотип партнера
+                        </h3>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <!-- Preview логотипа -->
+                                <div class="logo-preview" id="logoPreview">
+                                    <div class="logo-preview-placeholder">
+                                        <i class="bi bi-image"></i>
+                                        <div>Логотип не выбран</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">
+                                        Загрузка логотипа
+                                    </label>
+                                    <input type="file"
+                                           name="logoFile"
+                                           id="logoFile"
+                                           accept=".jpg,.jpeg,.png,.gif,.webp"
+                                           class="form-control"
+                                           onchange="previewLogo(this)">
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Поддерживаемые форматы: JPG, PNG, GIF, WEBP. Максимальный размер: 10MB.
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="bi bi-lightbulb me-1"></i>
+                                        Рекомендуемый размер: 400×400 пикселей.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== КОНТАКТНАЯ ИНФОРМАЦИЯ ========== -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="bi bi-person-lines-fill me-2"></i>
+                            Контактная информация
+                        </h3>
+
+                        <div class="row">
+                            <!-- Контактное лицо -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-person me-1"></i>Контактное лицо
+                                </label>
+                                <input type="text"
+                                       th:field="*{contactPerson}"
+                                       class="form-control"
+                                       placeholder="ФИО контактного лица">
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-envelope me-1"></i>Email для контактов
+                                </label>
+                                <input type="email"
+                                       th:field="*{contactEmail}"
+                                       class="form-control"
+                                       placeholder="email@example.com">
+                            </div>
+
+                            <!-- Телефон -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-telephone me-1"></i>Телефон
+                                </label>
+                                <input type="tel"
+                                       th:field="*{contactPhone}"
+                                       class="form-control"
+                                       placeholder="+7 (XXX) XXX-XX-XX">
+                            </div>
+
+                            <!-- Сайт -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-globe me-1"></i>Веб-сайт
+                                </label>
+                                <input type="url"
+                                       th:field="*{website}"
+                                       class="form-control"
+                                       placeholder="https://example.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== НАСТРОЙКИ ========== -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="bi bi-gear me-2"></i>
+                            Настройки отображения
+                        </h3>
+
+                        <div class="row">
+                            <!-- Порядок сортировки -->
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-sort-numeric-down me-1"></i>Порядок сортировки
+                                </label>
+                                <input type="number"
+                                       th:field="*{sortOrder}"
+                                       class="form-control"
+                                       min="0"
+                                       max="1000"
+                                       value="0">
+                                <div class="form-text">
+                                    Меньшее число = выше в списке
+                                </div>
+                            </div>
+
+                            <!-- Статус -->
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-toggle-on me-1"></i>Статус
+                                </label>
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           role="switch"
+                                           th:field="*{active}"
+                                           checked>
+                                    <label class="form-check-label">
+                                        <span class="badge bg-success">Активен</span>
+                                    </label>
+                                </div>
+                                <div class="form-text">
+                                    Неактивные партнеры не отображаются на сайте
+                                </div>
+                            </div>
+
+                            <!-- Проекты (если есть в модели) -->
+                            <div class="col-md-4 mb-3" th:if="${allProjects != null and !allProjects.isEmpty()}">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-diagram-3 me-1"></i>Проекты
+                                </label>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Проекты можно добавить после создания партнера
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== КНОПКИ ========== -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/admin/partners}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Отмена
+                                </a>
+                                <div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        Создать партнера
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== SCRIPTS ========== -->
+<script>
+    // Preview логотипа
+    function previewLogo(input) {
+        const preview = document.getElementById('logoPreview');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Валидация формы
+    (function() {
+        'use strict';
+
+        // Получаем все формы, которые нужно валидировать
+        const forms = document.querySelectorAll('.needs-validation');
+
+        // Перебираем их и предотвращаем отправку
+        Array.from(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+
+    // Автосохранение в localStorage (опционально)
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const formFields = form.querySelectorAll('input, textarea, select');
+
+        // Загружаем сохраненные данные
+        formFields.forEach(field => {
+            const savedValue = localStorage.getItem(`partner_form_${field.name}`);
+            if (savedValue && !field.value) {
+                field.value = savedValue;
+            }
+        });
+
+        // Сохраняем при изменении
+        formFields.forEach(field => {
+            field.addEventListener('input', function() {
+                localStorage.setItem(`partner_form_${this.name}`, this.value);
+            });
+        });
+
+        // Очищаем при успешной отправке
+        form.addEventListener('submit', function() {
+            formFields.forEach(field => {
+                localStorage.removeItem(`partner_form_${field.name}`);
+            });
+        });
+    });
+</script>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

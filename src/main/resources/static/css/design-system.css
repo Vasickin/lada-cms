@@ -1,0 +1,861 @@
+/*
+ * LADA COMMUNITY CMS - DESIGN SYSTEM
+ * ОБЩЕСТВЕННАЯ CMS "ЛАДА" - ДИЗАЙН-СИСТЕМА
+ *
+ * Comprehensive design system with bilingual comments
+ * Комплексная дизайн-система с двуязычными комментариями
+ */
+
+/* ================================================================= */
+/* DESIGN TOKENS - ОСНОВНЫЕ ПЕРЕМЕННЫЕ ДИЗАЙНА */
+/* ================================================================= */
+
+:root {
+    /* ================================================================= */
+    /* COLOR PALETTE - ЦВЕТОВАЯ ПАЛИТРА */
+    /* ================================================================= */
+
+    /*
+     * Primary Color Scale - Шкала основных цветов
+     * Used for main brand colors, buttons, links - Используется для основных цветов бренда, кнопок, ссылок
+     */
+    --primary-50: #eff6ff;   /* Lightest blue - Самый светлый синий */
+    --primary-100: #dbeafe;  /* Very light blue - Очень светлый синий */
+    --primary-200: #bfdbfe;  /* Light blue - Светлый синий */
+    --primary-300: #93c5fd;  /* Medium light blue - Средне-светлый синий */
+    --primary-400: #60a5fa;  /* Blue - Синий */
+    --primary-500: #3b82f6;  /* Primary blue - Основной синий */
+    --primary-600: #2563eb;  /* Dark blue - Тёмный синий */
+    --primary-700: #1d4ed8;  /* Darker blue - Более тёмный синий */
+    --primary-800: #1e40af;  /* Very dark blue - Очень тёмный синий */
+    --primary-900: #1e3a8a;  /* Darkest blue - Самый тёмный синий */
+
+    /*
+     * Semantic Colors - Семантические цвета
+     * Colors with specific meanings for UI states - Цвета с определёнными значениями для состояний UI
+     */
+    --primary-color: var(--primary-700);     /* Main brand color - Основной цвет бренда */
+    --secondary-color: #f8f9fa;              /* Secondary background - Вторичный фон */
+    --accent-color: #f59e0b;                 /* Accent for highlights - Акцент для выделений */
+    --success-color: #10b981;                /* Success states - Цвет успеха */
+    --warning-color: #f59e0b;                /* Warning states - Цвет предупреждения */
+    --error-color: #ef4444;                  /* Error states - Цвет ошибки */
+    --info-color: #3b82f6;                   /* Information states - Цвет информации */
+
+    /*
+     * Neutral Colors - Нейтральные цвета
+     * Used for text, backgrounds, borders - Используются для текста, фонов, границ
+     */
+    --text-primary: #1f2937;                 /* Primary text color - Основной цвет текста */
+    --text-secondary: #6b7280;               /* Secondary text color - Вторичный цвет текста */
+    --text-tertiary: #9ca3af;                /* Tertiary text color - Третичный цвет текста */
+    --text-inverse: #ffffff;                 /* Text on dark backgrounds - Текст на тёмных фонах */
+
+    --background: #ffffff;                   /* Main background color - Основной цвет фона */
+    --surface: #f9fafb;                      /* Surface background - Фон поверхностей */
+    --surface-elevated: #ffffff;             /* Elevated surface background - Фон приподнятых поверхностей */
+
+    --border: #e5e7eb;                       /* Default border color - Цвет границ по умолчанию */
+    --border-light: #f3f4f6;                 /* Light border color - Светлый цвет границ */
+    --border-dark: #d1d5db;                  /* Dark border color - Тёмный цвет границ */
+
+    /* ================================================================= */
+    /* TYPOGRAPHY - ТИПОГРАФИКА */
+    /* ================================================================= */
+
+    /*
+     * Font Families - Семейства шрифтов
+     * Defines font stacks for different text types - Определяет шрифтовые стеки для разных типов текста
+     */
+    --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;  /* Headings font - Шрифт заголовков */
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;     /* Body text font - Шрифт основного текста */
+    --font-accent: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;   /* Accent text font - Шрифт акцентного текста */
+
+    /*
+     * Font Sizes - Размеры шрифтов
+     * Scale from extra small to extra large - Шкала от очень маленького до очень большого
+     */
+    --text-xs: 0.75rem;      /* 12px - Extra small text - Очень маленький текст */
+    --text-sm: 0.875rem;     /* 14px - Small text - Маленький текст */
+    --text-base: 1rem;       /* 16px - Base text size - Базовый размер текста */
+    --text-lg: 1.125rem;     /* 18px - Large text - Большой текст */
+    --text-xl: 1.25rem;      /* 20px - Extra large text - Очень большой текст */
+    --text-2xl: 1.5rem;      /* 24px - 2X large text - Вдвое большой текст */
+    --text-3xl: 1.875rem;    /* 30px - 3X large text - Втрое большой текст */
+    --text-4xl: 2.25rem;     /* 36px - 4X large text - Вчетверо большой текст */
+    --text-5xl: 3rem;        /* 48px - 5X large text - Впятеро большой текст */
+
+    /*
+     * Font Weights - Насыщенность шрифтов
+     * Defines text thickness - Определяет толщину текста
+     */
+    --font-light: 300;       /* Light weight - Лёгкое начертание */
+    --font-normal: 400;      /* Normal weight - Обычное начертание */
+    --font-medium: 500;      /* Medium weight - Среднее начертание */
+    --font-semibold: 600;    /* Semi-bold weight - Полужирное начертание */
+    --font-bold: 700;        /* Bold weight - Жирное начертание */
+    --font-extrabold: 800;   /* Extra bold weight - Сверхжирное начертание */
+
+    /*
+     * Line Heights - Высота строк
+     * Controls vertical spacing between lines - Управляет вертикальным расстоянием между строками
+     */
+    --leading-tight: 1.25;   /* Tight line height - Плотная высота строки */
+    --leading-snug: 1.375;   /* Snug line height - Упругая высота строки */
+    --leading-normal: 1.5;   /* Normal line height - Нормальная высота строки */
+    --leading-relaxed: 1.625;/* Relaxed line height - Расслабленная высота строки */
+    --leading-loose: 2;      /* Loose line height - Свободная высота строки */
+
+    /* ================================================================= */
+    /* SPACING - ОТСТУПЫ И РАССТОЯНИЯ */
+    /* ================================================================= */
+
+    /*
+     * Spacing Scale - Шкала отступов
+     * Used for margins, padding, gaps - Используется для отступов, внутренних полей, промежутков
+     */
+    --space-0: 0;            /* 0px - No space - Без отступа */
+    --space-xs: 0.25rem;     /* 4px - Extra small space - Очень маленький отступ */
+    --space-sm: 0.5rem;      /* 8px - Small space - Маленький отступ */
+    --space-md: 1rem;        /* 16px - Medium space - Средний отступ */
+    --space-lg: 1.5rem;      /* 24px - Large space - Большой отступ */
+    --space-xl: 2rem;        /* 32px - Extra large space - Очень большой отступ */
+    --space-2xl: 3rem;       /* 48px - 2X large space - Вдвое большой отступ */
+    --space-3xl: 4rem;       /* 64px - 3X large space - Втрое большой отступ */
+    --space-4xl: 6rem;       /* 96px - 4X large space - Вчетверо большой отступ */
+
+    /* ================================================================= */
+    /* BORDER RADIUS - СКРУГЛЕНИЯ УГЛОВ */
+    /* ================================================================= */
+
+    /*
+     * Border Radius Scale - Шкала скруглений
+     * Controls corner rounding of elements - Управляет скруглением углов элементов
+     */
+    --radius-none: 0;        /* 0px - No rounding - Без скругления */
+    --radius-sm: 0.375rem;   /* 6px - Small rounding - Маленькое скругление */
+    --radius-md: 0.5rem;     /* 8px - Medium rounding - Среднее скругление */
+    --radius-lg: 0.75rem;    /* 12px - Large rounding - Большое скругление */
+    --radius-xl: 1rem;       /* 16px - Extra large rounding - Очень большое скругление */
+    --radius-2xl: 1.5rem;    /* 24px - 2X large rounding - Вдвое большое скругление */
+    --radius-full: 9999px;   /* Full rounding - Полное скругление (круг) */
+
+    /* ================================================================= */
+    /* SHADOWS - ТЕНИ */
+    /* ================================================================= */
+
+    /*
+     * Shadow System - Система теней
+     * Creates depth and elevation - Создает глубину и возвышение
+     */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);                                   /* Small shadow - Маленькая тень */
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* Medium shadow - Средняя тень */
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); /* Large shadow - Большая тень */
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); /* Extra large shadow - Очень большая тень */
+
+    /* ================================================================= */
+    /* TRANSITIONS - ПЕРЕХОДЫ И АНИМАЦИИ */
+    /* ================================================================= */
+
+    /*
+     * Transition Timing - Временные параметры переходов
+     * Controls animation speed and easing - Управляет скоростью и плавностью анимаций
+     */
+    --transition-fast: 150ms ease;                           /* Fast transition - Быстрый переход */
+    --transition-normal: 300ms ease;                         /* Normal transition - Обычный переход */
+    --transition-slow: 500ms ease;                           /* Slow transition - Медленный переход */
+    --transition-bounce: 500ms cubic-bezier(0.34, 1.56, 0.64, 1); /* Bounce transition - Пружинящий переход */
+
+    /* ================================================================= */
+    /* Z-INDEX - Z-ИНДЕКСЫ (СЛОИ) */
+    /* ================================================================= */
+
+    /*
+     * Z-Index Scale - Шкала z-индексов
+     * Controls element stacking order - Управляет порядком наложения элементов
+     */
+    --z-dropdown: 1000;      /* Dropdown menus - Выпадающие меню */
+    --z-sticky: 1020;        /* Sticky elements - Липкие элементы */
+    --z-fixed: 1030;         /* Fixed elements - Фиксированные элементы */
+    --z-modal: 1040;         /* Modal dialogs - Модальные окна */
+    --z-popover: 1050;       /* Popover elements - Всплывающие элементы */
+    --z-tooltip: 1060;       /* Tooltip elements - Подсказки */
+}
+
+/* ================================================================= */
+/* BASE STYLES - БАЗОВЫЕ СТИЛИ */
+/* ================================================================= */
+
+/*
+ * Reset and Base Styles - Сброс и базовые стили
+ * Foundation styles applied to all elements - Основные стили применяемые ко всем элементам
+ */
+* {
+    box-sizing: border-box;  /* Include padding and border in element's total width and height - Включает отступы и границы в общую ширину и высоту элемента */
+    margin: 0;               /* Remove default margins - Убирает стандартные отступы */
+    padding: 0;              /* Remove default padding - Убирает стандартные внутренние отступы */
+}
+
+html {
+    font-size: 16px;         /* Base font size for rem units - Базовый размер шрифта для rem единиц */
+    scroll-behavior: smooth; /* Smooth scrolling for anchor links - Плавная прокрутка для якорных ссылок */
+}
+
+body {
+    font-family: var(--font-body);           /* Set body font - Устанавливает шрифт для body */
+    font-size: var(--text-base);             /* Set base font size - Устанавливает базовый размер шрифта */
+    line-height: var(--leading-normal);      /* Set line height - Устанавливает высоту строки */
+    color: var(--text-primary);              /* Set text color - Устанавливает цвет текста */
+    background-color: var(--background);     /* Set background color - Устанавливает цвет фона */
+    -webkit-font-smoothing: antialiased;     /* Improve font rendering on WebKit - Улучшает рендеринг шрифтов в WebKit */
+    -moz-osx-font-smoothing: grayscale;      /* Improve font rendering on Firefox - Улучшает рендеринг шрифтов в Firefox */
+}
+
+/* ================================================================= */
+/* TYPOGRAPHY STYLES - СТИЛИ ТИПОГРАФИКИ */
+/* ================================================================= */
+
+/*
+ * Heading Styles - Стили заголовков
+ * Defines appearance for all heading levels - Определяет внешний вид для всех уровней заголовков
+ */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);    /* Heading font family - Семейство шрифтов для заголовков */
+    font-weight: var(--font-bold);       /* Bold font weight - Жирное начертание */
+    line-height: var(--leading-tight);   /* Tight line height - Плотная высота строки */
+    color: var(--text-primary);          /* Text color - Цвет текста */
+    margin-bottom: var(--space-md);      /* Bottom margin - Нижний отступ */
+}
+
+/* Heading size hierarchy - Иерархия размеров заголовков */
+h1 { font-size: var(--text-4xl); }   /* Largest heading - Самый большой заголовок */
+h2 { font-size: var(--text-3xl); }   /* Second largest heading - Второй по величине заголовок */
+h3 { font-size: var(--text-2xl); }   /* Third largest heading - Третий по величине заголовок */
+h4 { font-size: var(--text-xl); }    /* Medium heading - Средний заголовок */
+h5 { font-size: var(--text-lg); }    /* Small heading - Маленький заголовок */
+h6 { font-size: var(--text-base); }  /* Smallest heading - Самый маленький заголовок */
+
+/*
+ * Paragraph and Text Styles - Стили параграфов и текста
+ * Defines text element appearances - Определяет внешний вид текстовых элементов
+ */
+p {
+    margin-bottom: var(--space-md);      /* Bottom margin - Нижний отступ */
+    line-height: var(--leading-relaxed); /* Relaxed line height - Расслабленная высота строки */
+}
+
+.lead {
+    font-size: var(--text-lg);           /* Larger font size - Увеличенный размер шрифта */
+    font-weight: var(--font-medium);     /* Medium font weight - Среднее начертание */
+    color: var(--text-secondary);        /* Secondary text color - Вторичный цвет текста */
+}
+
+/* Text color utilities - Утилиты цвета текста */
+.text-muted {
+    color: var(--text-tertiary);         /* Muted text color - Приглушённый цвет текста */
+}
+
+.text-primary {
+    color: var(--primary-600);           /* Primary brand color - Основной цвет бренда */
+}
+
+.text-accent {
+    color: var(--accent-color);          /* Accent color - Акцентный цвет */
+}
+
+/* ================================================================= */
+/* COMPONENT STYLES - СТИЛИ КОМПОНЕНТОВ */
+/* ================================================================= */
+
+/*
+ * Navigation Bar - Навигационная панель
+ * Top navigation component with glass morphism effect - Верхний навигационный компонент с эффектом стеклянной морфологии
+ */
+.navbar-custom {
+    background: rgba(255, 255, 255, 0.95);  /* Semi-transparent white background - Полупрозрачный белый фон */
+    backdrop-filter: blur(20px);             /* Glass morphism blur effect - Эффект размытия стеклянной морфологии */
+    box-shadow: var(--shadow-sm);            /* Subtle shadow - Лёгкая тень */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border - Лёгкая граница */
+    transition: all var(--transition-normal); /* Smooth transitions - Плавные переходы */
+    margin-bottom: var(--space-0);          /* No bottom margin - Без нижнего отступа */
+    padding-bottom: var(--space-0);         /* No bottom padding - Без нижнего внутреннего отступа */
+}
+
+/* Scrolled state for navbar - Состояние навбара при прокрутке */
+.navbar-custom.scrolled {
+    background: rgba(255, 255, 255, 0.98);  /* More opaque when scrolled - Более непрозрачный при прокрутке */
+    box-shadow: var(--shadow-md);            /* Stronger shadow - Более сильная тень */
+}
+
+/*
+ * Logo Brand - Логотип бренда
+ * Organization logo with hover effects - Логотип организации с эффектами при наведении
+ */
+.logo-brand {
+    display: flex;               /* Flex layout - Flex-раскладка */
+    align-items: center;         /* Center vertically - Выравнивание по вертикали по центру */
+    gap: var(--space-sm);        /* Space between logo and text - Пространство между логотипом и текстом */
+    text-decoration: none;       /* Remove underline - Убирает подчёркивание */
+    font-weight: var(--font-bold); /* Bold font - Жирный шрифт */
+    font-size: var(--text-xl);   /* Large font size - Большой размер шрифта */
+}
+
+.logo-image {
+    height: 40px;                /* Fixed height - Фиксированная высота */
+    width: auto;                 /* Auto width for aspect ratio - Автоматическая ширина для сохранения пропорций */
+    transition: transform var(--transition-normal); /* Smooth transform - Плавное преобразование */
+}
+
+/* Logo hover effect - Эффект при наведении на логотип */
+.logo-brand:hover .logo-image {
+    transform: scale(1.05);      /* Scale up on hover - Увеличение при наведении */
+}
+
+/*
+ * Section Titles - Заголовки секций
+ * Styled section headings with accent underline - Стилизованные заголовки секций с акцентным подчёркиванием
+ */
+.section-title {
+    color: var(--primary-800);           /* Dark primary color - Тёмный основной цвет */
+    font-family: var(--font-heading);    /* Heading font - Шрифт заголовков */
+    font-weight: var(--font-bold);       /* Bold weight - Жирное начертание */
+    font-size: var(--text-3xl);          /* Large size - Большой размер */
+    margin-bottom: var(--space-2xl);     /* Large bottom margin - Большой нижний отступ */
+    position: relative;                  /* For pseudo-element positioning - Для позиционирования псевдо-элемента */
+    line-height: var(--leading-tight);   /* Tight line height - Плотная высота строки */
+}
+
+/* Accent underline for section titles - Акцентное подчёркивание для заголовков секций */
+.section-title:after {
+    content: '';                        /* Required for pseudo-element - Обязательно для псевдо-элемента */
+    position: absolute;                 /* Absolute positioning - Абсолютное позиционирование */
+    bottom: -12px;                      /* Position below title - Позиционирование ниже заголовка */
+    left: 0;                            /* Align to left - Выравнивание по левому краю */
+    width: 80px;                        /* Fixed width - Фиксированная ширина */
+    height: 4px;                        /* Fixed height - Фиксированная высота */
+    background: linear-gradient(90deg, var(--accent-color), var(--primary-500)); /* Gradient background - Градиентный фон */
+    border-radius: 2px;                 /* Slight rounding - Лёгкое скругление */
+}
+
+/*
+ * Cards - Карточки
+ * Reusable card component with hover effects - Переиспользуемый компонент карточки с эффектами при наведении
+ */
+.card-hover {
+    transition: all var(--transition-normal); /* Smooth transitions - Плавные переходы */
+    border: 1px solid var(--border);    /* Border styling - Стиль границы */
+    border-radius: var(--radius-lg);    /* Rounded corners - Скруглённые углы */
+    background: var(--background);      /* Background color - Цвет фона */
+}
+
+/* Card hover effects - Эффекты карточки при наведении */
+.card-hover:hover {
+    transform: translateY(-8px);        /* Lift effect - Эффект подъёма */
+    box-shadow: var(--shadow-lg);       /* Enhanced shadow - Усиленная тень */
+    border-color: var(--primary-200);   /* Change border color - Изменение цвета границы */
+}
+
+/*
+ * Single Column Cards - Карточки в один столбец
+ * Special styling for full-width cards - Специальные стили для полноширинных карточек
+ */
+.col-12 .card-hover {
+    border-left: 4px solid var(--primary-500); /* Accent left border - Акцентная левая граница */
+    transition: all var(--transition-normal); /* Smooth transitions - Плавные переходы */
+}
+
+.col-12 .card-hover:hover {
+    border-left-color: var(--accent-color); /* Change accent color on hover - Изменение акцентного цвета при наведении */
+    transform: translateX(5px);          /* Slide effect - Эффект сдвига */
+}
+
+.col-12.mb-4 {
+    margin-bottom: var(--space-lg) !important; /* Increased bottom margin - Увеличенный нижний отступ */
+}
+
+/*
+ * Buttons - Кнопки
+ * Custom button styles for primary and outline variants - Пользовательские стили кнопок для основных и контурных вариантов
+ */
+.btn-primary-custom {
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-700)); /* Gradient background - Градиентный фон */
+    border: none;                       /* No border - Без границы */
+    padding: var(--space-md) var(--space-xl); /* Vertical and horizontal padding - Вертикальные и горизонтальные отступы */
+    font-weight: var(--font-semibold);  /* Semi-bold text - Полужирный текст */
+    border-radius: var(--radius-md);    /* Rounded corners - Скруглённые углы */
+    color: var(--text-inverse);         /* Text color - Цвет текста */
+    transition: all var(--transition-normal); /* Smooth transitions - Плавные переходы */
+    box-shadow: var(--shadow-sm);       /* Subtle shadow - Лёгкая тень */
+    text-decoration: none;              /* No underline - Без подчёркивания */
+    display: inline-block;              /* Inline block display - Строчно-блочное отображение */
+    text-align: center;                 /* Center text - Выравнивание текста по центру */
+}
+
+/* Primary button hover state - Состояние при наведении для основной кнопки */
+.btn-primary-custom:hover {
+    background: linear-gradient(135deg, var(--primary-700), var(--primary-800)); /* Darker gradient - Более тёмный градиент */
+    transform: translateY(-2px);        /* Lift effect - Эффект подъёма */
+    box-shadow: var(--shadow-md);       /* Enhanced shadow - Усиленная тень */
+    color: var(--text-inverse);         /* Maintain text color - Сохранение цвета текста */
+    text-decoration: none;              /* No underline - Без подчёркивания */
+}
+
+/* Outline button variant - Контурный вариант кнопки */
+.btn-outline-custom {
+    border: 2px solid var(--primary-600); /* Border styling - Стиль границы */
+    color: var(--primary-600);          /* Text color - Цвет текста */
+    padding: calc(var(--space-md) - 2px) calc(var(--space-xl) - 2px); /* Adjusted padding for border - Скорректированные отступы для границы */
+    font-weight: var(--font-semibold);  /* Semi-bold text - Полужирный текст */
+    border-radius: var(--radius-md);    /* Rounded corners - Скруглённые углы */
+    transition: all var(--transition-normal); /* Smooth transitions - Плавные переходы */
+    background: transparent;            /* Transparent background - Прозрачный фон */
+    text-decoration: none;              /* No underline - Без подчёркивания */
+    display: inline-block;              /* Inline block display - Строчно-блочное отображение */
+    text-align: center;                 /* Center text - Выравнивание текста по центру */
+}
+
+/* Outline button hover state - Состояние при наведении для контурной кнопки */
+.btn-outline-custom:hover {
+    background: var(--primary-600);     /* Fill background - Заполнение фона */
+    color: var(--text-inverse);         /* Change text color - Изменение цвета текста */
+    transform: translateY(-2px);        /* Lift effect - Эффект подъёма */
+    box-shadow: var(--shadow-md);       /* Enhanced shadow - Усиленная тень */
+    text-decoration: none;              /* No underline - Без подчёркивания */
+}
+
+/*
+ * Textured Icons - Фактурные иконки
+ * Emoji icons with 3D effects and animations - Эмодзи-иконки с 3D эффектами и анимациями
+ */
+.icon-textured {
+    font-size: 4rem;                    /* Large icon size - Большой размер иконки */
+    margin-bottom: var(--space-md);     /* Bottom margin - Нижний отступ */
+    display: inline-block;              /* Inline block for transformations - Строчно-блочное для трансформаций */
+    transition: all var(--transition-bounce); /* Bounce transition - Пружинящий переход */
+    filter:                             /* Multiple shadows for depth - Множественные тени для глубины */
+        drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))
+        drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08))
+        drop-shadow(0 8px 16px rgba(0, 0, 0, 0.06));
+    transform-style: preserve-3d;       /* Enable 3D transformations - Включение 3D трансформаций */
+}
+
+/* Icon hover effects - Эффекты иконок при наведении */
+.icon-textured:hover {
+    transform: scale(1.15) translateY(-5px) rotate(5deg); /* Scale, lift and rotate - Масштабирование, подъём и вращение */
+    filter:                             /* Enhanced shadows - Усиленные тени */
+        drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15))
+        drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))
+        drop-shadow(0 16px 32px rgba(0, 0, 0, 0.08));
+}
+
+/* Individual icon animations - Индивидуальные анимации иконок */
+.icon-textured:nth-child(1):hover {    /* First icon (Building) - Первая иконка (Здание) */
+    transform: scale(1.15) translateY(-5px) rotate(-2deg);
+}
+
+.icon-textured:nth-child(2):hover {    /* Second icon (Rocket) - Вторая иконка (Ракета) */
+    transform: scale(1.15) translateY(-8px) rotate(8deg);
+}
+
+.icon-textured:nth-child(3):hover {    /* Third icon (Diamond) - Третья иконка (Алмаз) */
+    transform: scale(1.15) translateY(-5px) rotate(3deg);
+}
+
+/* ================================================================= */
+/* [Остальная часть CSS продолжается в том же стиле...] */
+/* [The rest of CSS continues in the same style...] */
+
+/* ================================================================= */
+/* HEADER BANNER COMPONENTS - КОМПОНЕНТЫ БАННЕРА ШАПКИ */
+/* ================================================================= */
+
+/*
+ * Header Banner Section - Секция баннера шапки
+ * Container for the main header banner - Контейнер для основного баннера шапки
+ */
+.header-banner-section {
+    margin-top: 76px;           /* Space for fixed navbar - Пространство для фиксированного навбара */
+    padding: var(--space-0);    /* No padding - Без внутренних отступов */
+    background: transparent;    /* Transparent background - Прозрачный фон */
+    margin-bottom: var(--space-0); /* No bottom margin - Без нижнего отступа */
+}
+
+/*
+ * Header Banner Wrapper - Обёртка баннера шапки
+ * Wrapper element for banner content - Элемент-обёртка для содержимого баннера
+ */
+.header-banner-wrapper {
+    width: 100%;                /* Full width - Полная ширина */
+    position: relative;         /* For absolute positioning of children - Для абсолютного позиционирования дочерних элементов */
+}
+
+/*
+ * Desktop Banner - Десктопный баннер
+ * Full-width image banner for desktop devices - Полноширинный баннер для десктопных устройств
+ */
+.desktop-banner {
+    display: block;             /* Block display - Блочное отображение */
+    width: 100%;                /* Full width - Полная ширина */
+    height: 400px;              /* Fixed height - Фиксированная высота */
+    object-fit: cover;          /* Cover container while preserving aspect ratio - Заполнение контейнера с сохранением пропорций */
+    object-position: center center; /* Center the image - Центрирование изображения */
+    border-radius: var(--radius-md); /* Rounded corners - Скруглённые углы */
+    box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.25); /* Custom shadow - Пользовательская тень */
+    margin: var(--space-0);     /* No margin - Без внешних отступов */
+    transition: all var(--transition-normal); /* Smooth transitions - Плавные переходы */
+}
+
+/*
+ * Mobile Banner - Мобильный баннер
+ * Logo-based banner for mobile devices - Баннер на основе логотипа для мобильных устройств
+ */
+.mobile-banner {
+    display: none;              /* Hidden by default - Скрыт по умолчанию */
+    width: 100%;                /* Full width - Полная ширина */
+    height: auto;               /* Auto height for aspect ratio - Автоматическая высота для сохранения пропорций */
+    max-height: 200px;          /* Maximum height - Максимальная высота */
+    object-fit: contain;        /* Fit entire image within container - Вместить всё изображение в контейнер */
+    border-radius: var(--radius-none); /* No rounding - Без скругления */
+    margin: var(--space-0);     /* No margin - Без внешних отступов */
+    box-shadow:                 /* Multiple shadows for depth - Множественные тени для глубины */
+        0 8px 25px -6px rgba(0, 0, 0, 0.15),
+        0 2px 8px -2px rgba(0, 0, 0, 0.1);
+    padding: var(--space-sm);   /* Internal padding - Внутренние отступы */
+    background: var(--background); /* Background color - Цвет фона */
+    border: 1px solid var(--border); /* Border styling - Стиль границы */
+}
+
+/*
+ * Banner Container - Контейнер баннера
+ * Container element for banner alignment - Элемент-контейнер для выравнивания баннера
+ */
+.header-banner-section .container {
+    max-width: 1400px;          /* Maximum width - Максимальная ширина */
+    padding: var(--space-0);    /* No padding - Без внутренних отступов */
+}
+
+/* ================================================================= */
+/* FOOTER COMPONENTS - КОМПОНЕНТЫ ФУТЕРА */
+/* ================================================================= */
+
+/*
+ * Footer Custom - Пользовательский футер
+ * Main footer component with gradient background - Основной компонент футера с градиентным фоном
+ */
+.footer-custom {
+    background: linear-gradient(135deg, var(--primary-900), #1e1b4b); /* Gradient background - Градиентный фон */
+    color: var(--text-inverse); /* Inverse text color - Инвертированный цвет текста */
+    position: relative;         /* For pseudo-element positioning - Для позиционирования псевдо-элемента */
+}
+
+/*
+ * Footer Accent Border - Акцентная граница футера
+ * Decorative top border for the footer - Декоративная верхняя граница для футера
+ */
+.footer-custom::before {
+    content: '';                /* Required for pseudo-element - Обязательно для псевдо-элемента */
+    position: absolute;         /* Absolute positioning - Абсолютное позиционирование */
+    top: 0;                     /* Position at top - Позиционирование вверху */
+    left: 0;                    /* Align to left - Выравнивание по левому краю */
+    right: 0;                   /* Align to right - Выравнивание по правому краю */
+    height: 4px;                /* Fixed height - Фиксированная высота */
+    background: linear-gradient(90deg, var(--accent-color), var(--primary-500)); /* Gradient border - Градиентная граница */
+}
+
+/* ================================================================= */
+/* UTILITY CLASSES - ВСПОМОГАТЕЛЬНЫЕ КЛАССЫ */
+/* ================================================================= */
+
+/*
+ * Text Alignment Utilities - Утилиты выравнивания текста
+ * Classes for controlling text alignment - Классы для управления выравниванием текста
+ */
+.text-center { text-align: center; }    /* Center align text - Выравнивание текста по центру */
+.text-left { text-align: left; }        /* Left align text - Выравнивание текста по левому краю */
+.text-right { text-align: right; }      /* Right align text - Выравнивание текста по правому краю */
+
+/*
+ * Font Weight Utilities - Утилиты насыщенности шрифта
+ * Classes for controlling font weight - Классы для управления насыщенностью шрифта
+ */
+.font-light { font-weight: var(--font-light); }     /* Light font weight - Лёгкое начертание */
+.font-normal { font-weight: var(--font-normal); }   /* Normal font weight - Обычное начертание */
+.font-medium { font-weight: var(--font-medium); }   /* Medium font weight - Среднее начертание */
+.font-semibold { font-weight: var(--font-semibold); } /* Semi-bold font weight - Полужирное начертание */
+.font-bold { font-weight: var(--font-bold); }       /* Bold font weight - Жирное начертание */
+
+/*
+ * Background Color Utilities - Утилиты цвета фона
+ * Classes for controlling background colors - Классы для управления цветами фона
+ */
+.bg-primary { background-color: var(--primary-500); }   /* Primary background - Основной фон */
+.bg-surface { background-color: var(--surface); }       /* Surface background - Фон поверхности */
+.bg-background { background-color: var(--background); } /* Main background - Основной фон */
+
+/* ================================================================= */
+/* RESPONSIVE DESIGN - АДАПТИВНЫЙ ДИЗАЙН */
+/* ================================================================= */
+
+/*
+ * Tablet and Mobile Breakpoint - Точка перелома для планшетов и мобильных
+ * Styles applied for screens up to 768px wide - Стили применяются для экранов шириной до 768px
+ */
+@media (max-width: 768px) {
+    /*
+     * Mobile Navigation Adjustments - Настройки мобильной навигации
+     * Optimize navbar for smaller screens - Оптимизация навбара для маленьких экранов
+     */
+    .navbar-custom {
+        min-height: 48px !important;        /* Smaller navbar height - Меньшая высота навбара */
+        padding-top: var(--space-sm) !important;    /* Reduced top padding - Уменьшенный верхний отступ */
+        padding-bottom: var(--space-sm) !important; /* Reduced bottom padding - Уменьшенный нижний отступ */
+    }
+
+    /*
+     * Mobile Banner Section - Мобильная секция баннера
+     * Adjust banner section for mobile - Настройка секции баннера для мобильных
+     */
+    .header-banner-section {
+        margin-top: 48px !important;        /* Adjusted top margin - Скорректированный верхний отступ */
+        margin-bottom: var(--space-0) !important; /* No bottom margin - Без нижнего отступа */
+        padding: var(--space-md) var(--space-0) !important; /* Vertical padding - Вертикальные отступы */
+        background: var(--surface);         /* Surface background - Фон поверхности */
+    }
+
+    /*
+     * Banner Switching - Переключение баннеров
+     * Show mobile banner, hide desktop banner - Показать мобильный баннер, скрыть десктопный
+     */
+    .desktop-banner {
+        display: none;                      /* Hide desktop banner - Скрыть десктопный баннер */
+    }
+
+    .mobile-banner {
+        display: block;                     /* Show mobile banner - Показать мобильный баннер */
+    }
+
+    /*
+     * Body Padding Adjustment - Настройка отступа body
+     * Adjust for fixed navbar on mobile - Корректировка для фиксированного навбара на мобильных
+     */
+    body {
+        padding-top: 48px !important;       /* Adjusted top padding - Скорректированный верхний отступ */
+    }
+
+    /*
+     * Container Padding - Отступы контейнера
+     * Add horizontal padding on mobile - Добавить горизонтальные отступы на мобильных
+     */
+    .header-banner-section .container {
+        padding: var(--space-0) var(--space-md) !important; /* Horizontal padding - Горизонтальные отступы */
+    }
+
+    /*
+     * Main Content Container - Основной контейнер контента
+     * Adjust main content spacing for mobile - Настроить отступы основного контента для мобильных
+     */
+    .container.my-5.py-4 {
+        margin-top: var(--space-0) !important;      /* No top margin - Без верхнего отступа */
+        padding-top: var(--space-md) !important;    /* Reduced top padding - Уменьшенный верхний отступ */
+        margin-bottom: var(--space-0) !important;   /* No bottom margin - Без нижнего отступа */
+        padding-bottom: var(--space-0) !important;  /* No bottom padding - Без нижнего отступа */
+    }
+
+    /*
+     * Mobile Typography - Мобильная типографика
+     * Adjust font sizes for better readability on mobile - Настроить размеры шрифтов для лучшей читаемости на мобильных
+     */
+    .section-title {
+        font-size: var(--text-2xl);         /* Smaller section titles - Меньшие заголовки секций */
+    }
+
+    /*
+     * Mobile Icon Sizes - Размеры иконок на мобильных
+     * Reduce icon sizes for mobile - Уменьшить размеры иконок для мобильных
+     */
+    .icon-textured {
+        font-size: 3rem;                    /* Smaller icons - Меньшие иконки */
+    }
+
+    /*
+     * Single Column Mobile Adjustments - Настройки одного столбца для мобильных
+     * Optimize single column layout for mobile - Оптимизировать одноколоночный макет для мобильных
+     */
+    .col-12 .card-body {
+        padding: var(--space-lg);           /* Adjust card padding - Настроить отступы карточки */
+    }
+
+    .col-12 .card-hover:hover {
+        transform: translateX(3px);         /* Reduced hover effect - Уменьшенный эффект при наведении */
+    }
+
+    /*
+     * Mobile Card Layout - Мобильный макет карточки
+     * Stack card elements vertically on mobile - Разместить элементы карточки вертикально на мобильных
+     */
+    .col-12 .card-body .d-flex.justify-content-between {
+        flex-direction: column;             /* Vertical layout - Вертикальная раскладка */
+        gap: var(--space-md);               /* Space between elements - Пространство между элементами */
+        align-items: flex-start;            /* Align to start - Выравнивание по началу */
+    }
+
+    .col-12 .card-body .d-flex.justify-content-between .btn {
+        align-self: flex-end;               /* Align button to end - Выравнивание кнопки по концу */
+    }
+}
+
+/* ================================================================= */
+/* SMALL MOBILE RESPONSIVE STYLES - АДАПТИВНЫЕ СТИЛИ ДЛЯ МАЛЕНЬКИХ МОБИЛЬНЫХ */
+/* ================================================================= */
+
+/*
+ * Small Mobile Breakpoint - Точка перелома для маленьких мобильных
+ * Styles applied for screens up to 480px wide - Стили применяются для экранов шириной до 480px
+ */
+@media (max-width: 480px) {
+    /*
+     * Small Mobile Navigation - Навигация для маленьких мобильных
+     * Further optimize navbar for very small screens - Дальнейшая оптимизация навбара для очень маленьких экранов
+     */
+    .navbar-custom {
+        min-height: 44px !important;        /* Even smaller navbar height - Ещё меньшая высота навбара */
+    }
+
+    /*
+     * Small Mobile Banner - Баннер для маленьких мобильных
+     * Adjust banner spacing for very small screens - Настроить отступы баннера для очень маленьких экранов
+     */
+    .header-banner-section {
+        margin-top: 44px !important;        /* Further reduced top margin - Ещё больше уменьшенный верхний отступ */
+        padding: var(--space-sm) var(--space-0) !important; /* Smaller padding - Меньшие отступы */
+    }
+
+    /*
+     * Small Mobile Body Padding - Отступ body для маленьких мобильных
+     * Further adjust body padding - Дальнейшая корректировка отступа body
+     */
+    body {
+        padding-top: 44px !important;       /* Further reduced top padding - Ещё больше уменьшенный верхний отступ */
+    }
+
+    /*
+     * Small Mobile Banner - Баннер для маленьких мобильных
+     * Further optimize mobile banner - Дальнейшая оптимизация мобильного баннера
+     */
+    .mobile-banner {
+        max-height: 180px;                  /* Smaller maximum height - Меньшая максимальная высота */
+        box-shadow:                         /* Lighter shadows - Более лёгкие тени */
+            0 6px 20px -4px rgba(0, 0, 0, 0.12),
+            0 2px 6px -1px rgba(0, 0, 0, 0.08);
+        padding: var(--space-xs);           /* Smaller padding - Меньшие отступы */
+    }
+
+    /*
+     * Small Mobile Icons - Иконки для маленьких мобильных
+     * Further reduce icon sizes - Дальнейшее уменьшение размеров иконок
+     */
+    .icon-textured {
+        font-size: 2.5rem;                  /* Even smaller icons - Ещё меньшие иконки */
+    }
+
+    /*
+     * Small Mobile Card Content - Содержимое карточки для маленьких мобильных
+     * Optimize card content for very small screens - Оптимизировать содержимое карточки для очень маленьких экранов
+     */
+    .col-12 .card-body {
+        padding: var(--space-md);           /* Smaller card padding - Меньшие отступы карточки */
+    }
+
+    /*
+     * Small Mobile Text - Текст для маленьких мобильных
+     * Improve text readability on very small screens - Улучшить читаемость текста на очень маленьких экранах
+     */
+    .col-12 .card-text {
+        font-size: var(--text-base);        /* Ensure base font size - Обеспечить базовый размер шрифта */
+        line-height: var(--leading-relaxed); /* Relaxed line height - Расслабленная высота строки */
+    }
+}
+
+/* ================================================================= */
+/* ACCESSIBILITY FEATURES - ФУНКЦИИ ДОСТУПНОСТИ */
+/* ================================================================= */
+
+/*
+ * Reduced Motion Support - Поддержка уменьшенного движения
+ * Respect user's motion preferences - Уважать предпочтения пользователя относительно движения
+ */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;      /* Minimal animation duration - Минимальная длительность анимации */
+        animation-iteration-count: 1 !important;    /* Single iteration - Одна итерация */
+        transition-duration: 0.01ms !important;     /* Minimal transition duration - Минимальная длительность перехода */
+    }
+}
+
+/*
+ * Screen Reader Only - Только для программ чтения с экрана
+ * Hide elements visually but keep them accessible to screen readers - Скрыть элементы визуально, но оставить доступными для программ чтения с экрана
+ */
+.sr-only {
+    position: absolute;          /* Remove from normal flow - Убрать из обычного потока */
+    width: 1px;                 /* Minimal width - Минимальная ширина */
+    height: 1px;                /* Minimal height - Минимальная высота */
+    padding: 0;                 /* No padding - Без отступов */
+    margin: -1px;               /* Negative margin to ensure hiding - Отрицательный отступ для гарантии скрытия */
+    overflow: hidden;            /* Hide overflow - Скрыть переполнение */
+    clip: rect(0, 0, 0, 0);     /* Clip to zero - Обрезать до нуля */
+    white-space: nowrap;        /* No text wrapping - Без переноса текста */
+    border: 0;                  /* No border - Без границы */
+}
+
+/* ================================================================= */
+/* PRINT STYLES - СТИЛИ ДЛЯ ПЕЧАТИ */
+/* ================================================================= */
+
+/*
+ * Print Media Query - Медиа-запрос для печати
+ * Optimize styles for printed documents - Оптимизировать стили для печатных документов
+ */
+@media print {
+    /*
+     * Hide Interactive Elements - Скрыть интерактивные элементы
+     * Remove navigation, footer, and buttons for printing - Убрать навигацию, футер и кнопки для печати
+     */
+    .navbar-custom,
+    .footer-custom,
+    .btn {
+        display: none !important;           /* Completely hide - Полностью скрыть */
+    }
+
+    /*
+     * Print Body Styles - Стили body для печати
+     * Optimize body for black and white printing - Оптимизировать body для чёрно-белой печати
+     */
+    body {
+        font-size: 12pt;                    /* Point units for print - Единицы пунктов для печати */
+        line-height: 1.4;                   /* Tighter line height - Более плотная высота строки */
+        color: #000;                        /* Black text for better print contrast - Чёрный текст для лучшей контрастности при печати */
+        background: #fff;                   /* White background - Белый фон */
+    }
+
+    /*
+     * Print Cards - Карточки для печати
+     * Simplify cards for printing - Упростить карточки для печати
+     */
+    .card-hover {
+        box-shadow: none;                   /* Remove shadows - Убрать тени */
+        border: 1px solid #ddd;             /* Simple border - Простая граница */
+    }
+}
+
+/* ================================================================= */
+/* END OF DESIGN SYSTEM - КОНЕЦ ДИЗАЙН-СИСТЕМЫ */
+/* ================================================================= */
+
+/*
+ * This design system provides a comprehensive foundation
+ * for building consistent, accessible, and responsive interfaces.
+ *
+ * Эта дизайн-система предоставляет комплексную основу
+ * для создания последовательных, доступных и адаптивных интерфейсов.
+ */

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!--
+        META AND BASIC SETUP / МЕТАДАННЫЕ И БАЗОВАЯ НАСТРОЙКА
+        Character set, viewport, and dynamic page title /
+        Кодировка, вьюпорт и динамический заголовок страницы
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${page.title} + ' - Community CMS'">Заголовок страницы - Community CMS</title>
+
+    <!--
+        BOOTSTRAP 5 CSS / БИБЛИОТЕКА BOOTSTRAP 5
+        Using CDN for consistent styling / Используем CDN для единообразного стиля
+    -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Custom styles for better readability / Пользовательские стили для лучшей читаемости */
+        .page-content {
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+        .page-content h2 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        .page-content p {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+<!--
+    MAIN CONTAINER / ОСНОВНОЙ КОНТЕЙНЕР
+    Centered content for better reading experience /
+    Центрированный контент для лучшего опыта чтения
+-->
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!--
+                BACK NAVIGATION / НАВИГАЦИЯ НАЗАД
+                Admin navigation to return to pages list /
+                Админская навигация для возврата к списку страниц
+            -->
+            <div class="mb-3">
+                <a th:href="@{/}" class="btn btn-outline-primary btn-sm">← На главную</a>
+            </div>
+
+            <!--
+                PAGE HEADER / ЗАГОЛОВОК СТРАНИЦЫ
+                Main title and metadata / Основной заголовок и метаданные
+            -->
+            <header class="mb-4 border-bottom pb-3">
+                <!-- CustomPage title / Заголовок страницы -->
+                <h1 th:text="${page.title}" class="display-5 fw-bold">
+                    Заголовок страницы
+                </h1>
+
+                <!--
+                    PAGE METADATA / МЕТАДАННЫЕ СТРАНИЦЫ
+                    Creation and update timestamps / Временные метки создания и обновления
+                -->
+                <div class="text-muted small mt-2">
+                    <!-- Creation date / Дата создания -->
+                    <span class="me-3">
+                            📅 <strong>Создано:</strong>
+                            <span th:text="${#temporals.format(page.createdAt, 'dd.MM.yyyy в HH:mm')}">
+                                01.01.2025 в 12:00
+                            </span>
+                        </span>
+
+                    <!-- Update date (if exists) / Дата обновления (если есть) -->
+                    <span th:if="${page.updatedAt != null && page.updatedAt != page.createdAt}"
+                          class="me-3">
+                            ✏️ <strong>Обновлено:</strong>
+                            <span th:text="${#temporals.format(page.updatedAt, 'dd.MM.yyyy в HH:mm')}">
+                                01.01.2025 в 12:00
+                            </span>
+                        </span>
+
+                    <!-- Publication status / Статус публикации -->
+                    <span class="badge"
+                          th:classappend="${page.published} ? 'bg-success' : 'bg-warning'">
+                            <span th:text="${page.published} ? 'Опубликовано' : 'Черновик'">
+                                Статус
+                            </span>
+                        </span>
+                </div>
+            </header>
+
+            <!--
+                PAGE CONTENT / СОДЕРЖИМОЕ СТРАНИЦЫ
+                Main content area with HTML support /
+                Основная область контента с поддержкой HTML
+            -->
+            <article class="card border-0 shadow-sm">
+                <div class="card-body page-content">
+                    <!--
+                        RICH CONTENT DISPLAY / ОТОБРАЖЕНИЕ РИЧ-КОНТЕНТА
+                        th:utext renders HTML content safely /
+                        th:utext безопасно отображает HTML контент
+                    -->
+                    <div th:utext="${page.content}">
+                        <!--
+                            DEFAULT CONTENT / КОНТЕНТ ПО УМОЛЧАНИЮ
+                            This will be replaced by actual page content /
+                            Это будет заменено фактическим содержимым страницы
+                        -->
+                        <p>Содержимое страницы отображается здесь...</p>
+                        <p>Вы можете использовать <strong>HTML разметку</strong> для форматирования текста,
+                            добавления ссылок, изображений и других элементов.</p>
+
+                        <h2>Пример подзаголовка</h2>
+                        <p>Это пример того, как может выглядеть структурированный контент.</p>
+
+                        <ul>
+                            <li>Элемент списка 1</li>
+                            <li>Элемент списка 2</li>
+                            <li>Элемент списка 3</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+            <!--
+                PAGE FOOTER / ФУТЕР СТРАНИЦЫ
+                Additional information and branding /
+                Дополнительная информация и брендинг
+            -->
+            <footer class="mt-5 pt-3 border-top text-center text-muted">
+                <small>
+                    <!-- System information / Информация о системе -->
+                    <div class="mb-2">
+                        <span>🛠️ Создано в </span>
+                        <a href="/" class="text-decoration-none">Community CMS</a>
+                    </div>
+
+                    <!-- Additional info / Дополнительная информация -->
+                    <div>
+                            <span th:if="${page.published}">
+                                📍 Страница доступна по адресу:
+                                <code th:text="${'http://localhost:8080/pages/' + page.slug}">
+                                    http://localhost:8080/pages/slug
+                                </code>
+                            </span>
+                        <span th:unless="${page.published}" class="text-warning">
+                                ⚠️ Эта страница находится в черновике и не видна публично
+                            </span>
+                    </div>
+                </small>
+            </footer>
+        </div>
+    </div>
+</div>
+
+<!--
+    BOOTSTRAP JAVASCRIPT / JAVASCRIPT БИБЛИОТЕКИ BOOTSTRAP
+    For interactive components if needed / Для интерактивных компонентов если нужно
+-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!--
+    CUSTOM JAVASCRIPT / ПОЛЬЗОВАТЕЛЬСКИЙ JAVASCRIPT
+    Additional functionality can be added here /
+    Дополнительный функционал можно добавить здесь
+-->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        //
+        // ENHANCE READABILITY / УЛУЧШЕНИЕ ЧИТАЕМОСТИ
+        // Add any client-side enhancements here /
+        // Добавьте любые клиентские улучшения здесь
+        //
+
+        console.log('Page loaded successfully: ', document.title);
+
+        // Example: Add smooth scrolling to anchors /
+        // Пример: Добавление плавной прокрутки к якорям
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

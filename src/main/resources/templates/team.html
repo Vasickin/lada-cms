@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<!--
+    TEAM PAGE - OUR TEAM / СТРАНИЦА "НАША КОМАНДА"
+    Clean, elegant design showcasing team members with focus on culture and community
+    Чистый, элегантный дизайн с представлением членов команды, сфокусированный на культуре и сообществе
+
+    Key Features / Ключевые особенности:
+    ✅ Minimalist team member cards / Минималистичные карточки членов команды
+    ✅ Structured sections for different roles / Структурированные секции для разных ролей
+    ✅ Cultural theme alignment / Соответствие культурной тематике
+    ✅ Responsive grid layout / Адаптивная сетка
+    ✅ Easy to populate with content / Легко заполняется контентом
+-->
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- HEADER FRAGMENT / ФРАГМЕНТ ХЕДЕРА -->
+<head th:replace="fragments/header :: html-head('Наша команда')">
+    <!-- Content replaced by header fragment / Контент заменяется фрагментом хедера -->
+</head>
+
+<body>
+<!-- NAVIGATION FRAGMENT / ФРАГМЕНТ НАВИГАЦИИ -->
+<div th:replace="fragments/navigation :: main-navigation"></div>
+
+<!-- BANNER FRAGMENT / ФРАГМЕНТ БАННЕРА -->
+<div th:replace="fragments/banner :: header-banner('Наша команда - сердце культурных инициатив')"></div>
+
+<main class="container my-5 py-4">
+    <!--
+        HERO INTRODUCTION SECTION / ГЕРОЙ-ВВЕДЕНИЕ
+        Brief introduction about the team
+        Краткое введение о команде
+    -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="section-title">Наша команда</h1>
+            <p class="lead text-muted">
+                Творческие и увлеченные люди, которые делают культурные события реальностью.
+                Наша команда объединяет профессионалов в области организации праздников,
+                фестивалей, конкурсов и общественных мероприятий.
+            </p>
+        </div>
+    </div>
+
+    <!--
+        TEAM STRUCTURE SECTION / СЕКЦИЯ СТРУКТУРЫ КОМАНДЫ
+        Optional introduction to team organization
+        Необязательное введение в организацию команды
+    -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="structure-card p-4 rounded-3 text-center">
+                <h3 class="fw-bold mb-3">Как мы работаем</h3>
+                <p class="text-muted mb-0">
+                    Каждый член нашей команды вносит уникальный вклад в создание
+                    запоминающихся культурных событий и праздников для нашего сообщества.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!--
+        TEAM MEMBERS SECTION - ROW 1 / СЕКЦИЯ ЧЛЕНОВ КОМАНДЫ - РЯД 1
+        First row of team members (example: leadership)
+        Первый ряд членов команды (пример: руководство)
+    -->
+    <div class="row mb-5">
+        <div class="col-12 mb-4">
+            <h2 class="text-center fw-bold mb-4 section-subtitle">Руководство и координация</h2>
+        </div>
+
+        <!-- Team Member 1 / Член команды 1 -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card team-card border-0 h-100">
+                <div class="card-body p-4 text-center">
+                    <!-- Avatar placeholder / Заглушка для аватара -->
+                    <div class="team-avatar mb-3">
+                        <div class="avatar-placeholder">
+                            👨‍💼
+                        </div>
+                    </div>
+
+                    <!-- Member name and position / Имя и должность -->
+                    <h4 class="card-title fw-bold mb-1">Имя Фамилия</h4>
+                    <p class="text-primary mb-3">Должность / Роль</p>
+
+                    <!-- Member description / Описание -->
+                    <p class="card-text text-muted mb-4">
+                        Краткое описание профессионального опыта,
+                        специализации и вклада в проекты организации.
+                        Можно добавить ключевые достижения или направления работы.
+                    </p>
+
+                    <!-- Contact/Info badges / Контактные/информационные бейджи -->
+                    <div class="team-info mt-auto">
+                        <span class="badge bg-light text-dark me-1 mb-1">Опыт: 5+ лет</span>
+                        <span class="badge bg-light text-dark me-1 mb-1">Фестивали</span>
+                        <span class="badge bg-light text-dark mb-1">Координация</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Member 2 / Член команды 2 -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card team-card border-0 h-100">
+                <div class="card-body p-4 text-center">
+                    <!-- Avatar placeholder / Заглушка для аватара -->
+                    <div class="team-avatar mb-3">
+                        <div class="avatar-placeholder">
+                            👩‍🎨
+                        </div>
+                    </div>
+
+                    <!-- Member name and position / Имя и должность -->
+                    <h4 class="card-title fw-bold mb-1">Имя Фамилия</h4>
+                    <p class="text-primary mb-3">Должность / Роль</p>
+
+                    <!-- Member description / Описание -->
+                    <p class="card-text text-muted mb-4">
+                        Краткое описание профессионального опыта,
+                        специализации и вклада в проекты организации.
+                        Можно добавить ключевые достижения или направления работы.
+                    </p>
+
+                    <!-- Contact/Info badges / Контактные/информационные бейджи -->
+                    <div class="team-info mt-auto">
+                        <span class="badge bg-light text-dark me-1 mb-1">Опыт: 3+ года</span>
+                        <span class="badge bg-light text-dark me-1 mb-1">Творчество</span>
+                        <span class="badge bg-light text-dark mb-1">Дизайн</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Member 3 / Член команды 3 -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card team-card border-0 h-100">
+                <div class="card-body p-4 text-center">
+                    <!-- Avatar placeholder / Заглушка для аватара -->
+                    <div class="team-avatar mb-3">
+                        <div class="avatar-placeholder">
+                            👩‍💻
+                        </div>
+                    </div>
+
+                    <!-- Member name and position / Имя и должность -->
+                    <h4 class="card-title fw-bold mb-1">Имя Фамилия</h4>
+                    <p class="text-primary mb-3">Должность / Роль</p>
+
+                    <!-- Member description / Описание -->
+                    <p class="card-text text-muted mb-4">
+                        Краткое описание профессионального опыта,
+                        специализации и вклада в проекты организации.
+                        Можно добавить ключевые достижения или направления работы.
+                    </p>
+
+                    <!-- Contact/Info badges / Контактные/информационные бейджи -->
+                    <div class="team-info mt-auto">
+                        <span class="badge bg-light text-dark me-1 mb-1">Опыт: 4+ года</span>
+                        <span class="badge bg-light text-dark me-1 mb-1">Организация</span>
+                        <span class="badge bg-light text-dark mb-1">Логистика</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--
+        TEAM MEMBERS SECTION - ROW 2 / СЕКЦИЯ ЧЛЕНОВ КОМАНДЫ - РЯД 2
+        Second row of team members (example: specialists)
+        Второй ряд членов команды (пример: специалисты)
+    -->
+    <div class="row mb-5">
+        <div class="col-12 mb-4">
+            <h2 class="text-center fw-bold mb-4 section-subtitle">Специалисты и волонтеры</h2>
+        </div>
+
+        <!-- Team Member 4 / Член команды 4 -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card team-card border-0 h-100">
+                <div class="card-body p-4 text-center">
+                    <!-- Avatar placeholder / Заглушка для аватара -->
+                    <div class="team-avatar mb-3">
+                        <div class="avatar-placeholder">
+                            🎭
+                        </div>
+                    </div>
+
+                    <!-- Member name and position / Имя и должность -->
+                    <h4 class="card-title fw-bold mb-1">Имя Фамилия</h4>
+                    <p class="text-primary mb-3">Должность / Роль</p>
+
+                    <!-- Member description / Описание -->
+                    <p class="card-text text-muted mb-4">
+                        Краткое описание профессионального опыта,
+                        специализации и вклада в проекты организации.
+                        Можно добавить ключевые достижения или направления работы.
+                    </p>
+
+                    <!-- Contact/Info badges / Контактные/информационные бейджи -->
+                    <div class="team-info mt-auto">
+                        <span class="badge bg-light text-dark me-1 mb-1">Опыт: 2+ года</span>
+                        <span class="badge bg-light text-dark me-1 mb-1">Искусство</span>
+                        <span class="badge bg-light text-dark mb-1">Мероприятия</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Member 5 / Член команды 5 -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card team-card border-0 h-100">
+                <div class="card-body p-4 text-center">
+                    <!-- Avatar placeholder / Заглушка для аватара -->
+                    <div class="team-avatar mb-3">
+                        <div class="avatar-placeholder">
+                            🎵
+                        </div>
+                    </div>
+
+                    <!-- Member name and position / Имя и должность -->
+                    <h4 class="card-title fw-bold mb-1">Имя Фамилия</h4>
+                    <p class="text-primary mb-3">Должность / Роль</p>
+
+                    <!-- Member description / Описание -->
+                    <p class="card-text text-muted mb-4">
+                        Краткое описание профессионального опыта,
+                        специализации и вклада в проекты организации.
+                        Можно добавить ключевые достижения или направления работы.
+                    </p>
+
+                    <!-- Contact/Info badges / Контактные/информационные бейджи -->
+                    <div class="team-info mt-auto">
+                        <span class="badge bg-light text-dark me-1 mb-1">Опыт: 3+ года</span>
+                        <span class="badge bg-light text-dark me-1 mb-1">Музыка</span>
+                        <span class="badge bg-light text-dark mb-1">Звук</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Member 6 / Член команды 6 -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card team-card border-0 h-100">
+                <div class="card-body p-4 text-center">
+                    <!-- Avatar placeholder / Заглушка для аватара -->
+                    <div class="team-avatar mb-3">
+                        <div class="avatar-placeholder">
+                            📢
+                        </div>
+                    </div>
+
+                    <!-- Member name and position / Имя и должность -->
+                    <h4 class="card-title fw-bold mb-1">Имя Фамилия</h4>
+                    <p class="text-primary mb-3">Должность / Роль</p>
+
+                    <!-- Member description / Описание -->
+                    <p class="card-text text-muted mb-4">
+                        Краткое описание профессионального опыта,
+                        специализации и вклада в проекты организации.
+                        Можно добавить ключевые достижения или направления работы.
+                    </p>
+
+                    <!-- Contact/Info badges / Контактные/информационные бейджи -->
+                    <div class="team-info mt-auto">
+                        <span class="badge bg-light text-dark me-1 mb-1">Опыт: 2+ года</span>
+                        <span class="badge bg-light text-dark me-1 mb-1">Коммуникации</span>
+                        <span class="badge bg-light text-dark mb-1">PR</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--
+        ADDITIONAL EMPTY SLOTS FOR FUTURE TEAM MEMBERS
+        ДОПОЛНИТЕЛЬНЫЕ ПУСТЫЕ СЛОТЫ ДЛЯ БУДУЩИХ ЧЛЕНОВ КОМАНДЫ
+    -->
+    <div class="row mb-5" id="additional-members" style="display: none;">
+        <div class="col-12 mb-4">
+            <h2 class="text-center fw-bold mb-4 section-subtitle">Другие участники</h2>
+        </div>
+
+        <!-- Additional empty slots can be added here -->
+        <!-- Дополнительные пустые слоты можно добавить здесь -->
+    </div>
+
+    <!--
+        JOIN OUR TEAM SECTION / СЕКЦИЯ "ПРИСОЕДИНИТЬСЯ К КОМАНДЕ"
+        Call-to-action for volunteers and new members
+        Призыв к действию для волонтеров и новых членов
+    -->
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <div class="join-team p-5 rounded-3">
+                <h3 class="fw-bold mb-3">Хотите присоединиться к нашей команде?</h3>
+                <p class="text-muted mb-4">
+                    Мы всегда рады творческим и увлеченным людям, которые хотят
+                    вносить вклад в развитие культурной жизни нашего сообщества.
+                </p>
+                <div class="d-flex justify-content-center flex-wrap gap-3">
+                    <a href="/contact" class="btn btn-primary-custom" th:href="@{/contact}">
+                        📧 Связаться с нами
+                    </a>
+                    <a href="/patrons" class="btn btn-outline-primary" th:href="@{/patrons}">
+                        🤝 Стать волонтером
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER FRAGMENT / ФРАГМЕНТ ФУТЕРА -->
+<div th:replace="fragments/footer :: main-footer"></div>
+
+<!-- SCRIPTS FRAGMENT / ФРАГМЕНТ СКРИПТОВ -->
+<div th:replace="fragments/scripts :: main-scripts"></div>
+
+<!--
+    ADDITIONAL STYLES FOR TEAM PAGE / ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ СТРАНИЦЫ КОМАНДЫ
+    Enhanced styling for team cards and layout
+    Улучшенные стили для карточек команды и макета
+-->
+<style>
+    /* Team card styling / Стили карточки команды */
+    .team-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: linear-gradient(135deg, var(--surface), var(--background));
+        border: 1px solid var(--border-light) !important;
+    }
+
+    .team-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Avatar placeholder styling / Стили заглушки аватара */
+    .avatar-placeholder {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    /* Structure card styling / Стили карточки структуры */
+    .structure-card {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: white;
+        border: none;
+    }
+
+    .structure-card h3,
+    .structure-card p {
+        color: white !important;
+    }
+
+    /* Join team section styling / Стили секции присоединения к команде */
+    .join-team {
+        background: linear-gradient(135deg, var(--surface), var(--background));
+        border: 1px solid var(--border-light);
+    }
+
+    /* Section subtitle / Подзаголовок секции */
+    .section-subtitle {
+        font-size: var(--text-2xl);
+        color: var(--text-primary);
+        position: relative;
+        padding-bottom: 1rem;
+    }
+
+    .section-subtitle::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: var(--primary);
+        border-radius: 2px;
+    }
+
+    /* Team info badges / Бейджи информации о команде */
+    .team-info .badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.7rem;
+        border: 1px solid var(--border-light);
+    }
+
+    /* Responsive adjustments / Адаптивные настройки */
+    @media (max-width: 768px) {
+        .avatar-placeholder {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+        }
+
+        .team-card .card-body {
+            padding: 1.5rem !important;
+        }
+    }
+</style>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<!--
+    CONTACT PAGE WITH FRAGMENT SYSTEM INTEGRATION / СТРАНИЦА "КОНТАКТЫ" С ИНТЕГРАЦИЕЙ СИСТЕМЫ ФРАГМЕНТОВ
+    Complete contact page with form, map, and organization details
+    Полная страница контактов с формой, картой и деталями организации
+
+    Fragment Usage / Использование фрагментов:
+    - Header: Meta tags, SEO optimization, CSS styles
+    - Navigation: Main menu with active states and Spring Security
+    - Banner: Responsive header images with accessibility
+    - Footer: Complete contact information and links
+    - Scripts: JavaScript functionality and Bootstrap
+-->
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- HEADER FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА ХЕДЕРА -->
+<head th:replace="fragments/header :: html-head('Контакты')">
+    <!-- Content will be replaced by header fragment / Контент будет заменен фрагментом хедера -->
+</head>
+
+<body>
+<!-- NAVIGATION FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА НАВИГАЦИИ -->
+<div th:replace="fragments/navigation :: main-navigation"></div>
+
+<!-- BANNER FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА БАННЕРА -->
+<div th:replace="fragments/banner :: header-banner('Общественная организация Лада - Контакты и обратная связь')"></div>
+
+<!--
+    MAIN CONTENT SECTION / СЕКЦИЯ ОСНОВНОГО КОНТЕНТА
+    Contact information, map, working hours, and contact form
+    Контактная информация, карта, время работы и форма обратной связи
+-->
+<main class="container my-5 py-4">
+    <!--
+        PAGE HEADER SECTION / СЕКЦИЯ ЗАГОЛОВКА СТРАНИЦЫ
+        Main title and description for the contact page
+        Основной заголовок и описание для страницы контактов
+    -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="section-title">Контакты</h1>
+            <p class="lead text-muted">Свяжитесь с нами для сотрудничества, волонтерства или по любым вопросам</p>
+        </div>
+    </div>
+
+    <!--
+        CONTACT INFORMATION SECTION / СЕКЦИЯ КОНТАКТНОЙ ИНФОРМАЦИИ
+        Organization contact details in card layout
+        Контактные данные организации в виде карточек
+    -->
+    <section class="row mb-5">
+        <div class="col-12">
+            <h2 class="section-title">Контактная информация</h2>
+        </div>
+
+        <!-- Email Contact Card / Карточка электронной почты -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 card-hover h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="icon-textured mb-3">📧</div>
+                    <h5 class="card-title fw-bold mb-3">Электронная почта</h5>
+                    <p class="card-text text-muted mb-4">Пишите нам по любым вопросам и предложениям</p>
+                    <a href="mailto:info@lada-org.ru" class="btn btn-outline-primary w-100">
+                        info@lada-org.ru
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phone Contact Card / Карточка телефона -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 card-hover h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="icon-textured mb-3">📞</div>
+                    <h5 class="card-title fw-bold mb-3">Телефон</h5>
+                    <p class="card-text text-muted mb-4">Звоните в рабочее время для консультации</p>
+                    <a href="tel:+78001234567" class="btn btn-outline-primary w-100">
+                        +7 (800) 123-45-67
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Address Contact Card / Карточка адреса -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 card-hover h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="icon-textured mb-3">📍</div>
+                    <h5 class="card-title fw-bold mb-3">Адрес офиса</h5>
+                    <p class="card-text text-muted mb-4">Приходите к нам для личной встречи</p>
+                    <div class="bg-light rounded p-3">
+                        <p class="mb-0 small">г. Клайпеда, ул. Примерная, д. 123<br>Бизнес-центр "Пример"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!--
+        MAP AND WORKING HOURS SECTION / СЕКЦИЯ КАРТЫ И ВРЕМЕНИ РАБОТЫ
+        Location map and organization schedule
+        Карта расположения и график работы организации
+    -->
+    <section class="row mb-5">
+        <!-- Map Section / Секция карты -->
+        <div class="col-lg-8 mb-4">
+            <h3 class="fw-bold mb-4">📍 Мы находимся здесь</h3>
+            <!--
+                MAP PLACEHOLDER / ЗАГЛУШКА ДЛЯ КАРТЫ
+                Can be replaced with actual Google Maps or Yandex Maps
+                Можно заменить на реальную Google Maps или Яндекс.Карты
+            -->
+            <div class="map-placeholder bg-light rounded-3 d-flex align-items-center justify-content-center"
+                 style="min-height: 400px; background: linear-gradient(45deg, #f8f9fa 25%, transparent 25%),
+                        linear-gradient(-45deg, #f8f9fa 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #f8f9fa 75%),
+                        linear-gradient(-45deg, transparent 75%, #f8f9fa 75%);
+                        background-size: 20px 20px;
+                        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;">
+                <div class="text-center text-muted">
+                    <div class="icon-textured mb-3">🗺️</div>
+                    <h5>Интерактивная карта</h5>
+                    <p class="mb-0">Google Maps / Яндекс.Карты<br><small>Будет подключена позже</small></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Working Hours and Details / Время работы и детали -->
+        <div class="col-lg-4 mb-4">
+            <h3 class="fw-bold mb-4">🕒 Время работы</h3>
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span>Понедельник - Пятница</span>
+                            <strong>9:00 - 18:00</strong>
+                        </li>
+                        <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span>Суббота</span>
+                            <strong>10:00 - 16:00</strong>
+                        </li>
+                        <li class="d-flex justify-content-between py-2">
+                            <span>Воскресенье</span>
+                            <strong class="text-muted">Выходной</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Organization Details / Реквизиты организации -->
+            <div class="mt-4">
+                <h5 class="fw-bold mb-3">📋 Реквизиты организации</h5>
+                <div class="card border-0 bg-light">
+                    <div class="card-body">
+                        <p class="mb-2"><strong>ИНН:</strong> 1234567890</p>
+                        <p class="mb-2"><strong>ОГРН:</strong> 1234567890123</p>
+                        <p class="mb-0"><strong>Расчетный счет:</strong> 40702810123456789012</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!--
+        CONTACT FORM SECTION / СЕКЦИЯ ФОРМЫ ОБРАТНОЙ СВЯЗИ
+        Contact form for user inquiries with validation
+        Форма обратной связи для запросов пользователей с валидацией
+    -->
+    <section class="row mb-5">
+        <div class="col-12">
+            <h2 class="section-title">Форма обратной связи</h2>
+        </div>
+
+        <!-- Contact Form / Форма обратной связи -->
+        <div class="col-lg-8">
+            <div class="card border-0 card-hover">
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">
+                        Заполните форму ниже, и мы свяжемся с вами в ближайшее время.
+                        Все поля, помеченные звездочкой (*), обязательны для заполнения.
+                    </p>
+
+                    <form id="contactForm" th:action="@{/contact}" method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Ваше имя *</label>
+                                <input type="text" class="form-control" id="name" name="name"
+                                       placeholder="Иван Иванов" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Электронная почта *</label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       placeholder="ivan@example.com" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Телефон</label>
+                            <input type="tel" class="form-control" id="phone" name="phone"
+                                   placeholder="+7 (999) 123-45-67">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Тема сообщения *</label>
+                            <select class="form-select" id="subject" name="subject" required>
+                                <option value="" selected disabled>Выберите тему</option>
+                                <option value="cooperation">Предложение о сотрудничестве</option>
+                                <option value="volunteer">Волонтерство</option>
+                                <option value="question">Вопрос по деятельности</option>
+                                <option value="project">Предложение проекта</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="message" class="form-label">Сообщение *</label>
+                            <textarea class="form-control" id="message" name="message" rows="5"
+                                      placeholder="Опишите ваш вопрос или предложение..." required></textarea>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary-custom btn-lg">
+                                📨 Отправить сообщение
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Information / Боковая панель с информацией -->
+        <div class="col-lg-4">
+            <!-- Tips Card / Карточка с подсказками -->
+            <div class="card border-0 bg-light mb-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3">💡 Прежде чем написать</h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-3">
+                            <strong>🤝 Сотрудничество</strong><br>
+                            Расскажите о вашей организации и идеях совместных проектов
+                        </li>
+                        <li class="mb-3">
+                            <strong>👥 Волонтерство</strong><br>
+                            Укажите ваши навыки и интересы для подходящих задач
+                        </li>
+                        <li class="mb-3">
+                            <strong>💬 Вопросы</strong><br>
+                            Постарайтесь сформулировать вопрос максимально конкретно
+                        </li>
+                        <li>
+                            <strong>⏱️ Ответ</strong><br>
+                            Мы отвечаем на все сообщения в течение 1-2 рабочих дней
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Social Media Card / Карточка социальных сетей -->
+            <div class="card border-0 card-hover">
+                <div class="card-body text-center">
+                    <div class="icon-textured mb-3">📱</div>
+                    <h5 class="card-title fw-bold">Социальные сети</h5>
+                    <p class="card-text text-muted mb-3">
+                        Следите за нашей деятельностью в социальных сетях
+                    </p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="#" class="btn btn-outline-primary btn-sm">VK</a>
+                        <a href="#" class="btn btn-outline-primary btn-sm">Telegram</a>
+                        <a href="#" class="btn btn-outline-primary btn-sm">YouTube</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- FOOTER FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА ФУТЕРА -->
+<div th:replace="fragments/footer :: main-footer"></div>
+
+<!-- SCRIPTS FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА СКРИПТОВ -->
+<div th:replace="fragments/scripts :: main-scripts"></div>
+
+<!--
+    CONTACT FORM JAVASCRIPT / JAVASCRIPT ДЛЯ ФОРМЫ КОНТАКТОВ
+    Form validation and interaction handling
+    Валидация формы и обработка взаимодействий
+-->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const contactForm = document.getElementById('contactForm');
+
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Simple validation / Простая валидация
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const subject = document.getElementById('subject').value;
+                const message = document.getElementById('message').value.trim();
+
+                if (!name || !email || !subject || !message) {
+                    alert('Пожалуйста, заполните все обязательные поля');
+                    return;
+                }
+
+                // Email validation / Валидация email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    alert('Пожалуйста, введите корректный email адрес');
+                    return;
+                }
+
+                // Simulate form submission / Имитация отправки формы
+                alert('Спасибо! Ваше сообщение отправлено. Мы свяжемся с вами в ближайшее время.');
+                contactForm.reset();
+
+                console.log('Contact form submitted successfully');
+            });
+        }
+
+        // Add interactive effects to contact cards / Добавляем интерактивные эффекты к контактным карточкам
+        const contactCards = document.querySelectorAll('.card-hover');
+        contactCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        console.log('Contact page initialized successfully');
+    });
+</script>
+
+<style>
+    /* Additional styles for contact page / Дополнительные стили для страницы контактов */
+    .cta-banner {
+        background: linear-gradient(135deg, var(--primary-700), var(--primary-900));
+    }
+
+    .map-placeholder {
+        border: 2px dashed var(--border);
+    }
+</style>
+</body>
+</html>

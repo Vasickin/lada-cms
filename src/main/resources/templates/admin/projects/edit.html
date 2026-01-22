@@ -1,0 +1,3636 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Редактировать проект - Админ панель</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Quill.js Editor CSS -->
+    <link href="/static/js/quill/quill.snow.css" rel="stylesheet">
+
+    <style>
+        .edit-project-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        .form-section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .project-header {
+            background-color: #f8f9fa;
+            border-left: 4px solid #0d6efd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .badge-status-active { background-color: #28a745; }
+        .badge-status-annual { background-color: #17a2b8; }
+        .badge-status-archived { background-color: #6c757d; }
+
+        .video-preview-card {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f8f9fa;
+}
+.video-thumbnail-small {
+    width: 120px;
+    height: 68px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Для левой колонки (Доступные члены команды) */
+#availableMembersContainer .member-draggable {
+    background-color: #e3f2fd; /* Светло-синий фон */
+    border: 1px solid #bbdefb; /* Синяя граница */
+}
+
+#availableMembersContainer .member-draggable:hover {
+    background-color: #bbdefb; /* Чуть темнее при наведении */
+    border-color: #90caf9;
+}
+
+#availableMembersContainer .member-draggable.selected {
+    background-color: #bbdefb; /* Мягкое выделение */
+    border: 2px solid #2196f3; /* Синяя граница выделения */
+    box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+/* Для правой колонки (Команда проекта) */
+#projectTeamContainer .member-draggable {
+    background-color: #e8f5e9; /* Светло-зеленый фон */
+    border: 1px solid #c8e6c9; /* Зеленая граница */
+    color: #1b5e20; /* Темно-зеленый текст */
+}
+
+#projectTeamContainer .member-draggable:hover {
+    background-color: #c8e6c9; /* Чуть темнее при наведении */
+    border-color: #a5d6a7;
+}
+
+#projectTeamContainer .member-draggable.selected {
+    background-color: #c8e6c9; /* Мягкое выделение */
+    border: 2px solid #4caf50; /* Зеленая граница выделения */
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
+}
+
+/* Общие стили */
+.member-draggable {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.member-draggable.dragging {
+    opacity: 0.7;
+    transform: scale(0.98);
+}
+
+/* Убираем слишком сильные стили Bootstrap если есть */
+.member-draggable.bg-light {
+    background-color: #e3f2fd !important; /* Переопределяем для левой колонки */
+}
+
+.member-draggable.bg-success {
+    background-color: #e8f5e9 !important; /* Переопределяем для правой колонки */
+    color: #1b5e20 !important;
+}
+
+/* Для иконок в правой колонке */
+#projectTeamContainer .member-draggable .bi-person-check {
+    color: #4caf50; /* Зеленые иконки */
+}
+
+/* Для иконок в левой колонке */
+#availableMembersContainer .member-draggable .bi-person-circle {
+    color: #2196f3; /* Синие иконки */
+}
+
+        .drop-zone-active {
+    background-color: rgba(13, 110, 253, 0.05) !important;
+    border: 2px dashed #0d6efd !important;
+}
+
+
+        /* Стили для раздела фотографий проекта */
+#selectedPhotosPreview .card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+#selectedPhotosPreview .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+#selectedPhotosPreview .card.border-warning {
+    border-color: #ffc107 !important;
+    background-color: rgba(255, 193, 7, 0.05);
+}
+
+#selectedPhotosPreview .card .badge.bg-primary {
+    background-color: #0d6efd !important;
+}
+
+#selectedPhotosPreview .card .badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000;
+}
+
+/* Анимация для появления фото */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#selectedPhotosPreview .col {
+    animation: fadeInUp 0.4s ease;
+}
+
+/* Стили для пустого состояния */
+.alert-light {
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    #selectedPhotosPreview .col-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+        /* Стили для Drag and Drop партнёров */
+
+/* Для левой колонки (Доступные партнёры) */
+#availablePartnersContainer .partner-draggable {
+    background-color: #e0f2fe; /* Светло-синий фон */
+    border: 1px solid #bae6fd; /* Синяя граница */
+}
+
+#availablePartnersContainer .partner-draggable:hover {
+    background-color: #bae6fd; /* Чуть темнее при наведении */
+    border-color: #7dd3fc;
+}
+
+#availablePartnersContainer .partner-draggable.selected {
+    background-color: #bae6fd; /* Мягкое выделение */
+    border: 2px solid #0ea5e9; /* Синяя граница выделения */
+    box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
+}
+
+/* Для правой колонки (Партнёры проекта) */
+#projectPartnersContainer .partner-draggable {
+    background-color: #dcfce7; /* Светло-зеленый фон */
+    border: 1px solid #bbf7d0; /* Зеленая граница */
+    color: #166534; /* Темно-зеленый текст */
+}
+
+#projectPartnersContainer .partner-draggable:hover {
+    background-color: #bbf7d0; /* Чуть темнее при наведении */
+    border-color: #86efac;
+}
+
+#projectPartnersContainer .partner-draggable.selected {
+    background-color: #bbf7d0; /* Мягкое выделение */
+    border: 2px solid #22c55e; /* Зеленая граница выделения */
+    box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2);
+}
+
+/* Общие стили для партнёров */
+.partner-draggable {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.partner-draggable.dragging {
+    opacity: 0.7;
+    transform: scale(0.98);
+}
+
+/* Для иконок в правой колонке */
+#projectPartnersContainer .partner-draggable .bi-handshake {
+    color: #22c55e; /* Зеленые иконки */
+}
+
+/* Для иконок в левой колонке */
+#availablePartnersContainer .partner-draggable .bi-building {
+    color: #0ea5e9; /* Синие иконки */
+}
+
+.partner-drop-zone-active {
+    background-color: rgba(14, 165, 233, 0.05) !important;
+    border: 2px dashed #0ea5e9 !important;
+}
+    </style>
+
+    <!-- ==== СТИЛИ ДЛЯ Quill РЕДАКТОРА ==== -->
+    <style>
+        /* Стили для Quill редактора */
+        #editor-container {
+            height: 350px;
+            margin-bottom: 1rem;
+        }
+        .ql-toolbar {
+            border-top-left-radius: 0.375rem;
+            border-top-right-radius: 0.375rem;
+            border-color: #dee2e6 !important;
+            background-color: #f8f9fa !important;
+        }
+        .ql-container {
+            border-bottom-left-radius: 0.375rem;
+            border-bottom-right-radius: 0.375rem;
+            border-color: #dee2e6 !important;
+            font-family: inherit;
+            font-size: 1rem;
+            min-height: 250px;
+        }
+        .ql-container:focus-within {
+            border-color: #86b7fe !important;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            outline: 0;
+        }
+        .ql-editor {
+            min-height: 250px;
+            padding: 1rem;
+        }
+        .ql-editor.ql-blank::before {
+            color: #6c757d;
+            font-style: normal;
+            left: 1rem;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            #editor-container {
+                height: 300px;
+            }
+            .ql-toolbar .ql-formats {
+                margin-right: 5px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container-fluid edit-project-container">
+
+        <!-- ========== ХЛЕБНЫЕ КРОШКИ И ЗАГОЛОВОК ========== -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/admin}">Главная</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/admin/projects}">Проекты</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Редактировать проект
+                        </li>
+                    </ol>
+                </nav>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-0">
+                            <i class="bi bi-pencil me-2"></i>
+                            Редактировать проект
+                        </h1>
+                        <p class="text-muted mb-0 mt-1">
+                            ID: <strong th:text="${project.id}">#</strong> |
+                            Создан: <strong th:text="${project.createdAt != null} ? ${#temporals.format(project.createdAt, 'dd.MM.yyyy HH:mm')} : '—'">—</strong>
+                        </p>
+                    </div>
+                    <div>
+                        <a th:href="@{/admin/projects}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Назад к списку
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ИНФОРМАЦИЯ О ПРОЕКТЕ ========== -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="project-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="h5 mb-1" th:text="${project.title}">Название проекта</h3>
+                            <p class="mb-0 text-muted" th:text="${project.shortDescription} ?: 'Нет краткого описания'">
+                                Краткое описание
+                            </p>
+                        </div>
+                        <div>
+                            <a th:href="@{/projects/{slug}(slug=${project.slug})}"
+                               class="btn btn-outline-info btn-sm"
+                               target="_blank">
+                                <i class="bi bi-eye me-1"></i>
+                                Просмотр на сайте
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ФОРМА РЕДАКТИРОВАНИЯ ПРОЕКТА ========== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form th:action="@{/admin/projects/edit/{id}(id=${project.id})}"
+                              th:object="${project}"
+                              method="post"
+                              class="needs-validation" novalidate>
+
+                            <!-- Hidden поле для ID -->
+                            <input type="hidden" th:field="*{id}" />
+
+                            <!-- Сообщения об ошибках -->
+                            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                                <h5 class="alert-heading">Исправьте следующие ошибки:</h5>
+                                <ul>
+                                    <li th:each="err : ${#fields.errors('*')}"
+                                        th:text="${err}">Ошибка</li>
+                                </ul>
+                            </div>
+
+                            <!-- Сообщение об успехе -->
+                            <div th:if="${successMessage != null}" class="alert alert-success">
+                                <i class="bi bi-check-circle me-2"></i>
+                                <span th:text="${successMessage}">Проект успешно обновлён!</span>
+                            </div>
+
+                            <!-- Сообщение об ошибке -->
+                            <div th:if="${errorMessage != null}" class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <span th:text="${errorMessage}">Ошибка при обновлении проекта!</span>
+                            </div>
+
+                            <!-- ===== ОСНОВНАЯ ИНФОРМАЦИЯ ===== -->
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Основная информация
+                                </h3>
+
+                                <!-- Название проекта -->
+                                <div class="row mb-3">
+                                    <div class="col-md-8">
+                                        <label for="title" class="form-label">
+                                            Название проекта *
+                                        </label>
+                                        <input type="text"
+                                               th:field="*{title}"
+                                               class="form-control"
+                                               id="title"
+                                               required
+                                               minlength="3"
+                                               maxlength="255">
+                                        <div class="invalid-feedback">
+                                            Введите название проекта (от 3 до 255 символов)
+                                        </div>
+                                        <small class="form-text text-muted">
+                                            Полное название проекта, которое будет отображаться на сайте
+                                        </small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="slug" class="form-label">
+                                            URL-адрес (slug) *
+                                        </label>
+                                        <input type="text"
+                                               th:field="*{slug}"
+                                               class="form-control"
+                                               id="slug"
+
+                                               required>
+                                        <div class="invalid-feedback">
+                                            Используйте только латинские буквы в нижнем регистре, цифры и дефисы
+                                        </div>
+                                        <small class="form-text text-muted">
+                                            Текущий: <code th:text="${project.slug}">slug</code>
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Категория и статус -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="category" class="form-label">
+                                            Категория *
+                                        </label>
+                                        <select th:field="*{category}"
+                                                class="form-select"
+                                                id="category"
+                                                required>
+                                            <option value="">Выберите категорию...</option>
+                                            <option th:each="cat : ${categories}"
+                                                    th:value="${cat}"
+                                                    th:selected="${cat == project.category}"
+                                                    th:text="${cat}">
+                                                Категория
+                                            </option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Выберите категорию проекта
+                                        </div>
+                                        <small class="form-text text-muted">
+                                            Текущая: <span th:text="${project.category} ?: 'Не указана'"></span>
+                                        </small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="status" class="form-label">
+                                            Статус *
+                                        </label>
+                                        <select th:field="*{status}"
+                                                class="form-select"
+                                                id="status"
+                                                required>
+                                            <option value="">Выберите статус...</option>
+                                            <option th:each="status : ${statuses}"
+                                                    th:value="${status}"
+                                                    th:selected="${status == project.status}"
+                                                    th:text="${status.name() == 'ACTIVE' ? 'Активный' :
+                                                              status.name() == 'ANNUAL' ? 'Ежегодный' :
+                                                              'Архивный'}">
+                                                Статус
+                                            </option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Выберите статус проекта
+                                        </div>
+                                        <small class="form-text text-muted">
+                                            Текущий:
+                                            <span th:if="${project.status != null}"
+                                                  th:classappend="'badge badge-status-' + ${project.status.name().toLowerCase()}"
+                                                  th:text="${project.status.name() == 'ACTIVE' ? 'Активный' :
+                                                           project.status.name() == 'ANNUAL' ? 'Ежегодный' :
+                                                           'Архивный'}">
+                                                Статус
+                                            </span>
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Краткое описание -->
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="shortDescription" class="form-label">
+                                            Краткое описание
+                                        </label>
+                                        <textarea th:field="*{shortDescription}"
+                                                  class="form-control"
+                                                  id="shortDescription"
+                                                  rows="3"
+                                                  maxlength="500"
+                                                  placeholder="Краткое описание проекта (до 500 символов)..."></textarea>
+                                        <small class="form-text text-muted">
+                                            До 500 символов. Будет отображаться в карточке проекта.
+                                            <span class="float-end">
+                                                Символов: <span th:text="${#strings.length(project.shortDescription ?: '')}">0</span>/500
+                                            </span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ===== ДАТЫ И МЕСТО ПРОВЕДЕНИЯ ===== -->
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="bi bi-calendar-event me-2"></i>
+                                    Даты и место проведения
+                                </h3>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="startDate" class="form-label">
+                                            Дата начала
+                                        </label>
+                                        <input type="date"
+                                               name="startDate"
+                                               th:value="${project.startDate != null} ? ${#temporals.format(project.startDate, 'yyyy-MM-dd')} : ''"
+                                               class="form-control"
+                                               id="startDate">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('startDate')}">
+                                            <span th:errors="*{startDate}">Ошибка даты начала</span>
+                                        </div>
+                                        <small class="form-text text-muted" th:if="${project.startDate != null}">
+                                            Текущая: <span th:text="${#temporals.format(project.startDate, 'dd.MM.yyyy')}"></span>
+                                        </small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="endDate" class="form-label">
+                                            Дата окончания
+                                        </label>
+                                        <input type="date"
+                                               name="endDate"
+                                               th:value="${project.endDate != null} ? ${#temporals.format(project.endDate, 'yyyy-MM-dd')} : ''"
+                                               class="form-control"
+                                               id="endDate">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('endDate')}">
+                                            <span th:errors="*{endDate}">Ошибка даты окончания</span>
+                                        </div>
+                                        <small class="form-text text-muted" th:if="${project.endDate != null}">
+                                            Текущая: <span th:text="${#temporals.format(project.endDate, 'dd.MM.yyyy')}"></span>
+                                        </small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="eventDate" class="form-label">
+                                            Дата события
+                                        </label>
+                                        <input type="date"
+                                               name="eventDate"
+                                               th:value="${project.eventDate != null} ? ${#temporals.format(project.eventDate, 'yyyy-MM-dd')} : ''"
+                                               class="form-control"
+                                               id="eventDate">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('eventDate')}">
+                                            <span th:errors="*{eventDate}">Ошибка даты события</span>
+                                        </div>
+                                        <small class="form-text text-muted" th:if="${project.eventDate != null}">
+                                            Текущая: <span th:text="${#temporals.format(project.eventDate, 'dd.MM.yyyy')}"></span>
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="location" class="form-label">
+                                            Место проведения
+                                        </label>
+                                        <input type="text"
+                                               th:field="*{location}"
+                                               class="form-control"
+                                               id="location"
+                                               maxlength="255"
+                                               placeholder="Например: г. Москва, Культурный центр 'ЛАДА'...">
+                                        <small class="form-text text-muted" th:if="${project.location != null}">
+                                            Текущее: <span th:text="${project.location}"></span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ===== ПОЛНОЕ ОПИСАНИЕ (Quill Editor) ===== -->
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="bi bi-text-paragraph me-2"></i>
+                                    Полное описание
+                                </h3>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="fullDescription" class="form-label">
+                                            Полное описание проекта
+                                        </label>
+
+                                        <!-- Контейнер для Quill редактора -->
+                                        <div id="editor-container">
+                                            <!-- Quill автоматически создаст здесь редактор -->
+                                        </div>
+
+                                        <!-- Скрытое поле для формы (связь с Thymeleaf) -->
+                                        <textarea th:field="*{fullDescription}"
+                                                  class="form-control"
+                                                  id="fullDescription"
+                                                  name="fullDescription"
+                                                  rows="8"
+                                                  style="display: none;"></textarea>
+
+                                        <small class="form-text text-muted">
+                                            Используйте панель инструментов для форматирования текста. Поддерживаются: жирный, курсив, списки, заголовки, ссылки.
+                                        </small>
+
+                                        <!-- Информация о формате -->
+                                        <div class="alert alert-light border mt-2 small">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            Текст сохраняется как HTML. Для новой строки используйте Enter, для абзаца — Enter дважды.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <!-- ===== КОМАНДА ПРОЕКТА ===== -->
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="bi bi-people me-2"></i>
+                                    Команда проекта
+                                </h3>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <!-- Статистика -->
+                                                <div class="mt-3 pt-3 border-top">
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="bg-info rounded-circle p-2 me-3">
+                                                                    <i class="bi bi-people text-white"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <h6 class="mb-0" th:text="${allTeamMembers != null ? allTeamMembers.size() : 0}">0</h6>
+                                                                    <small class="text-muted">Всего в команде</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="bg-success rounded-circle p-2 me-3">
+                                                                    <i class="bi bi-person-check text-white"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <h6 class="mb-0" id="projectMembersCount" th:text="${project.teamMembers != null ? project.teamMembers.size() : 0}">0</h6>
+                                                                    <small class="text-muted">Участников в проекте</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="bg-primary rounded-circle p-2 me-3">
+                                                                    <i class="bi bi-plus-circle text-white"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <a th:href="@{/admin/team-members/create}"
+                                                                       class="btn btn-link p-0 text-decoration-none"
+                                                                       target="_blank">
+                                                                        <h6 class="mb-0 text-primary">Добавить члена</h6>
+                                                                        <small class="text-muted">Откроется в новой вкладке</small>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ===== РАСШИРЕННОЕ УПРАВЛЕНИЕ КОМАНДОЙ (DRAG AND DROP) ===== -->
+                            <div class="mt-4 pt-4 border-top">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-arrows-move text-primary me-2"></i>
+                                        Расширенное управление командой
+                                    </h6>
+                                    <small class="text-muted">Перетаскивайте членов команды между колонками</small>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Левая колонка: Доступные члены команды (не в проекте) -->
+                                    <div class="col-md-5">
+                                        <div class="card h-100 border-primary">
+                                            <div class="card-header bg-primary text-white">
+                                                <h6 class="mb-0">
+                                                    <i class="bi bi-people me-1"></i>
+                                                    Доступные члены команды
+                                                    <span class="badge bg-light text-dark ms-2" id="availableCount">0</span>
+                                                </h6>
+                                            </div>
+                                            <div class="card-body"
+                                                 id="availableMembersContainer"
+                                                 style="min-height: 200px; max-height: 300px; overflow-y: auto;">
+
+                                                <div th:if="${availableMembers != null && !availableMembers.isEmpty()}">
+                                                    <div th:each="member : ${availableMembers}"
+                                                         class="member-draggable mb-2 p-2 border rounded"
+                                                         draggable="true"
+                                                         th:data-member-id="${member.id}"
+                                                         th:id="'member-' + ${member.id}"
+                                                         ondragstart="dragMember(event)">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="me-3">
+                                                                <i class="bi bi-person-circle fs-4"></i>
+                                                            </div>
+                                                            <div class="flex-grow-1">
+                                                                <strong th:text="${member.fullName}"></strong><br>
+                                                                <small class="text-muted" th:text="${member.position} ?: 'Должность не указана'"></small>
+                                                            </div>
+                                                            <div class="text-end">
+                                                                <span class="badge bg-success">Доступен</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div th:if="${availableMembers == null || availableMembers.isEmpty()}"
+                                                     class="text-center py-4">
+                                                    <i class="bi bi-people display-6 text-muted"></i>
+                                                    <p class="mt-2">Все члены команды уже в проекте</p>
+                                                    <a th:href="@{/admin/team-members/create}"
+                                                       class="btn btn-sm btn-outline-primary"
+                                                       target="_blank">
+                                                        <i class="bi bi-person-plus"></i> Создать нового
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Центральная колонка: Управление -->
+                                    <div class="col-md-2 d-flex flex-column align-items-center justify-content-center">
+                                        <div class="text-center">
+                                            <i class="bi bi-arrow-right-circle fs-1 text-primary mb-2"></i>
+                                            <p class="small mb-1">Добавить в проект</p>
+
+                                            <button type="button" class="btn btn-sm btn-outline-primary mb-2" onclick="addSelectedToProject()">
+                                                <i class="bi bi-arrow-right"></i> Выбранные
+                                            </button>
+
+                                            <div class="my-3 border-top pt-2">
+                                                <i class="bi bi-arrow-left-circle fs-1 text-danger mb-2"></i>
+                                                <p class="small mb-1">Убрать из проекта</p>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSelectedFromProject()">
+                                                    <i class="bi bi-arrow-left"></i> Выбранные
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Правая колонка: Команда проекта -->
+                                    <div class="col-md-5">
+                                        <div class="card h-100 border-success">
+                                            <div class="card-header bg-success text-white">
+                                                <h6 class="mb-0">
+                                                    <i class="bi bi-person-check me-1"></i>
+                                                    Команда проекта
+                                                    <span class="badge bg-light text-dark ms-2" id="projectTeamCount">
+                            <span th:text="${projectTeamMembers != null ? projectTeamMembers.size() : 0}">0</span>
+                        </span>
+                                                </h6>
+                                            </div>
+                                            <div class="card-body"
+                                                 id="projectTeamContainer"
+                                                 style="min-height: 200px; max-height: 300px; overflow-y: auto;"
+                                                 ondrop="dropMember(event)"
+                                                 ondragover="allowDrop(event)">
+
+                                                <div th:if="${projectTeamMembers != null && !projectTeamMembers.isEmpty()}">
+                                                    <div th:each="member : ${projectTeamMembers}"
+                                                         class="member-draggable mb-2 p-2 border rounded"
+                                                         draggable="true"
+                                                         th:data-member-id="${member.id}"
+                                                         th:id="'project-member-' + ${member.id}"
+                                                         ondragstart="dragMember(event)"
+                                                         ondblclick="removeMemberFromProject('${member.id}')"
+                                                         title="Двойной клик для удаления">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="me-3">
+                                                                <i class="bi bi-person-check fs-4"></i>
+                                                            </div>
+                                                            <div class="flex-grow-1">
+                                                                <strong th:text="${member.fullName}"></strong><br>
+                                                                <small th:text="${member.position} ?: 'Должность не указана'"></small>
+                                                            </div>
+                                                            <div class="text-end">
+                                                                <span class="badge bg-light text-dark">В проекте</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div th:if="${projectTeamMembers == null || projectTeamMembers.isEmpty()}"
+                                                     id="emptyTeamMessage" class="text-center py-4">
+                                                    <i class="bi bi-person-plus display-6 text-muted"></i>
+                                                    <p class="mt-2">Нет участников проекта</p>
+                                                    <p class="small text-muted">Добавьте членов команды</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hidden inputs для синхронизации с мультиселектом -->
+                                <input type="hidden" id="selectedTeamMemberIds" name="selectedTeamMemberIds"
+                                       th:value="${projectTeamMembers != null ? #strings.listJoin(projectTeamMembers.![id], ',') : ''}">
+
+                                <!-- Информация -->
+                                <div class="alert alert-info mt-3">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <small>
+                                        Изменения в команде проекта сохранятся при нажатии "Обновить проект".
+                                        Также можно выбрать/убрать членов команды через мультиселект выше.
+                                    </small>
+                                </div>
+                            </div>
+
+                                <!-- ===== ПАРТНЁРЫ ПРОЕКТА (DRAG AND DROP) ===== -->
+                                <div class="form-section">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h3 class="section-title mb-0">
+                                            <i class="bi bi-handshake me-2 text-primary"></i>
+                                            Партнёры проекта
+                                        </h3>
+                                        <div>
+            <span class="badge bg-primary">
+                <i class="bi bi-handshake"></i>
+                <span id="projectPartnersCount" th:text="${projectPartners != null ? projectPartners.size() : 0}">0</span>
+            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Статистика -->
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="bg-info rounded-circle p-2 me-3">
+                                                                    <i class="bi bi-building text-white"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <h6 class="mb-0" id="allPartnersCount" th:text="${allPartners != null ? allPartners.size() : 0}">0</h6>
+                                                                    <small class="text-muted">Всего партнёров</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="bg-success rounded-circle p-2 me-3">
+                                                                    <i class="bi bi-handshake text-white"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <h6 class="mb-0" id="selectedPartnersCount" th:text="${projectPartners != null ? projectPartners.size() : 0}">0</h6>
+                                                                    <small class="text-muted">Партнёров в проекте</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="bg-primary rounded-circle p-2 me-3">
+                                                                    <i class="bi bi-plus-circle text-white"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <a th:href="@{/admin/partners/create}"
+                                                                       class="btn btn-link p-0 text-decoration-none"
+                                                                       target="_blank">
+                                                                        <h6 class="mb-0 text-primary">Добавить партнёра</h6>
+                                                                        <small class="text-muted">Откроется в новой вкладке</small>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- DRAG AND DROP для партнеров -->
+                                    <div class="mt-4 pt-4 border-top">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="mb-0">
+                                                <i class="bi bi-arrows-move text-primary me-2"></i>
+                                                Управление партнёрами проекта
+                                            </h6>
+                                            <small class="text-muted">Перетаскивайте партнёров между колонками</small>
+                                        </div>
+
+                                        <div class="row">
+                                            <!-- Левая колонка: Доступные партнёры -->
+                                            <div class="col-md-5">
+                                                <div class="card h-100 border-info">
+                                                    <div class="card-header bg-info text-white">
+                                                        <h6 class="mb-0">
+                                                            <i class="bi bi-building me-1"></i>
+                                                            Доступные партнёры
+                                                            <span class="badge bg-light text-dark ms-2" id="availablePartnersCount" th:text="${availablePartners != null ? availablePartners.size() : 0}">0</span>
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body"
+                                                         id="availablePartnersContainer"
+                                                         style="min-height: 250px; max-height: 350px; overflow-y: auto;">
+
+                                                        <div th:if="${availablePartners != null && !availablePartners.isEmpty()}">
+                                                            <div th:each="partner : ${availablePartners}"
+                                                                 class="partner-draggable mb-2 p-2 border rounded"
+                                                                 th:data-partner-id="${partner.id}"
+                                                                 th:id="'partner-' + ${partner.id}">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="me-3">
+                                                                        <i class="bi bi-building fs-4"></i>
+                                                                    </div>
+                                                                    <div class="flex-grow-1">
+                                                                        <strong th:text="${partner.name}"></strong><br>
+                                                                        <small class="text-muted" th:text="${partner.type} ?: 'Тип не указан'"></small>
+                                                                    </div>
+                                                                    <div class="text-end">
+                                                                        <span class="badge bg-info">Доступен</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div th:if="${availablePartners == null || availablePartners.isEmpty()}"
+                                                             class="text-center py-4">
+                                                            <i class="bi bi-building display-6 text-muted"></i>
+                                                            <p class="mt-2">Все партнёры уже в проекте</p>
+                                                            <a th:href="@{/admin/partners/create}"
+                                                               class="btn btn-sm btn-outline-info"
+                                                               target="_blank">
+                                                                <i class="bi bi-plus-circle"></i> Создать партнёра
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Центральная колонка: Управление -->
+                                            <div class="col-md-2 d-flex flex-column align-items-center justify-content-center">
+                                                <div class="text-center">
+                                                    <i class="bi bi-arrow-right-circle fs-1 text-info mb-2"></i>
+                                                    <p class="small mb-1">Добавить в проект</p>
+
+                                                    <button type="button" class="btn btn-sm btn-outline-info mb-2" onclick="addSelectedPartnersToProject()">
+                                                        <i class="bi bi-arrow-right"></i> Выбранные
+                                                    </button>
+
+                                                    <div class="my-3 border-top pt-2">
+                                                        <i class="bi bi-arrow-left-circle fs-1 text-warning mb-2"></i>
+                                                        <p class="small mb-1">Убрать из проекта</p>
+                                                        <button type="button" class="btn btn-sm btn-outline-warning" onclick="removeSelectedPartnersFromProject()">
+                                                            <i class="bi bi-arrow-left"></i> Выбранные
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Правая колонка: Партнёры проекта -->
+                                            <div class="col-md-5">
+                                                <div class="card h-100 border-success">
+                                                    <div class="card-header bg-success text-white">
+                                                        <h6 class="mb-0">
+                                                            <i class="bi bi-handshake me-1"></i>
+                                                            Партнёры проекта
+                                                            <span class="badge bg-light text-dark ms-2" id="projectPartnersDragCount" th:text="${projectPartners != null ? projectPartners.size() : 0}">0</span>
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body"
+                                                         id="projectPartnersContainer"
+                                                         style="min-height: 250px; max-height: 350px; overflow-y: auto;">
+
+                                                        <div th:if="${projectPartners != null && !projectPartners.isEmpty()}">
+                                                            <div th:each="partner : ${projectPartners}"
+                                                                 class="partner-draggable mb-2 p-2 border rounded"
+                                                                 th:data-partner-id="${partner.id}"
+                                                                 th:id="'project-partner-' + ${partner.id}">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="me-3">
+                                                                        <i class="bi bi-handshake fs-4"></i>
+                                                                    </div>
+                                                                    <div class="flex-grow-1">
+                                                                        <strong th:text="${partner.name}"></strong><br>
+                                                                        <small class="text-muted" th:text="${partner.type} ?: 'Тип не указан'"></small>
+                                                                    </div>
+                                                                    <div class="text-end">
+                                                                        <span class="badge bg-success">В проекте</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div th:if="${projectPartners == null || projectPartners.isEmpty()}"
+                                                             id="emptyPartnersMessage" class="text-center py-4">
+                                                            <i class="bi bi-handshake display-6 text-muted"></i>
+                                                            <p class="mt-2">Нет партнёров в проекте</p>
+                                                            <p class="small text-muted">Добавьте партнёров</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Hidden inputs для синхронизации с формой -->
+                                        <input type="hidden" id="selectedPartnerIds" name="selectedPartnerIds" value="">
+
+                                        <!--  <input type="hidden" id="selectedPartnerIds" name="selectedPartnerIds"
+                                                 th:if="${projectPartners != null && !projectPartners.isEmpty()}"
+                                                 th:value="${#strings.listJoin(projectPartners.![id], ',')}">
+                                         -->
+
+                                        <!-- Превью выбранных партнёров -->
+                                        <div class="mt-4 pt-4 border-top">
+                                            <h6 class="mb-3">
+                                                <i class="bi bi-eye me-2 text-info"></i>
+                                                Предпросмотр партнёров проекта
+                                            </h6>
+
+                                            <div id="selectedPartnersPreview" class="row g-3">
+                                                <div class="col-12" th:unless="${projectPartners != null && !projectPartners.isEmpty()}">
+                                                    <div class="alert alert-light text-center py-4">
+                                                        <i class="bi bi-handshake display-4 text-muted mb-3"></i>
+                                                        <h6 class="text-muted">Партнёры не выбраны</h6>
+                                                        <p class="text-muted small mb-0">
+                                                            Добавьте партнёров в проект для отображения логотипов на странице
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div th:if="${projectPartners != null && !projectPartners.isEmpty()}"
+                                                     th:each="partner : ${projectPartners}"
+                                                     class="col-6 col-md-4 col-lg-3 mb-3">
+                                                    <div class="card h-100">
+                                                        <div class="card-body text-center">
+                                                            <div class="mb-3" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                                                                <i class="bi bi-building fs-1 text-info"></i>
+                                                            </div>
+                                                            <h6 class="mb-1" th:text="${partner.name}"></h6>
+                                                            <small class="text-muted" th:text="${partner.type} ?: 'Тип не указан'"></small>
+                                                            <span class="badge bg-success">В проекте</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Информация о типах партнёрства -->
+                                        <div class="alert alert-info mt-3">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            <small>
+                                                Партнёры могут быть разных типов: Генеральный партнёр, Спонсор, Информационный партнёр и др.
+                                                Изменения сохранятся при нажатии "Обновить проект".
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            <!-- ===== ФОТОГРАФИИ ПРОЕКТА ===== -->
+                            <div class="form-section">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h3 class="section-title mb-0">
+                                        <i class="bi bi-images me-2 text-primary"></i>
+                                        Фотографии проекта
+                                    </h3>
+                                    <span class="badge bg-primary">
+            <i class="bi bi-camera"></i>
+            <span id="selectedPhotosCount">0</span>/5 фото
+        </span>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <div class="card border-primary">
+                                            <div class="card-header bg-primary text-white">
+                                                <h5 class="mb-0">
+                                                    <i class="bi bi-collection me-2"></i>
+                                                    Выбор ключевых фотографий
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <!-- Информационный блок -->
+                                                <div class="alert alert-info mb-4">
+                                                    <div class="d-flex">
+                                                        <i class="bi bi-info-circle fs-4 me-3"></i>
+                                                        <div>
+                                                            <h6 class="alert-heading">Рекомендации по выбору фото</h6>
+                                                            <ul class="mb-0 small">
+                                                                <li>Выберите до 5 ключевых фотографий для проекта</li>
+                                                                <li>Первое фото будет отображаться как главное (отмечается звездочкой)</li>
+                                                                <li>Можно выбирать фото из разных галерей</li>
+                                                                <li>Используйте кнопку ниже для выбора фото из доступных галерей</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Кнопка выбора фото -->
+                                                <div class="text-center mb-4">
+                                                    <button type="button" class="btn btn-primary btn-lg" onclick="openPhotoGalleryModal()">
+                                                        <i class="bi bi-images me-2"></i>
+                                                        Выбрать фото из галерей
+                                                    </button>
+                                                    <p class="text-muted mt-2 small">
+                                                        Откроется галерея с фотографиями из всех мероприятий
+                                                    </p>
+                                                </div>
+
+                                                <!-- Превью выбранных фото -->
+                                                <div class="mb-4">
+                                                    <h6 class="mb-3 border-bottom pb-2">
+                                                        <i class="bi bi-check2-circle text-success me-2"></i>
+                                                        Выбранные фотографии
+                                                        <small class="text-muted">(будут отображаться на странице проекта)</small>
+                                                    </h6>
+
+                                                    <!-- Контейнер для превью -->
+                                                    <div id="selectedPhotosPreview" class="row g-3">
+                                                        <!-- Сюда будут загружаться выбранные фото -->
+                                                        <div class="col-12">
+                                                            <div class="alert alert-light text-center py-4">
+                                                                <i class="bi bi-images display-4 text-muted mb-3"></i>
+                                                                <h6 class="text-muted">Фотографии не выбраны</h6>
+                                                                <p class="text-muted small mb-0">
+                                                                    Нажмите кнопку выше для выбора фото из галерей
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Скрытое поле для backend -->
+                                                <input type="hidden" id="selectedPhotoIds" name="selectedPhotoIds"
+                                                       th:value="${#strings.arrayJoin(project.keyPhotoIds, ',')}">
+
+                                                <!-- Ссылка на полную галерею -->
+                                                <div class="mt-4 pt-4 border-top">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="d-grid">
+                                                                <a th:href="@{/admin/photo-gallery}"
+                                                                   class="btn btn-outline-primary"
+                                                                   target="_blank">
+                                                                    <i class="bi bi-box-arrow-up-right me-2"></i>
+                                                                    Вся галерея сайта
+                                                                </a>
+                                                                <small class="text-muted d-block mt-1 text-center">
+                                                                    Откроется в новой вкладке
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="d-grid">
+                                                                <button type="button" class="btn btn-outline-secondary"
+                                                                        onclick="clearSelectedPhotos()">
+                                                                    <i class="bi bi-trash me-2"></i>
+                                                                    Очистить все фото
+                                                                </button>
+                                                                <small class="text-muted d-block mt-1 text-center">
+                                                                    Удалить все выбранные фото
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <!-- ===== ВИДЕО ПРОЕКТА (БЫСТРОЕ ДОБАВЛЕНИЕ) ===== -->
+                            <div class="form-section">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h3 class="section-title mb-0">
+                                        <i class="bi bi-play-btn me-2 text-primary"></i>
+                                        Видео проекта (быстрое добавление)
+                                    </h3>
+                                    <span class="badge bg-info">
+            <i class="bi bi-film"></i>
+            Простое поле
+        </span>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="card border-primary">
+                                            <div class="card-header bg-primary text-white">
+                                                <h5 class="mb-0">
+                                                    <i class="bi bi-link-45deg me-2"></i>
+                                                    Быстрая ссылка на видео
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <!-- Информационный блок -->
+                                                <div class="alert alert-info mb-4">
+                                                    <div class="d-flex">
+                                                        <i class="bi bi-info-circle fs-4 me-3"></i>
+                                                        <div>
+                                                            <h6 class="alert-heading">Простое добавление видео</h6>
+                                                            <ul class="mb-0 small">
+                                                                <li>Вставьте ссылку на видео с YouTube, Vimeo или Rutube</li>
+                                                                <li>Нажмите "Превью" для проверки</li>
+                                                                <li>Видео будет отображаться на странице проекта</li>
+                                                                <li>Для управления несколькими видео используйте <a href="#" onclick="alert('Используйте раздел \\'Управление видео\\' ниже'); return false;" class="alert-link">полную систему видео</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Поле для ввода ссылки -->
+                                                <div class="mb-4">
+                                                    <label for="videoUrlInput" class="form-label">
+                                                        <i class="bi bi-link-45deg me-1"></i>
+                                                        Ссылка на видео:
+                                                    </label>
+                                                    <div class="input-group">
+                                                        <input type="text"
+                                                               class="form-control"
+                                                               id="videoUrlInput"
+                                                               name="videoUrl"
+                                                               th:value="${videoUrl}"
+                                                               placeholder="https://youtube.com/watch?v=... или https://vimeo.com/..."
+                                                               aria-label="Ссылка на видео">
+                                                        <button class="btn btn-outline-primary"
+                                                                type="button"
+                                                                id="previewVideoBtn"
+                                                                onclick="showVideoPreview()">
+                                                            <i class="bi bi-play-circle me-1"></i>
+                                                            Превью
+                                                        </button>
+                                                        <button class="btn btn-outline-secondary"
+                                                                type="button"
+                                                                onclick="clearVideoField()">
+                                                            <i class="bi bi-x-circle me-1"></i>
+                                                            Очистить
+                                                        </button>
+                                                    </div>
+                                                    <div class="form-text">
+                                                        <i class="bi bi-info-circle me-1"></i>
+                                                        Поддерживаются: YouTube, Vimeo, Rutube
+                                                    </div>
+                                                </div>
+
+                                                <!-- Блок для превью -->
+                                                <div id="videoPreviewContainer" class="mb-4" style="display: none;">
+                                                    <h6 class="border-bottom pb-2 mb-3">
+                                                        <i class="bi bi-eye me-2 text-success"></i>
+                                                        Предпросмотр видео
+                                                    </h6>
+                                                    <div class="card">
+                                                        <div class="card-body text-center p-3">
+                                                            <div id="videoPreviewContent">
+                                                                <!-- Embed код появится здесь -->
+                                                            </div>
+                                                            <div class="mt-3">
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                                        onclick="hideVideoPreview()">
+                                                                    <i class="bi bi-eye-slash me-1"></i>
+                                                                    Скрыть превью
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Состояния -->
+                                                <div id="videoEmptyState" class="text-center py-4">
+                                                    <i class="bi bi-play-circle display-4 text-muted mb-3"></i>
+                                                    <h6 class="text-muted">Видео не добавлено</h6>
+                                                    <p class="text-muted small mb-0">
+                                                        Вставьте ссылку выше и нажмите "Превью"
+                                                    </p>
+                                                </div>
+
+                                                <div id="videoPreviewState" style="display: none;">
+                                                    <div class="alert alert-success">
+                                                        <i class="bi bi-check-circle me-2"></i>
+                                                        Видео готово к сохранению. Нажмите "Создать проект" ниже.
+                                                    </div>
+                                                </div>
+
+                                                <!-- Поддержка сервисов -->
+                                                <div class="mt-4 pt-4 border-top">
+                                                    <h6 class="mb-3">
+                                                        <i class="bi bi-question-circle me-2"></i>
+                                                        Как получить ссылку?
+                                                    </h6>
+                                                    <div class="row g-3">
+                                                        <div class="col-md-4">
+                                                            <div class="card border-0 bg-light h-100">
+                                                                <div class="card-body text-center">
+                                                                    <div class="mb-2">
+                                                                        <i class="bi bi-youtube text-danger fs-1"></i>
+                                                                    </div>
+                                                                    <h6>YouTube</h6>
+                                                                    <p class="small mb-0">
+                                                                        Скопируйте URL из адресной строки или кнопки "Поделиться"
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="card border-0 bg-light h-100">
+                                                                <div class="card-body text-center">
+                                                                    <div class="mb-2">
+                                                                        <i class="bi bi-vimeo text-primary fs-1"></i>
+                                                                    </div>
+                                                                    <h6>Vimeo</h6>
+                                                                    <p class="small mb-0">
+                                                                        Используйте ссылку из адресной строки браузера
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="card border-0 bg-light h-100">
+                                                                <div class="card-body text-center">
+                                                                    <div class="mb-2">
+                                                                        <i class="bi bi-play-btn text-success fs-1"></i>
+                                                                    </div>
+                                                                    <h6>Rutube</h6>
+                                                                    <p class="small mb-0">
+                                                                        Скопируйте URL видео с rutube.ru
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <!-- ===== СЕКЦИИ ПРОЕКТА ===== -->
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="bi bi-toggle-on me-2"></i>
+                                    Отображение секций
+                                </h3>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mb-2">
+                                            <input th:field="*{showDescription}"
+                                                   class="form-check-input"
+                                                   type="checkbox"
+                                                   id="showDescription">
+                                            <label class="form-check-label" for="showDescription">
+                                                Описание проекта
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input th:field="*{showPhotos}"
+                                                   class="form-check-input"
+                                                   type="checkbox"
+                                                   id="showPhotos">
+                                            <label class="form-check-label" for="showPhotos">
+                                                Фотогалерея
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input th:field="*{showVideos}"
+                                                   class="form-check-input"
+                                                   type="checkbox"
+                                                   id="showVideos">
+                                            <label class="form-check-label" for="showVideos">
+                                                Видео
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input th:field="*{showTeam}"
+                                                   class="form-check-input"
+                                                   type="checkbox"
+                                                   id="showTeam">
+                                            <label class="form-check-label" for="showTeam">
+                                                Команда проекта
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mb-2">
+                                            <input th:field="*{showParticipation}"
+                                                   class="form-check-input"
+                                                   type="checkbox"
+                                                   id="showParticipation">
+                                            <label class="form-check-label" for="showParticipation">
+                                                Как участвовать
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input th:field="*{showPartners}"
+                                                   class="form-check-input"
+                                                   type="checkbox"
+                                                   id="showPartners">
+                                            <label class="form-check-label" for="showPartners">
+                                                Партнёры
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input th:field="*{showRelated}"
+                                                   class="form-check-input"
+                                                   type="checkbox"
+                                                   id="showRelated">
+                                            <label class="form-check-label" for="showRelated">
+                                                Похожие проекты
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">
+                                    Отметьте какие секции показывать на публичной странице проекта
+                                </small>
+                            </div>
+
+                            <!-- ===== КНОПКИ ОТПРАВКИ ===== -->
+                            <div class="form-section">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <a th:href="@{/admin/projects}" class="btn btn-outline-secondary me-2">
+                                            <i class="bi bi-x-circle me-1"></i>
+                                            Отмена
+                                        </a>
+                                        <a th:href="@{/admin/projects/create}" class="btn btn-outline-success">
+                                            <i class="bi bi-plus-circle me-1"></i>
+                                            Создать новый
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            Обновить проект
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- === МОДАЛЬНОЕ ОКНО ВЫБОРА ФОТО ИЗ ГАЛЕРЕЙ === -->
+<div class="modal fade" id="photoGalleryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-fullscreen-md-down">
+        <div class="modal-content">
+            <!-- Заголовок -->
+            <div class="modal-header bg-light">
+                <h5 class="modal-title">
+                    <i class="bi bi-images me-2"></i>
+                    Выбор фото из галерей
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+
+            <!-- Тело модального окна -->
+            <div class="modal-body p-0" style="min-height: 500px;">
+                <!-- Панель поиска -->
+                <div class="border-bottom p-3">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text"
+                               class="form-control"
+                               id="gallerySearch"
+                               placeholder="Поиск галереи по названию или году...">
+                        <button class="btn btn-outline-secondary" type="button" onclick="clearGallerySearch()">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Основной контент (две колонки) -->
+                <div class="row g-0" style="min-height: 450px;">
+                    <!-- Левая колонка: Список галерей -->
+                    <div class="col-md-4 border-end" style="max-height: 450px; overflow-y: auto;">
+                        <div class="p-3">
+                            <h6 class="mb-3 text-muted">
+                                <i class="bi bi-collection me-1"></i>
+                                Доступные галереи
+                                <span id="galleriesCount" class="badge bg-secondary ms-1">0</span>
+                            </h6>
+
+                            <!-- Список галерей -->
+                            <div id="galleriesList" class="list-group list-group-flush">
+                                <!-- Галереи будут загружены через JavaScript -->
+                                <div class="text-center py-5">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Загрузка...</span>
+                                    </div>
+                                    <p class="mt-2 text-muted small">Загрузка галерей...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Правая колонка: Фото выбранной галереи -->
+                    <div class="col-md-8" style="max-height: 450px; overflow-y: auto;">
+                        <div class="p-3">
+                            <!-- Заголовок галереи -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h6 id="currentGalleryTitle" class="mb-0">
+                                        <i class="bi bi-image me-1"></i>
+                                        Выберите галерею слева
+                                    </h6>
+                                    <small id="currentGalleryInfo" class="text-muted">
+                                        Для просмотра фото выберите галерею
+                                    </small>
+                                </div>
+                                <div>
+                                    <span id="photosInGalleryCount" class="badge bg-info">0 фото</span>
+                                </div>
+                            </div>
+
+                            <!-- Фото галереи -->
+                            <div id="galleryPhotos" class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2">
+                                <!-- Фото будут загружены через JavaScript -->
+                                <div class="col-12 text-center py-5">
+                                    <i class="bi bi-images display-6 text-muted"></i>
+                                    <p class="mt-2 text-muted">Выберите галерею для просмотра фото</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Секция выбранных фото -->
+                <div class="border-top p-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">
+                            <i class="bi bi-check2-circle me-1 text-success"></i>
+                            Выбранные фото
+                            <span id="selectedCount" class="badge bg-success ms-1">0</span>
+                            <small class="text-muted">/5</small>
+                        </h6>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearSelectedPhotos()">
+                            <i class="bi bi-trash me-1"></i>Очистить все
+                        </button>
+                    </div>
+
+                    <!-- Контейнер для выбранных фото (будут добавлены через drag-n-drop позже) -->
+                    <div id="selectedPhotosContainer" class="row g-2 mt-2">
+                        <div class="col-12">
+                            <div class="alert alert-warning py-2 mb-0">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Фото не выбраны. Выберите фото из галерей выше (максимум 5).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Футер модального окна -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Отмена
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveSelectedPhotos()">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Сохранить выбранные фото
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Скрипт для валидации формы -->
+<script>
+    // Валидация Bootstrap
+    (function () {
+        'use strict'
+
+        var forms = document.querySelectorAll('.needs-validation')
+
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+
+
+<!-- JavaScript для Drag and Drop (редактирование) -->
+<script>
+    // Глобальные переменные для редактирования
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация перетаскивания
+    initDragAndDrop();
+    updateCounters();
+});
+
+
+function allowDrop(event) {
+    event.preventDefault();
+}
+
+function dragMember(event) {
+    event.dataTransfer.setData('text/plain', event.target.getAttribute('data-member-id'));
+    event.target.classList.add('dragging');
+}
+
+function dropMember(event) {
+    event.preventDefault();
+    const memberId = event.dataTransfer.getData('text/plain');
+    const draggedElement = document.querySelector(`[data-member-id="${memberId}"]`);
+    const targetContainer = event.target.closest('#availableMembersContainer, #projectTeamContainer');
+
+    if (draggedElement && targetContainer && draggedElement.parentElement !== targetContainer) {
+        const isMovingToProject = targetContainer.id === 'projectTeamContainer';
+        moveMemberToContainer(memberId, targetContainer.id);
+    }
+
+    // Убираем класс dragging со всех элементов
+    document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+}
+
+function initDragAndDrop() {
+    // Настраиваем перетаскивание для всех членов команды
+    document.querySelectorAll('.member-draggable').forEach(item => {
+        item.setAttribute('draggable', 'true');
+
+        item.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('text/plain', this.getAttribute('data-member-id'));
+            this.classList.add('dragging');
+        });
+
+        item.addEventListener('dragend', function() {
+            this.classList.remove('dragging');
+        });
+
+        // Клик для выделения
+        item.addEventListener('click', function(e) {
+            if (!e.ctrlKey && !e.metaKey) {
+                // Снимаем выделение со всех
+                document.querySelectorAll('.member-draggable.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+            }
+            this.classList.toggle('selected');
+            updateSelectionButtons();
+        });
+    });
+
+    // Настраиваем зоны drop
+    const availableContainer = document.getElementById('availableMembersContainer');
+    const projectContainer = document.getElementById('projectTeamContainer');
+
+    [availableContainer, projectContainer].forEach(container => {
+        container.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drop-zone-active');
+        });
+
+        container.addEventListener('dragleave', function() {
+            this.classList.remove('drop-zone-active');
+        });
+
+        container.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drop-zone-active');
+
+            const memberId = e.dataTransfer.getData('text/plain');
+            const draggedElement = document.querySelector(`[data-member-id="${memberId}"]`);
+
+            if (draggedElement && draggedElement.parentElement !== this) {
+                moveMemberToContainer(memberId, this.id);
+            }
+        });
+    });
+}
+
+function moveMemberToContainer(memberId, targetContainerId) {
+    const memberElement = document.querySelector(`[data-member-id="${memberId}"]`);
+    if (!memberElement) return;
+
+    const targetContainer = document.getElementById(targetContainerId);
+    const isMovingToProject = targetContainerId === 'projectTeamContainer';
+
+    // Клонируем элемент с новыми стилями
+    const cloned = memberElement.cloneNode(true);
+
+    if (isMovingToProject) {
+    // Перемещаем в проект - меняем только иконку и бейдж
+    const icon = cloned.querySelector('.bi-person-circle');
+    if (icon) icon.className = 'bi bi-person-check fs-4 text-success';
+
+    const badge = cloned.querySelector('.badge');
+    if (badge) {
+        badge.className = 'badge bg-success text-white';
+        badge.textContent = 'В проекте';
+    }
+} else {
+    // Перемещаем обратно в доступные - меняем только иконку и бейдж
+    const icon = cloned.querySelector('.bi-person-check');
+    if (icon) icon.className = 'bi bi-person-circle fs-4 text-primary';
+
+    const badge = cloned.querySelector('.badge');
+    if (badge) {
+        badge.className = 'badge bg-primary text-white';
+        badge.textContent = 'Доступен';
+    }
+}
+
+    // Удаляем старый элемент
+    memberElement.remove();
+
+    // Добавляем новый в целевую колонку
+    targetContainer.appendChild(cloned);
+
+    // Реинициализируем события для нового элемента
+    cloned.setAttribute('draggable', 'true');
+    cloned.addEventListener('dragstart', function(e) {
+        e.dataTransfer.setData('text/plain', this.getAttribute('data-member-id'));
+        this.classList.add('dragging');
+    });
+    cloned.addEventListener('dragend', function() {
+        this.classList.remove('dragging');
+    });
+    cloned.addEventListener('click', function(e) {
+        if (!e.ctrlKey && !e.metaKey) {
+            document.querySelectorAll('.member-draggable.selected').forEach(el => {
+                el.classList.remove('selected');
+            });
+        }
+        this.classList.toggle('selected');
+        updateSelectionButtons();
+    });
+
+    // Обновляем UI
+    updateCounters();
+    updateHiddenInput();
+
+    // Скрываем/показываем сообщения о пустоте
+    const projectEmptyMsg = document.getElementById('emptyTeamMessage');
+    if (projectEmptyMsg) {
+        projectEmptyMsg.style.display =
+            document.querySelectorAll('#projectTeamContainer .member-draggable').length === 0 ? 'block' : 'none';
+    }
+}
+
+// Кнопки для массового перемещения
+function addSelectedToProject() {
+    const selected = document.querySelectorAll('#availableMembersContainer .member-draggable.selected');
+    selected.forEach(member => {
+        const memberId = member.getAttribute('data-member-id');
+        moveMemberToContainer(memberId, 'projectTeamContainer');
+    });
+}
+
+function removeSelectedFromProject() {
+    const selected = document.querySelectorAll('#projectTeamContainer .member-draggable.selected');
+    selected.forEach(member => {
+        const memberId = member.getAttribute('data-member-id');
+        moveMemberToContainer(memberId, 'availableMembersContainer');
+    });
+}
+
+function updateSelectionButtons() {
+    const hasAvailableSelected = document.querySelectorAll('#availableMembersContainer .member-draggable.selected').length > 0;
+    const hasProjectSelected = document.querySelectorAll('#projectTeamContainer .member-draggable.selected').length > 0;
+
+    // Можно добавить визуальную индикацию для кнопок если нужно
+}
+
+function updateCounters() {
+    const availableCount = document.querySelectorAll('#availableMembersContainer .member-draggable').length;
+    const projectCount = document.querySelectorAll('#projectTeamContainer .member-draggable').length;
+
+    document.getElementById('availableCount').textContent = availableCount;
+    document.getElementById('projectTeamCount').textContent = projectCount;
+
+    // ОБНОВЛЯЕМ СТАТИСТИКУ
+    updateProjectMembersCount();
+}
+
+function updateHiddenInput() {
+    const selectedElements = document.querySelectorAll('#projectTeamContainer [data-member-id]');
+    const ids = Array.from(selectedElements).map(el => el.getAttribute('data-member-id'));
+
+    document.getElementById('selectedTeamMemberIds').value = ids.join(',');
+
+    // Синхронизируем с мультиселектом
+    const teamSelect = document.getElementById('teamMembers');
+    if (teamSelect) {
+        Array.from(teamSelect.options).forEach(option => {
+            option.selected = ids.includes(option.value);
+        });
+    }
+
+    // ОБНОВЛЯЕМ СТАТИСТИКУ
+    updateProjectMembersCount();
+}
+
+// Функция для обновления счетчика в статистике
+function updateProjectMembersCount() {
+    const projectMembers = document.querySelectorAll('#projectTeamContainer .member-draggable');
+    const count = projectMembers.length;
+
+    const statElement = document.getElementById('projectMembersCount');
+    if (statElement) {
+        statElement.textContent = count;
+    }
+}
+</script>
+
+
+<!-- === УПРАВЛЕНИЕ МОДАЛЬНЫМ ОКНОМ ВЫБОРА ФОТО ИЗ ГАЛЕРЕЙ === -->
+<script>
+    // === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
+    let allGalleries = [];          // Все галереи
+    let currentGalleryId = null;    // ID текущей галереи
+    let currentGalleryPhotos = [];  // Фото текущей галереи
+    let selectedPhotos = [];        // Выбранные фото для проекта [{id, title, webPath, galleryTitle}]
+    let allPhotosMap = new Map();   // Карта всех фото {id: photoData}
+    let selectedPhotosModal = null; // Bootstrap modal instance
+
+    // === ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ===
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Инициализация модуля выбора фото из галерей (edit mode)...');
+
+        // Шаг 1: Сначала загружаем ВСЕ фото из всех галерей
+        loadAllPhotosForEditMode();
+
+        // Шаг 2: Настраиваем обработчик поиска галерей
+        const searchInput = document.getElementById('gallerySearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                filterGalleries(this.value);
+            });
+        }
+
+        // Шаг 3: Настраиваем обработчики модального окна
+        setupModalHandlers();
+    });
+
+    // === ЗАГРУЗКА ДАННЫХ (РЕДАКТИРОВАНИЕ) ===
+
+    /**
+     * Загружает все фото из всех галерей для режима редактирования.
+     * Loads all photos from all galleries for edit mode.
+     */
+    function loadAllPhotosForEditMode() {
+        console.log('Режим редактирования: загружаем все фото...');
+
+        fetch('/admin/projects/available-photos')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(photos => {
+                console.log(`Загружено всех фото: ${photos.length}`);
+
+                // Сохраняем все фото в карту для быстрого поиска
+                allPhotosMap.clear();
+                photos.forEach(photo => {
+                    allPhotosMap.set(photo.id, photo);
+                });
+
+                // Загружаем выбранные фото из формы
+                loadSelectedPhotosFromForm();
+
+                // Загружаем галереи
+                loadGalleries();
+
+            })
+            .catch(error => {
+                console.error('❌ Ошибка загрузки всех фото:', error);
+                // Если ошибка, пробуем обычный путь
+                loadSelectedPhotosFromForm();
+                loadGalleries();
+            });
+    }
+
+    /**
+     * Загружает выбранные фото из скрытого поля формы.
+     * Loads selected photos from hidden form field.
+     */
+    function loadSelectedPhotosFromForm() {
+        const hiddenField = document.getElementById('selectedPhotoIds');
+        if (hiddenField && hiddenField.value && hiddenField.value.trim() !== '') {
+            const ids = hiddenField.value.split(',')
+                .map(id => parseInt(id.trim()))
+                .filter(id => !isNaN(id) && id > 0);
+
+            console.log('Режим редактирования: загружены ID фото из формы:', ids);
+
+            if (ids.length === 0) {
+                selectedPhotos = [];
+                showSelectedPhotosPreview();
+                return;
+            }
+
+            // Ищем информацию о каждом фото в карте всех фото
+            selectedPhotos = [];
+            ids.forEach(photoId => {
+                const photoInfo = allPhotosMap.get(photoId);
+                if (photoInfo) {
+                    selectedPhotos.push({
+                        id: photoId,
+                        title: photoInfo.title || photoInfo.fileName || `Фото ${photoId}`,
+                        webPath: photoInfo.webPath || '/static/images/placeholder.jpg',
+                        galleryTitle: photoInfo.galleryTitle || 'Неизвестная галерея'
+                    });
+                    console.log(`✓ Найдено фото ID ${photoId}: ${photoInfo.fileName}`);
+                } else {
+                    console.warn(`⚠ Фото ID ${photoId} не найдено в загруженных фото`);
+                    selectedPhotos.push({
+                        id: photoId,
+                        title: `Фото ${photoId}`,
+                        webPath: '/static/images/placeholder.jpg',
+                        galleryTitle: 'Фото удалено или недоступно'
+                    });
+                }
+            });
+
+            console.log(`Загружено выбранных фото: ${selectedPhotos.length} из ${ids.length}`);
+
+            // Показываем превью
+            showSelectedPhotosPreview();
+
+        } else {
+            console.log('Выбранные фото не найдены в форме');
+            selectedPhotos = [];
+            showSelectedPhotosPreview();
+        }
+    }
+
+    /**
+     * Загружает список всех галерей с сервера.
+     * Loads list of all galleries from server.
+     */
+    function loadGalleries() {
+        console.log('Загрузка списка галерей...');
+
+        showLoadingGalleries();
+
+        fetch('/admin/projects/available-galleries')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(galleries => {
+                allGalleries = galleries;
+                console.log(`Загружено галерей: ${allGalleries.length}`);
+
+                // Обновляем счетчик
+                updateGalleriesCount();
+
+                // Отображаем галереи
+                renderGalleriesList();
+
+                // Если есть галереи, загружаем первую
+                if (allGalleries.length > 0) {
+                    selectGallery(allGalleries[0].id);
+                }
+            })
+            .catch(error => {
+                console.error('❌ Ошибка загрузки галерей:', error);
+                showGalleriesError();
+            });
+    }
+
+    /**
+     * Загружает фото указанной галереи.
+     * Loads photos of specified gallery.
+     *
+     * @param {number} galleryId ID галереи / gallery ID
+     */
+    function loadGalleryPhotos(galleryId) {
+        if (!galleryId) return;
+
+        console.log(`Загрузка фото галереи ID: ${galleryId}`);
+
+        currentGalleryId = galleryId;
+        showLoadingPhotos();
+
+        fetch(`/admin/projects/gallery/${galleryId}/photos`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(photos => {
+                currentGalleryPhotos = photos;
+                console.log(`Загружено фото: ${currentGalleryPhotos.length}`);
+
+                // Обновляем информацию о текущей галерее
+                updateCurrentGalleryInfo(galleryId);
+
+                // Отображаем фото
+                renderGalleryPhotos();
+
+                // Обновляем состояние чекбоксов для уже выбранных фото
+                updatePhotoCheckboxes();
+            })
+            .catch(error => {
+                console.error(`❌ Ошибка загрузки фото галереи ${galleryId}:`, error);
+                showPhotosError();
+            });
+    }
+
+    // === ОТОБРАЖЕНИЕ ДАННЫХ ===
+
+    /**
+     * Отображает индикатор загрузки галерей.
+     * Shows galleries loading indicator.
+     */
+    function showLoadingGalleries() {
+        const galleriesList = document.getElementById('galleriesList');
+        if (!galleriesList) return;
+
+        galleriesList.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+                <p class="mt-2 text-muted small">Загрузка галерей...</p>
+            </div>
+        `;
+    }
+
+    /**
+     * Отображает ошибку загрузки галерей.
+     * Shows galleries loading error.
+     */
+    function showGalleriesError() {
+        const galleriesList = document.getElementById('galleriesList');
+        if (!galleriesList) return;
+
+        galleriesList.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Ошибка загрузки галерей. Проверьте подключение.
+            </div>
+        `;
+    }
+
+    /**
+     * Отображает список галерей.
+     * Renders galleries list.
+     */
+    function renderGalleriesList() {
+        const galleriesList = document.getElementById('galleriesList');
+        if (!galleriesList) return;
+
+        if (allGalleries.length === 0) {
+            galleriesList.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Нет доступных галерей
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+
+        allGalleries.forEach(gallery => {
+            const isActive = gallery.id === currentGalleryId;
+            const badgeClass = gallery.published ? 'bg-success' : 'bg-secondary';
+            const activeClass = isActive ? 'active bg-light border-primary' : '';
+
+            html += `
+                <a href="#" class="list-group-item list-group-item-action ${activeClass}"
+                   onclick="selectGallery(${gallery.id}); return false;"
+                   data-gallery-id="${gallery.id}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${escapeHtml(gallery.title)}</h6>
+                            <small class="text-muted">${gallery.year} год</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge ${badgeClass}">${gallery.photoCount || 0}</span>
+                        </div>
+                    </div>
+                    ${gallery.description ? `<p class="mb-1 small text-muted">${escapeHtml(gallery.description.substring(0, 50))}${gallery.description.length > 50 ? '...' : ''}</p>` : ''}
+                </a>
+            `;
+        });
+
+        galleriesList.innerHTML = html;
+    }
+
+    /**
+     * Отображает индикатор загрузки фото.
+     * Shows photos loading indicator.
+     */
+    function showLoadingPhotos() {
+        const galleryPhotos = document.getElementById('galleryPhotos');
+        if (!galleryPhotos) return;
+
+        galleryPhotos.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+                <p class="mt-2 text-muted small">Загрузка фото...</p>
+            </div>
+        `;
+    }
+
+    /**
+     * Отображает ошибку загрузки фото.
+     * Shows photos loading error.
+     */
+    function showPhotosError() {
+        const galleryPhotos = document.getElementById('galleryPhotos');
+        if (!galleryPhotos) return;
+
+        galleryPhotos.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    Ошибка загрузки фото галереи
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Отображает фото текущей галереи.
+     * Renders current gallery photos.
+     */
+    function renderGalleryPhotos() {
+        const galleryPhotos = document.getElementById('galleryPhotos');
+        if (!galleryPhotos) return;
+
+        if (currentGalleryPhotos.length === 0) {
+            galleryPhotos.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-images display-6 text-muted"></i>
+                    <p class="mt-2 text-muted">В этой галерее нет фото</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+
+        currentGalleryPhotos.forEach(photo => {
+            const isSelected = selectedPhotos.some(sp => sp.id === photo.id);
+            const isPrimary = photo.isPrimary ? 'border-warning' : '';
+            const selectedClass = isSelected ? 'selected-photo' : '';
+
+            html += `
+                <div class="col">
+                    <div class="card h-100 photo-card ${selectedClass} ${isPrimary}"
+                         data-photo-id="${photo.id}"
+                         onclick="togglePhotoSelection(${photo.id}, '${escapeHtml(photo.fileName)}', '${photo.webPath}', '${escapeHtml(photo.galleryTitle)}')"
+                         style="cursor: pointer;">
+                        <div class="position-relative">
+                            <img src="${photo.webPath || '/static/images/placeholder.jpg'}"
+                                 class="card-img-top"
+                                 style="height: 120px; object-fit: cover;"
+                                 alt="${escapeHtml(photo.fileName)}"
+                                 onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'">
+                            ${isSelected ? `
+                            <div class="position-absolute top-0 end-0 m-1">
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i>
+                                </span>
+                            </div>
+                            ` : ''}
+                            ${photo.isPrimary ? `
+                            <div class="position-absolute top-0 start-0 m-1">
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-star-fill"></i>
+                                </span>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <div class="card-body p-2">
+                            <div class="form-check mb-0">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       id="photo_${photo.id}"
+                                       ${isSelected ? 'checked' : ''}
+                                       onclick="event.stopPropagation(); togglePhotoSelection(${photo.id}, '${escapeHtml(photo.fileName)}', '${photo.webPath}', '${escapeHtml(photo.galleryTitle)}')">
+                                <label class="form-check-label small" for="photo_${photo.id}">
+                                    ${escapeHtml(photo.fileName.length > 20 ? photo.fileName.substring(0, 20) + '...' : photo.fileName)}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        galleryPhotos.innerHTML = html;
+    }
+
+    /**
+     * Показывает превью выбранных фото на странице (вне модального окна).
+     * Shows preview of selected photos on page (outside modal).
+     */
+    function showSelectedPhotosPreview() {
+        const previewContainer = document.getElementById('selectedPhotosPreview');
+        if (!previewContainer) return;
+
+        if (selectedPhotos.length === 0) {
+            previewContainer.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Фото не выбраны. Нажмите кнопку "Выбрать фото из галерей".
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `
+            <div class="col-12 mb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong>Выбранные фото (${selectedPhotos.length}/5):</strong>
+                    <small class="text-muted">Первое фото будет главным</small>
+                </div>
+            </div>
+        `;
+
+        selectedPhotos.forEach((photo, index) => {
+            const isMain = index === 0;
+            const mainBadge = isMain ?
+                '<span class="position-absolute top-0 end-0 badge bg-warning m-1" title="Главное фото">★</span>' : '';
+
+            html += `
+                <div class="col-6 col-md-4 col-lg-3 mb-3">
+                    <div class="card h-100 ${isMain ? 'border-warning' : ''}">
+                        <div class="position-relative">
+                            <img src="${photo.webPath || '/static/images/placeholder.jpg'}"
+                                 class="card-img-top"
+                                 style="height: 120px; object-fit: cover;"
+                                 alt="${escapeHtml(photo.title)}"
+                                 onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'">
+                            <span class="position-absolute top-0 start-0 badge bg-primary m-1">${index + 1}</span>
+                            ${mainBadge}
+                        </div>
+                        <div class="card-body p-2">
+                            <p class="small mb-1 text-truncate" title="${escapeHtml(photo.title)}">
+                                ${escapeHtml(photo.title.length > 20 ? photo.title.substring(0, 20) + '...' : photo.title)}
+                            </p>
+                            <p class="small mb-0 text-muted text-truncate" title="${escapeHtml(photo.galleryTitle)}">
+                                <i class="bi bi-collection me-1"></i>
+                                ${escapeHtml(photo.galleryTitle.length > 25 ? photo.galleryTitle.substring(0, 25) + '...' : photo.galleryTitle)}
+                            </p>
+                        </div>
+                        <div class="card-footer p-2">
+    <div class="d-flex justify-content-center gap-2">
+        <button type="button" class="btn btn-sm btn-danger flex-fill"
+                onclick="removePhotoFromSelection(${photo.id})">
+            <i class="bi bi-x me-1"></i>Удалить
+        </button>
+        ${isMain ? '' : `
+        <button type="button" class="btn btn-sm btn-warning flex-fill"
+                onclick="setAsMainPhoto(${photo.id})">
+            <i class="bi bi-star me-1"></i>Главное
+        </button>
+        `}
+    </div>
+</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        previewContainer.innerHTML = html;
+    }
+
+    /**
+     * Показывает выбранные фото в модальном окне.
+     * Shows selected photos in modal.
+     */
+    function renderSelectedPhotosInModal() {
+        const selectedContainer = document.getElementById('selectedPhotosContainer');
+        if (!selectedContainer) return;
+
+        if (selectedPhotos.length === 0) {
+            selectedContainer.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-warning py-2 mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Фото не выбраны. Выберите фото из галерей выше (максимум 5).
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+
+        selectedPhotos.forEach((photo, index) => {
+            html += `
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card selected-photo-card" data-photo-id="${photo.id}">
+                        <div class="position-relative">
+                            <img src="${photo.webPath || '/static/images/placeholder.jpg'}"
+                                 class="card-img-top"
+                                 style="height: 100px; object-fit: cover;"
+                                 alt="${escapeHtml(photo.title)}"
+                                 onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'">
+                            <span class="position-absolute top-0 start-0 badge bg-primary m-1">${index + 1}</span>
+                            <span class="position-absolute top-0 end-0 m-1">
+                                <button type="button" class="btn btn-sm btn-danger btn-sm"
+                                        onclick="removePhotoFromSelection(${photo.id})">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </span>
+                        </div>
+                        <div class="card-body p-2">
+                            <p class="small mb-1 text-truncate" title="${escapeHtml(photo.title)}">
+                                ${escapeHtml(photo.title.length > 15 ? photo.title.substring(0, 15) + '...' : photo.title)}
+                            </p>
+                            <p class="small mb-0 text-muted text-truncate" title="${escapeHtml(photo.galleryTitle)}">
+                                ${escapeHtml(photo.galleryTitle.length > 15 ? photo.galleryTitle.substring(0, 15) + '...' : photo.galleryTitle)}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        selectedContainer.innerHTML = html;
+    }
+
+    // === УПРАВЛЕНИЕ ВЫБОРОМ ===
+
+    /**
+     * Выбирает галерею для отображения фото.
+     * Selects gallery to display photos.
+     *
+     * @param {number} galleryId ID галереи / gallery ID
+     */
+    function selectGallery(galleryId) {
+        console.log(`Выбрана галерея: ${galleryId}`);
+
+        // Обновляем активный элемент в списке галерей
+        document.querySelectorAll('#galleriesList .list-group-item').forEach(item => {
+            const itemGalleryId = parseInt(item.getAttribute('data-gallery-id'));
+            if (itemGalleryId === galleryId) {
+                item.classList.add('active', 'bg-light', 'border-primary');
+            } else {
+                item.classList.remove('active', 'bg-light', 'border-primary');
+            }
+        });
+
+        // Загружаем фото выбранной галереи
+        loadGalleryPhotos(galleryId);
+    }
+
+    /**
+     * Переключает выбор фото.
+     * Toggles photo selection.
+     *
+     * @param {number} photoId ID фото / photo ID
+     * @param {string} photoTitle название фото / photo title
+     * @param {string} webPath путь к фото / photo web path
+     * @param {string} galleryTitle название галереи / gallery title
+     */
+    function togglePhotoSelection(photoId, photoTitle, webPath, galleryTitle) {
+        // Проверяем, выбрано ли уже это фото
+        const existingIndex = selectedPhotos.findIndex(photo => photo.id === photoId);
+
+        if (existingIndex >= 0) {
+            // Удаляем фото из выбранных
+            selectedPhotos.splice(existingIndex, 1);
+            console.log(`Удалено фото ID: ${photoId}`);
+        } else {
+            // Проверяем лимит (максимум 5 фото)
+            if (selectedPhotos.length >= 5) {
+                showAlert('Можно выбрать максимум 5 фото. Удалите одно из выбранных.', 'warning');
+                return;
+            }
+
+            // Добавляем новое фото
+            selectedPhotos.push({
+                id: photoId,
+                title: photoTitle,
+                webPath: webPath,
+                galleryTitle: galleryTitle
+            });
+            console.log(`Добавлено фото ID: ${photoId}`);
+
+            updateSelectedPhotosCounter();
+        }
+
+        // Обновляем UI
+        updateSelectedCount();
+        renderSelectedPhotosInModal();
+        updatePhotoCheckboxes();
+        updateHiddenField();
+        showSelectedPhotosPreview();
+    }
+
+    /**
+     * Удаляет фото из выбранных.
+     * Removes photo from selection.
+     *
+     * @param {number} photoId ID фото / photo ID
+     */
+    function removePhotoFromSelection(photoId) {
+        if (!confirm('Удалить это фото из проекта?')) {
+            return;
+        }
+
+        selectedPhotos = selectedPhotos.filter(photo => photo.id !== photoId);
+        console.log(`Удалено фото ID: ${photoId}, осталось: ${selectedPhotos.length}`);
+
+        updateSelectedPhotosCounter();
+
+        // Обновляем UI
+        updateSelectedCount();
+        renderSelectedPhotosInModal();
+        showSelectedPhotosPreview();
+        updatePhotoCheckboxes();
+        updateHiddenField();
+    }
+
+    /**
+     * Устанавливает фото как главное.
+     * Sets photo as main.
+     *
+     * @param {number} photoId ID фото / photo ID
+     */
+    function setAsMainPhoto(photoId) {
+        // Находим индекс фото
+        const photoIndex = selectedPhotos.findIndex(photo => photo.id === photoId);
+        if (photoIndex === -1) return;
+
+        // Перемещаем фото на первое место
+        const [photo] = selectedPhotos.splice(photoIndex, 1);
+        selectedPhotos.unshift(photo);
+
+        console.log(`Установлено главное фото: ${photoId}`);
+
+        updateSelectedPhotosCounter();
+
+        // Обновляем превью
+        showSelectedPhotosPreview();
+        updateHiddenField();
+    }
+
+    /**
+     * Очищает все выбранные фото.
+     * Clears all selected photos.
+     */
+    function clearSelectedPhotos() {
+        if (selectedPhotos.length === 0) return;
+
+        if (!confirm(`Удалить все ${selectedPhotos.length} выбранных фото?`)) {
+            return;
+        }
+
+        selectedPhotos = [];
+        console.log('Очищены все выбранные фото');
+
+        updateSelectedPhotosCounter();
+
+        // Обновляем UI
+        updateSelectedCount();
+        renderSelectedPhotosInModal();
+        showSelectedPhotosPreview();
+        updatePhotoCheckboxes();
+        updateHiddenField();
+    }
+
+    /**
+     * Обновляет состояние чекбоксов фото.
+     * Updates photo checkboxes state.
+     */
+    function updatePhotoCheckboxes() {
+        // Обновляем чекбоксы в текущей галерее
+        currentGalleryPhotos.forEach(photo => {
+            const checkbox = document.getElementById(`photo_${photo.id}`);
+            if (checkbox) {
+                const isSelected = selectedPhotos.some(sp => sp.id === photo.id);
+                checkbox.checked = isSelected;
+
+                // Обновляем визуальное состояние карточки
+                const card = checkbox.closest('.photo-card');
+                if (card) {
+                    if (isSelected) {
+                        card.classList.add('selected-photo');
+                    } else {
+                        card.classList.remove('selected-photo');
+                    }
+                }
+            }
+        });
+    }
+
+    // === ФИЛЬТРАЦИЯ И ПОИСК ===
+
+    /**
+     * Фильтрует галереи по поисковому запросу.
+     * Filters galleries by search query.
+     *
+     * @param {string} query поисковый запрос / search query
+     */
+    function filterGalleries(query) {
+        if (!query || query.trim() === '') {
+            // Показываем все галереи
+            document.querySelectorAll('#galleriesList .list-group-item').forEach(item => {
+                item.style.display = 'block';
+            });
+            return;
+        }
+
+        const searchLower = query.toLowerCase().trim();
+
+        document.querySelectorAll('#galleriesList .list-group-item').forEach(item => {
+            const title = item.querySelector('h6')?.textContent?.toLowerCase() || '';
+            const year = item.querySelector('small')?.textContent?.toLowerCase() || '';
+            const description = item.querySelector('p')?.textContent?.toLowerCase() || '';
+
+            const matches = title.includes(searchLower) ||
+                           year.includes(searchLower) ||
+                           description.includes(searchLower);
+
+            item.style.display = matches ? 'block' : 'none';
+        });
+    }
+
+    /**
+     * Очищает поле поиска галерей.
+     * Clears gallery search field.
+     */
+    function clearGallerySearch() {
+        const searchInput = document.getElementById('gallerySearch');
+        if (searchInput) {
+            searchInput.value = '';
+            filterGalleries('');
+            searchInput.focus();
+        }
+    }
+
+    // === ОБНОВЛЕНИЕ UI ===
+
+    /**
+     * Обновляет счетчик галерей.
+     * Updates galleries counter.
+     */
+    function updateGalleriesCount() {
+        const countElement = document.getElementById('galleriesCount');
+        if (countElement) {
+            countElement.textContent = allGalleries.length;
+        }
+    }
+
+    /**
+     * Обновляет информацию о текущей галерее.
+     * Updates current gallery information.
+     *
+     * @param {number} galleryId ID галереи / gallery ID
+     */
+    function updateCurrentGalleryInfo(galleryId) {
+        const gallery = allGalleries.find(g => g.id === galleryId);
+        if (!gallery) return;
+
+        const titleElement = document.getElementById('currentGalleryTitle');
+        const infoElement = document.getElementById('currentGalleryInfo');
+        const countElement = document.getElementById('photosInGalleryCount');
+
+        if (titleElement) {
+            titleElement.innerHTML = `<i class="bi bi-image me-1"></i>${escapeHtml(gallery.title)}`;
+        }
+
+        if (infoElement) {
+            infoElement.textContent = `${gallery.year} год${gallery.description ? ` - ${gallery.description.substring(0, 50)}${gallery.description.length > 50 ? '...' : ''}` : ''}`;
+        }
+
+        if (countElement) {
+            countElement.textContent = `${currentGalleryPhotos.length} фото`;
+        }
+    }
+
+    /**
+     * Обновляет счетчик выбранных фото.
+     * Updates selected photos counter.
+     */
+    function updateSelectedCount() {
+        const countElement = document.getElementById('selectedCount');
+        if (countElement) {
+            countElement.textContent = selectedPhotos.length;
+        }
+    }
+
+    /**
+     * Обновляет скрытое поле формы с ID выбранных фото.
+     * Updates hidden form field with selected photo IDs.
+     */
+    function updateHiddenField() {
+        const hiddenField = document.getElementById('selectedPhotoIds');
+        if (hiddenField) {
+            const ids = selectedPhotos.map(photo => photo.id).join(',');
+            hiddenField.value = ids;
+            console.log('Обновлено скрытое поле:', ids);
+        }
+    }
+
+    // === МОДАЛЬНОЕ ОКНО ===
+
+    /**
+     * Настраивает обработчики модального окна.
+     * Sets up modal handlers.
+     */
+    function setupModalHandlers() {
+        const modalElement = document.getElementById('photoGalleryModal');
+        if (!modalElement) return;
+
+        // При открытии модального окна
+        modalElement.addEventListener('show.bs.modal', function() {
+            console.log('Открытие модального окна галерей');
+            // Галереи уже загружены при инициализации
+            renderSelectedPhotosInModal();
+            updateSelectedCount();
+        });
+
+        // При закрытии модального окна
+        modalElement.addEventListener('hidden.bs.modal', function() {
+            console.log('Закрытие модального окна галерей');
+            // Сбрасываем поиск
+            clearGallerySearch();
+        });
+    }
+
+    /**
+     * Открывает модальное окно выбора фото.
+     * Opens photo selection modal.
+     */
+    function openPhotoGalleryModal() {
+        console.log('Открываем модальное окно галерей...');
+        const modal = new bootstrap.Modal(document.getElementById('photoGalleryModal'));
+        modal.show();
+    }
+
+    /**
+     * Сохраняет выбранные фото и закрывает модальное окно.
+     * Saves selected photos and closes modal.
+     */
+    function saveSelectedPhotos() {
+        console.log('Сохранение выбранных фото:', selectedPhotos.length);
+
+        updateSelectedPhotosCounter();
+
+        // Обновляем скрытое поле
+        updateHiddenField();
+
+        // Обновляем превью на странице
+        showSelectedPhotosPreview();
+
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('photoGalleryModal'));
+        if (modal) {
+            modal.hide();
+        }
+
+        // Показываем уведомление
+        showAlert(`Выбрано ${selectedPhotos.length} фото`, 'success');
+    }
+
+    // === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
+
+    /**
+     * Экранирует HTML-символы для безопасного отображения.
+     * Escapes HTML characters for safe display.
+     *
+     * @param {string} text текст для экранирования / text to escape
+     * @return {string} экранированный текст / escaped text
+     */
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Показывает всплывающее уведомление.
+     * Shows popup notification.
+     *
+     * @param {string} message текст сообщения / message text
+     * @param {string} type тип уведомления (success, warning, danger) / notification type
+     */
+    function showAlert(message, type = 'success') {
+        // Удаляем старые уведомления
+        const oldAlerts = document.querySelectorAll('.custom-alert');
+        oldAlerts.forEach(alert => alert.remove());
+
+        // Создаем новое уведомление
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `custom-alert alert alert-${type} alert-dismissible fade show position-fixed`;
+        alertDiv.style.cssText = `
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 300px;
+        `;
+
+        alertDiv.innerHTML = `
+            <i class="bi ${type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'} me-1"></i>
+            ${escapeHtml(message)}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        // Автоматически скрыть через 3 секунды
+        setTimeout(() => {
+            const bsAlert = bootstrap.Alert.getOrCreateInstance(alertDiv);
+            if (bsAlert) bsAlert.close();
+        }, 3000);
+    }
+
+    // === CSS СТИЛИ ===
+    const photoGalleryStyles = document.createElement('style');
+    photoGalleryStyles.textContent = `
+        .photo-card {
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .photo-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .photo-card.selected-photo {
+            border-color: #198754 !important;
+            background-color: rgba(25, 135, 84, 0.05);
+        }
+        .photo-card.border-warning {
+            border-color: #ffc107 !important;
+        }
+        .selected-photo-card {
+            transition: all 0.2s ease;
+            border: 2px solid #0d6efd;
+        }
+        .selected-photo-card:hover {
+            transform: scale(1.02);
+        }
+        #galleriesList .list-group-item.active {
+            background-color: #e7f1ff;
+            color: #0a58ca;
+            border-left: 3px solid #0d6efd;
+        }
+        #galleriesList .list-group-item:hover:not(.active) {
+            background-color: #f8f9fa;
+        }
+        .custom-alert {
+            animation: slideInRight 0.3s ease;
+        }
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    `;
+    document.head.appendChild(photoGalleryStyles);
+
+    /**
+ * Обновляет счетчик выбранных фото в заголовке раздела.
+ * Updates selected photos counter in section header.
+ */
+function updateSelectedPhotosCounter() {
+    const counterElement = document.getElementById('selectedPhotosCount');
+    if (counterElement) {
+        counterElement.textContent = selectedPhotos.length;
+    }
+}
+</script>
+
+
+<!-- Скрипт для работы с видео (добавить перед закрывающим </body>) -->
+<script>
+    // Глобальные переменные
+    let currentVideoUrl = '';
+
+    // Основная функция для показа превью
+    function showVideoPreview() {
+        const urlInput = document.getElementById('videoUrlInput');
+        const url = urlInput.value.trim();
+        const previewContainer = document.getElementById('videoPreviewContainer');
+        const previewContent = document.getElementById('videoPreviewContent');
+        const emptyState = document.getElementById('videoEmptyState');
+        const previewState = document.getElementById('videoPreviewState');
+
+        if (!url) {
+            alert('Введите ссылку на видео');
+            urlInput.focus();
+            return;
+        }
+
+        // Простая проверка URL
+        if (!url.startsWith('https://') && !url.startsWith('https://')) {
+            alert('Ссылка должна начинаться с https:// или https://');
+            return;
+        }
+
+        // Извлекаем ID видео в зависимости от сервиса
+        let videoId = null;
+        let embedUrl = null;
+
+        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            videoId = extractYouTubeId(url);
+            if (videoId) {
+                embedUrl = `https://www.youtube.com/embed/${videoId}`;
+            }
+        } else if (url.includes('vimeo.com')) {
+            videoId = extractVimeoId(url);
+            if (videoId) {
+                embedUrl = `https://player.vimeo.com/video/${videoId}`;
+            }
+        } else if (url.includes('rutube.ru')) {
+            videoId = extractRutubeId(url);
+            if (videoId) {
+                embedUrl = `https://rutube.ru/play/embed/${videoId}`;
+            }
+        }
+
+        if (embedUrl && videoId) {
+            // Создаем embed код
+            const embedCode = `
+                <div class="ratio ratio-16x9">
+                    <iframe src="${embedUrl}"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                            style="border-radius: 8px;">
+                    </iframe>
+                </div>
+            `;
+
+            // Показываем превью
+            previewContent.innerHTML = embedCode;
+            previewContainer.style.display = 'block';
+            emptyState.style.display = 'none';
+            previewState.style.display = 'block';
+
+            // Сохраняем текущий URL
+            currentVideoUrl = url;
+
+            console.log('Превью создано для:', url);
+        } else {
+            alert('Некорректная ссылка на видео. Поддерживаются: YouTube, Vimeo, Rutube');
+        }
+    }
+
+    // Функции для извлечения ID видео
+    function extractYouTubeId(url) {
+        const patterns = [
+            /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)/,
+            /(?:youtu\.be\/)([a-zA-Z0-9_-]+)/,
+            /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/,
+            /(?:youtube\.com\/v\/)([a-zA-Z0-9_-]+)/
+        ];
+
+        for (const pattern of patterns) {
+            const match = url.match(pattern);
+            if (match && match[1]) {
+                return match[1];
+            }
+        }
+        return null;
+    }
+
+    function extractVimeoId(url) {
+        const pattern = /(?:vimeo\.com\/)(\d+)/;
+        const match = url.match(pattern);
+        return match ? match[1] : null;
+    }
+
+    function extractRutubeId(url) {
+        const patterns = [
+            /(?:rutube\.ru\/video\/)([a-zA-Z0-9_-]+)/,
+            /(?:rutube\.ru\/play\/embed\/)([a-zA-Z0-9_-]+)/
+        ];
+
+        for (const pattern of patterns) {
+            const match = url.match(pattern);
+            if (match && match[1]) {
+                return match[1];
+            }
+        }
+        return null;
+    }
+
+    // Вспомогательные функции
+    function clearVideoField() {
+        const urlInput = document.getElementById('videoUrlInput');
+        urlInput.value = '';
+        urlInput.focus();
+        hideVideoPreview();
+        console.log('Поле видео очищено');
+    }
+
+    function hideVideoPreview() {
+        const previewContainer = document.getElementById('videoPreviewContainer');
+        const previewState = document.getElementById('videoPreviewState');
+        const emptyState = document.getElementById('videoEmptyState');
+
+        previewContainer.style.display = 'none';
+        previewState.style.display = 'none';
+        emptyState.style.display = 'block';
+        currentVideoUrl = '';
+    }
+
+    // Обработка Enter в поле ввода
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlInput = document.getElementById('videoUrlInput');
+        if (urlInput) {
+            urlInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    showVideoPreview();
+                }
+            });
+        }
+    });
+
+    // Автоматическое превью при загрузке (для edit.html)
+    function autoPreviewIfUrlExists() {
+        const urlInput = document.getElementById('videoUrlInput');
+        if (urlInput && urlInput.value && urlInput.value.trim() !== '') {
+            // Небольшая задержка для загрузки страницы
+            setTimeout(showVideoPreview, 500);
+        }
+    }
+
+    // Вызов при загрузке страницы
+    document.addEventListener('DOMContentLoaded', autoPreviewIfUrlExists);
+</script>
+
+<!-- === JavaScript для Drag and Drop партнёров (РАБОЧАЯ ВЕРСИЯ) === -->
+<script>
+    // === Глобальные переменные ===
+    let draggedPartner = null;
+
+    // === ОСНОВНЫЕ ФУНКЦИИ ===
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Инициализация DnD для партнёров...');
+
+        // 1. Настраиваем перетаскивание
+        initPartnersDragAndDrop();
+
+        // 2. Инициализируем счетчики
+        updatePartnersCounters();
+
+        // 3. Инициализируем превью (только если есть контейнер)
+        if (document.getElementById('selectedPartnersPreview')) {
+            updatePartnersPreview();
+        }
+
+        // 4. Заполняем скрытое поле изначальными данными (для edit.html)
+        updatePartnersHiddenInput();
+    });
+
+    // Разрешить перетаскивание
+    function allowDropPartner(event) {
+        event.preventDefault();
+    }
+
+    // Начать перетаскивание
+    function dragPartner(event) {
+        draggedPartner = event.target;
+        event.dataTransfer.setData('text/plain', event.target.getAttribute('data-partner-id'));
+        event.target.classList.add('dragging');
+        console.log('Начато перетаскивание партнёра:', event.target.getAttribute('data-partner-id'));
+    }
+
+    // Завершить перетаскивание
+    function dropPartner(event) {
+        event.preventDefault();
+
+        // Убираем подсветку зоны drop
+        event.target.closest('#availablePartnersContainer, #projectPartnersContainer')?.classList.remove('partner-drop-zone-active');
+
+        // Получаем ID перетаскиваемого партнёра
+        const partnerId = event.dataTransfer.getData('text/plain');
+        console.log('Drop партнёра ID:', partnerId);
+
+        // Находим элемент партнёра
+        const draggedElement = document.querySelector(`[data-partner-id="${partnerId}"]`);
+        if (!draggedElement) {
+            console.error('Не найден элемент партнёра с ID:', partnerId);
+            return;
+        }
+
+        // Определяем целевую колонку
+        const targetContainer = event.target.closest('#availablePartnersContainer, #projectPartnersContainer');
+        if (!targetContainer) {
+            console.error('Не найдена целевая колонка');
+            return;
+        }
+
+        console.log('Перемещаем из:', draggedElement.parentElement.id, 'в:', targetContainer.id);
+
+        // Перемещаем партнёра
+        movePartnerToContainer(partnerId, targetContainer.id);
+
+        // Убираем класс dragging
+        document.querySelectorAll('.partner-draggable.dragging').forEach(el => {
+            el.classList.remove('dragging');
+        });
+    }
+
+    // Инициализация DnD
+    function initPartnersDragAndDrop() {
+        console.log('Настройка DnD для партнёров...');
+
+        // Настраиваем все элементы партнёров
+        document.querySelectorAll('.partner-draggable').forEach(item => {
+            // Устанавливаем атрибут draggable
+            item.setAttribute('draggable', 'true');
+
+            // Обработчик начала перетаскивания
+            item.addEventListener('dragstart', function(e) {
+                dragPartner(e);
+            });
+
+            // Обработчик конца перетаскивания
+            item.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+                draggedPartner = null;
+            });
+
+            // Клик для выделения
+            item.addEventListener('click', function(e) {
+                // Ctrl/Cmd для множественного выбора
+                if (!e.ctrlKey && !e.metaKey) {
+                    // Снимаем выделение со всех
+                    document.querySelectorAll('.partner-draggable.selected').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                }
+                this.classList.toggle('selected');
+                console.log('Выбран партнёр:', this.getAttribute('data-partner-id'));
+            });
+        });
+
+        // Настраиваем зоны drop (Доступные партнёры)
+        const availableContainer = document.getElementById('availablePartnersContainer');
+        if (availableContainer) {
+            availableContainer.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('partner-drop-zone-active');
+            });
+
+            availableContainer.addEventListener('dragleave', function() {
+                this.classList.remove('partner-drop-zone-active');
+            });
+
+            availableContainer.addEventListener('drop', function(e) {
+                dropPartner(e);
+            });
+        }
+
+        // Настраиваем зоны drop (Партнёры проекта)
+        const projectContainer = document.getElementById('projectPartnersContainer');
+        if (projectContainer) {
+            projectContainer.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('partner-drop-zone-active');
+            });
+
+            projectContainer.addEventListener('dragleave', function() {
+                this.classList.remove('partner-drop-zone-active');
+            });
+
+            projectContainer.addEventListener('drop', function(e) {
+                dropPartner(e);
+            });
+        }
+
+        console.log('DnD для партнёров настроен');
+    }
+
+    // Перемещение партнёра между колонками
+    function movePartnerToContainer(partnerId, targetContainerId) {
+        console.log(`movePartnerToContainer: ${partnerId} -> ${targetContainerId}`);
+
+        // Находим элемент партнёра
+        const partnerElement = document.querySelector(`[data-partner-id="${partnerId}"]`);
+        if (!partnerElement) {
+            console.error('Партнёр не найден:', partnerId);
+            return;
+        }
+
+        // Находим целевую колонку
+        const targetContainer = document.getElementById(targetContainerId);
+        if (!targetContainer) {
+            console.error('Целевая колонка не найдена:', targetContainerId);
+            return;
+        }
+
+        // Проверяем, не перемещаем ли мы в ту же колонку
+        if (partnerElement.parentElement === targetContainer) {
+            console.log('Партнёр уже в целевой колонке');
+            return;
+        }
+
+        // Определяем направление перемещения
+        const isMovingToProject = targetContainerId === 'projectPartnersContainer';
+
+        // Клонируем элемент с новыми стилями
+        const clonedElement = partnerElement.cloneNode(true);
+
+        // Очищаем классы выделения
+        clonedElement.classList.remove('selected', 'dragging');
+
+        // Меняем стили в зависимости от колонки
+        if (isMovingToProject) {
+            // Перемещаем в проект - зеленые стили
+            const icon = clonedElement.querySelector('.bi-building, .bi-handshake');
+            if (icon) {
+                icon.className = 'bi bi-handshake fs-4 text-success';
+            }
+
+            const badge = clonedElement.querySelector('.badge');
+            if (badge) {
+                badge.className = 'badge bg-success text-white';
+                badge.textContent = 'В проекте';
+            }
+
+            console.log(`Партнёр ${partnerId} перемещён в проект`);
+        } else {
+            // Перемещаем в доступные - синие стили
+            const icon = clonedElement.querySelector('.bi-building, .bi-handshake');
+            if (icon) {
+                icon.className = 'bi bi-building fs-4 text-info';
+            }
+
+            const badge = clonedElement.querySelector('.badge');
+            if (badge) {
+                badge.className = 'badge bg-info text-white';
+                badge.textContent = 'Доступен';
+            }
+
+            console.log(`Партнёр ${partnerId} перемещён в доступные`);
+        }
+
+        // Удаляем старый элемент
+        partnerElement.remove();
+
+        // Добавляем новый элемент в целевую колонку
+        targetContainer.appendChild(clonedElement);
+
+        // Реинициализируем события для нового элемента
+        initPartnerElementEvents(clonedElement);
+
+        // Обновляем UI
+        updatePartnersCounters();
+
+        // Обновляем сообщения о пустоте
+        updateEmptyMessages();
+
+        console.log('Партнёр успешно перемещён');
+    }
+
+    // Инициализация событий для элемента партнёра
+    function initPartnerElementEvents(element) {
+        element.setAttribute('draggable', 'true');
+
+        element.addEventListener('dragstart', function(e) {
+            dragPartner(e);
+        });
+
+        element.addEventListener('dragend', function() {
+            this.classList.remove('dragging');
+        });
+
+        element.addEventListener('click', function(e) {
+            if (!e.ctrlKey && !e.metaKey) {
+                document.querySelectorAll('.partner-draggable.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+            }
+            this.classList.toggle('selected');
+        });
+    }
+
+    // Обновление счетчиков (УНИВЕРСАЛЬНАЯ ФУНКЦИЯ для create.html и edit.html)
+    function updatePartnersCounters() {
+        console.log('Обновление счетчиков партнёров...');
+
+        // Получаем контейнеры
+        const availableContainer = document.getElementById('availablePartnersContainer');
+        const projectContainer = document.getElementById('projectPartnersContainer');
+
+        // Считаем количество
+        const availableCount = availableContainer ?
+            availableContainer.querySelectorAll('.partner-draggable').length : 0;
+        const projectCount = projectContainer ?
+            projectContainer.querySelectorAll('.partner-draggable').length : 0;
+
+        console.log(`Доступно: ${availableCount}, В проекте: ${projectCount}`);
+
+        // === ОБНОВЛЯЕМ ВСЕ ВОЗМОЖНЫЕ ЭЛЕМЕНТЫ (с проверкой существования) ===
+
+        // 1. Счетчик доступных партнёров (есть в обеих страницах)
+        const availableCountElement = document.getElementById('availablePartnersCount');
+        if (availableCountElement) {
+            availableCountElement.textContent = availableCount;
+        }
+
+        // 2. Счетчик партнёров в DnD колонке (есть в обеих страницах)
+        const projectDragCountElement = document.getElementById('projectPartnersDragCount');
+        if (projectDragCountElement) {
+            projectDragCountElement.textContent = projectCount;
+        }
+
+        // 3. Общий счетчик выбранных партнёров (есть в обеих страницах)
+        const selectedCountElement = document.getElementById('selectedPartnersCount');
+        if (selectedCountElement) {
+            selectedCountElement.textContent = projectCount;
+        }
+
+        // 4. Счетчик в заголовке секции (ТОЛЬКО в edit.html)
+        const projectCountElement = document.getElementById('projectPartnersCount');
+        if (projectCountElement) {
+            projectCountElement.textContent = projectCount;
+        }
+
+        // 5. Обновляем превью
+        updatePartnersPreview();
+
+        // 6. Обновляем скрытое поле
+        updatePartnersHiddenInput();
+
+        console.log('Счетчики обновлены');
+    }
+
+    // Обновление сообщений о пустых колонках
+    function updateEmptyMessages() {
+        // Сообщение о пустых доступных партнёрах
+        const availableContainer = document.getElementById('availablePartnersContainer');
+        if (availableContainer) {
+            const hasAvailablePartners = availableContainer.querySelectorAll('.partner-draggable').length > 0;
+            const emptyMessage = availableContainer.querySelector('.text-center.py-4');
+            if (emptyMessage) {
+                emptyMessage.style.display = hasAvailablePartners ? 'none' : 'block';
+            }
+        }
+
+        // Сообщение о пустых партнёрах проекта
+        const projectContainer = document.getElementById('projectPartnersContainer');
+        if (projectContainer) {
+            const hasProjectPartners = projectContainer.querySelectorAll('.partner-draggable').length > 0;
+            const emptyMessage = document.getElementById('emptyPartnersMessage');
+            if (emptyMessage) {
+                emptyMessage.style.display = hasProjectPartners ? 'none' : 'block';
+            }
+        }
+    }
+
+    // Обновление скрытого поля с выбранными ID
+    function updatePartnersHiddenInput() {
+        const projectContainer = document.getElementById('projectPartnersContainer');
+        if (!projectContainer) {
+            console.log('Контейнер партнёров проекта не найден');
+            return;
+        }
+
+        // Собираем все ID партнёров в проекте
+        const selectedElements = projectContainer.querySelectorAll('[data-partner-id]');
+        const ids = Array.from(selectedElements).map(el => el.getAttribute('data-partner-id'));
+
+        console.log('Выбранные ID партнёров:', ids);
+
+        // Находим скрытое поле
+        let hiddenField = document.getElementById('selectedPartnerIds');
+
+        // Если поля нет - создаем его
+        if (!hiddenField) {
+            console.log('Создаем скрытое поле selectedPartnerIds');
+            hiddenField = document.createElement('input');
+            hiddenField.type = 'hidden';
+            hiddenField.id = 'selectedPartnerIds';
+            hiddenField.name = 'selectedPartnerIds';
+
+            // Добавляем поле в форму
+            const form = document.querySelector('form.needs-validation');
+            if (form) {
+                form.appendChild(hiddenField);
+            } else {
+                console.error('Форма не найдена');
+                return;
+            }
+        }
+
+        // Записываем ID через запятую
+        hiddenField.value = ids.join(',');
+        console.log('Скрытое поле обновлено:', hiddenField.value);
+    }
+
+    // Обновление превью партнёров
+    function updatePartnersPreview() {
+        const previewContainer = document.getElementById('selectedPartnersPreview');
+        if (!previewContainer) {
+            console.log('Контейнер превью партнёров не найден');
+            return;
+        }
+
+        // Получаем все партнёры в проекте
+        const projectContainer = document.getElementById('projectPartnersContainer');
+        if (!projectContainer) {
+            console.log('Контейнер партнёров проекта не найден для превью');
+            return;
+        }
+
+        const selectedElements = projectContainer.querySelectorAll('[data-partner-id]');
+
+        if (selectedElements.length === 0) {
+            // Показываем сообщение об отсутствии партнёров
+            previewContainer.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-light text-center py-4">
+                        <i class="bi bi-handshake display-4 text-muted mb-3"></i>
+                        <h6 class="text-muted">Партнёры не выбраны</h6>
+                        <p class="text-muted small mb-0">
+                            Добавьте партнёров в проект для отображения логотипов на странице
+                        </p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        // Создаем превью карточек
+        let html = '<div class="col-12 mb-2"><strong>Выбранные партнёры:</strong></div>';
+
+        selectedElements.forEach((element, index) => {
+            const partnerId = element.getAttribute('data-partner-id');
+            const name = element.querySelector('strong')?.textContent || `Партнёр ${partnerId}`;
+            const typeElement = element.querySelector('small.text-muted');
+            const type = typeElement ? typeElement.textContent : 'Тип не указан';
+
+            html += `
+                <div class="col-6 col-md-4 col-lg-3 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="mb-3" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-handshake fs-1 text-success"></i>
+                            </div>
+                            <h6 class="mb-1">${escapeHtml(name)}</h6>
+                            <small class="text-muted d-block mb-2">${escapeHtml(type)}</small>
+                            <span class="badge bg-success">В проекте</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        previewContainer.innerHTML = html;
+        console.log('Превью обновлено, партнёров:', selectedElements.length);
+    }
+
+    // Функции для массового перемещения
+    function addSelectedPartnersToProject() {
+        console.log('Добавление выбранных партнёров в проект...');
+
+        const selected = document.querySelectorAll('#availablePartnersContainer .partner-draggable.selected');
+        console.log('Выбрано для добавления:', selected.length);
+
+        selected.forEach(partner => {
+            const partnerId = partner.getAttribute('data-partner-id');
+            console.log('Добавляем партнёра:', partnerId);
+            movePartnerToContainer(partnerId, 'projectPartnersContainer');
+        });
+    }
+
+    function removeSelectedPartnersFromProject() {
+        console.log('Удаление выбранных партнёров из проекта...');
+
+        const selected = document.querySelectorAll('#projectPartnersContainer .partner-draggable.selected');
+        console.log('Выбрано для удаления:', selected.length);
+
+        selected.forEach(partner => {
+            const partnerId = partner.getAttribute('data-partner-id');
+            console.log('Удаляем партнёра:', partnerId);
+            movePartnerToContainer(partnerId, 'availablePartnersContainer');
+        });
+    }
+
+    // Вспомогательная функция для экранирования HTML
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Функция для отладки - показывает все партнёры
+    function debugShowPartners() {
+        console.log('=== DEBUG: Все партнёры ===');
+
+        const available = document.querySelectorAll('#availablePartnersContainer [data-partner-id]');
+        const project = document.querySelectorAll('#projectPartnersContainer [data-partner-id]');
+
+        console.log('Доступные партнёры:', available.length);
+        available.forEach(p => console.log('  ID:', p.getAttribute('data-partner-id')));
+
+        console.log('Партнёры в проекте:', project.length);
+        project.forEach(p => console.log('  ID:', p.getAttribute('data-partner-id')));
+
+        const hiddenField = document.getElementById('selectedPartnerIds');
+        console.log('Скрытое поле:', hiddenField ? hiddenField.value : 'не найдено');
+    }
+</script>
+
+<!-- Quill.js Script -->
+<script src="/static/js/quill/quill.js"></script>
+<script>
+    // Инициализация Quill редактора для создания проекта
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Инициализация Quill редактора...');
+
+        // Находим элементы
+        const textarea = document.getElementById('fullDescription');
+        const editorContainer = document.getElementById('editor-container');
+
+        if (!textarea) {
+            console.error('❌ Не найден textarea #fullDescription');
+            return;
+        }
+
+        if (!editorContainer) {
+            console.error('❌ Не найден контейнер #editor-container');
+            return;
+        }
+
+        try {
+            // Создаем Quill редактор
+            const quill = new Quill(editorContainer, {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        // Заголовки: H2 и H3 (H1 не используем для контента)
+                        [{ 'header': [2, 3, false] }],
+
+                        // Основное форматирование
+                        ['bold', 'italic', 'underline'],
+
+                        // Списки
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+
+                        // Ссылки
+                        ['link'],
+
+                        // Выравнивание
+                        [{ 'align': [] }],
+
+                        // Очистка форматирования
+                        ['clean']
+                    ]
+                },
+                placeholder: 'Введите подробное описание проекта... Например:\n• Цели и задачи\n• Основные этапы\n• Ожидаемые результаты\n\nИспользуйте панель инструментов для форматирования.',
+                formats: [
+                    'header', 'bold', 'italic', 'underline',
+                    'list', 'bullet', 'link', 'align'
+                ]
+            });
+
+            console.log('✅ Quill редактор создан');
+
+            // 1. Загружаем существующие данные если есть (для edit.html)
+            if (textarea.value && textarea.value.trim() !== '') {
+                console.log('Загружаем существующий текст:', textarea.value.length, 'символов');
+                quill.root.innerHTML = textarea.value;
+            }
+
+            // 2. Синхронизация с textarea при изменении
+            quill.on('text-change', function(delta, oldDelta, source) {
+                if (source === 'user') {
+                    const html = quill.root.innerHTML;
+                    textarea.value = html;
+
+                    // Отладочная информация
+                    const text = quill.getText();
+                    console.log('📝 Контент обновлен:', {
+                        символов: text.length,
+                        символов_без_пробелов: text.replace(/\s/g, '').length,
+                        html_длина: html.length
+                    });
+                }
+            });
+
+            // 3. Обработчик отправки формы - двойная проверка
+            const form = document.querySelector('form.needs-validation');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    // Принудительная синхронизация перед отправкой
+                    textarea.value = quill.root.innerHTML;
+                    console.log('📤 Форма отправляется, сохранено:', textarea.value.length, 'символов');
+
+                    // Валидация: проверяем что не пустое
+                    const text = quill.getText().trim();
+                    if (text.length < 10) {
+                        alert('Пожалуйста, добавьте более подробное описание (минимум 10 символов).');
+                        event.preventDefault();
+                        quill.focus();
+                    }
+                });
+            }
+
+            // 4. Сохраняем ссылку для отладки
+            window.quillEditor = quill;
+
+            // 5. Показываем уведомление об успешной загрузке
+            setTimeout(() => {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show mt-2';
+                alertDiv.style.cssText = 'padding: 0.5rem 1rem; font-size: 0.875rem;';
+                alertDiv.innerHTML = `
+                    <i class="bi bi-check-circle me-1"></i>
+                    <strong>Редактор загружен!</strong> Используйте панель инструментов для форматирования.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" style="padding: 0.5rem;"></button>
+                `;
+                editorContainer.parentNode.insertBefore(alertDiv, editorContainer.nextSibling);
+
+                // Автоскрытие через 5 секунд
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        const bsAlert = bootstrap.Alert.getOrCreateInstance(alertDiv);
+                        bsAlert.close();
+                    }
+                }, 5000);
+            }, 500);
+
+            console.log('🎉 Quill редактор полностью инициализирован');
+
+        } catch (error) {
+            console.error('❌ Ошибка при создании Quill редактора:', error);
+
+            // Fallback: показываем обычное textarea
+            textarea.style.display = 'block';
+            editorContainer.style.display = 'none';
+
+            // Показываем сообщение об ошибке
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger mt-2';
+            errorDiv.innerHTML = `
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Ошибка загрузки редактора</strong>
+                <div class="small mt-1">Используется обычное текстовое поле. ${error.message}</div>
+            `;
+            editorContainer.parentNode.insertBefore(errorDiv, editorContainer);
+        }
+    });
+
+    // Вспомогательная функция для тестирования
+    window.testQuillEditor = function() {
+        if (!window.quillEditor) {
+            console.warn('Quill редактор не инициализирован');
+            return;
+        }
+
+        const text = window.quillEditor.getText();
+        const html = window.quillEditor.root.innerHTML;
+
+        console.log('=== ТЕСТ QUILL РЕДАКТОРА ===');
+        console.log('Текст (plain):', text);
+        console.log('Длина текста:', text.length, 'символов');
+        console.log('HTML:', html);
+        console.log('Длина HTML:', html.length, 'символов');
+        console.log('====================');
+
+        return {
+            text: text,
+            html: html,
+            length: text.length
+        };
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<!--
+    HEADER FRAGMENT / ФРАГМЕНТ ХЕДЕРА
+    Reusable HTML head section with meta tags and styles / Переиспользуемая секция HTML head с мета-тегами и стилями
+-->
+<head th:fragment="html-head(title)">
+    <!--
+        META AND BASIC SETUP / МЕТАДАННЫЕ И БАЗОВАЯ НАСТРОЙКА
+        Character set, viewport, and page title / Кодировка, вьюпорт и заголовок страницы
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - Общественная организация Лада'">Общественная организация Лада</title>
+
+    <!--
+        META DESCRIPTION AND KEYWORDS / МЕТА-ОПИСАНИЕ И КЛЮЧЕВЫЕ СЛОВА
+        SEO optimization for search engines / SEO оптимизация для поисковых систем
+    -->
+    <meta name="description" content="Общественная организация Лада - развитие гражданского общества и поддержка социальных инициатив">
+    <meta name="keywords" content="общественная организация, социальные проекты, гражданское общество, волонтерство">
+
+    <!--
+        BOOTSTRAP 5 CSS / БИБЛИОТЕКА BOOTSTRAP 5
+        Using CDN for consistent styling / Используем CDN для единообразного стиля
+    -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!--
+        GOOGLE FONTS / ШРИФТЫ GOOGLE
+        Using Inter font for modern typography / Используем шрифт Inter для современной типографики
+    -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!--
+        OUR DESIGN SYSTEM CSS / НАША CSS ДИЗАЙН-СИСТЕМА
+        Custom design system with variables and components / Пользовательская дизайн-система с переменными и компонентами
+    -->
+    <link href="/css/design-system.css" rel="stylesheet">
+</head>

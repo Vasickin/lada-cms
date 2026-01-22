@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+  <title>Видео проекта - Админ панель</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+  <style>
+    .videos-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    .video-preview {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: all 0.2s;
+    }
+    .video-preview:hover {
+        border-color: #0d6efd;
+        box-shadow: 0 0 10px rgba(0, 110, 255, 0.1);
+    }
+    .video-preview.main-video {
+        border: 2px solid #28a745;
+        background-color: #f8fff9;
+    }
+    .video-thumbnail {
+        width: 160px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    .sortable-handle {
+        cursor: move;
+        color: #6c757d;
+    }
+    .video-actions {
+        min-width: 120px;
+    }
+  </style>
+</head>
+<body>
+
+
+<div layout:fragment="content">
+  <div class="container-fluid videos-container">
+
+    <!-- ========== ХЛЕБНЫЕ КРОШКИ ========== -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a th:href="@{/admin}">Главная</a>
+            </li>
+            <li class="breadcrumb-item">
+              <a th:href="@{/admin/projects}">Проекты</a>
+            </li>
+            <li class="breadcrumb-item">
+              <a th:href="@{/admin/projects/edit/{id}(id=${project.id})}">
+                <span th:text="${project.title}">Проект</span>
+              </a>
+            </li>
+            <li class="breadcrumb-item active">Видео проекта</li>
+          </ol>
+        </nav>
+
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="h2 mb-0">
+              <i class="bi bi-play-btn me-2"></i>
+              Видео проекта
+            </h1>
+            <p class="text-muted mb-0 mt-1">
+              Проект: <strong th:text="${project.title}">Название</strong>
+            </p>
+          </div>
+          <div>
+            <a th:href="@{/admin/projects/edit/{id}(id=${project.id})}"
+               class="btn btn-outline-secondary me-2">
+              <i class="bi bi-arrow-left me-1"></i>
+              Назад к проекту
+            </a>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVideoModal">
+              <i class="bi bi-plus-circle me-1"></i>
+              Добавить видео
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== СООБЩЕНИЯ ========== -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+          <i class="bi bi-check-circle me-2"></i>
+          <span th:text="${successMessage}"></span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <span th:text="${errorMessage}"></span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ГЛАВНОЕ ВИДЕО ========== -->
+    <div class="row mb-4" th:if="${mainVideo != null}">
+      <div class="col-12">
+        <div class="card border-success">
+          <div class="card-header bg-success text-white">
+            <i class="bi bi-star-fill me-2"></i>
+            Главное видео проекта
+          </div>
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-3">
+                <img th:src="${mainVideo.thumbnailUrl}"
+                     class="video-thumbnail w-100 rounded"
+                     alt="Превью видео">
+              </div>
+              <div class="col-md-6">
+                <h5 th:text="${mainVideo.title}">Название видео</h5>
+                <p class="text-muted mb-2" th:text="${mainVideo.description} ?: 'Нет описания'">
+                  Описание
+                </p>
+                <div class="small text-muted">
+                  <i class="bi bi-clock me-1"></i>
+                  <span th:text="${mainVideo.durationFormatted}">0:00</span> |
+                  <i class="bi bi-calendar me-1 ms-2"></i>
+                  <span th:text="${#temporals.format(mainVideo.addedAt, 'dd.MM.yyyy HH:mm')}">
+                                        Дата
+                                    </span>
+                </div>
+              </div>
+              <div class="col-md-3 text-end">
+                <button class="btn btn-outline-secondary btn-sm"
+                        th:onclick="'playVideo(\'' + ${mainVideo.videoId} + '\', \'' + ${mainVideo.videoType} + '\')'">
+                  <i class="bi bi-play-fill me-1"></i>
+                  Воспроизвести
+                </button>
+                <a th:href="@{/admin/project-videos/edit/{id}(id=${mainVideo.id})}"
+                   class="btn btn-outline-secondary btn-sm ms-1">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <form th:action="@{/admin/project-videos/delete/{id}(id=${mainVideo.id})}"
+                      method="post"
+                      class="d-inline"
+                      onsubmit="return confirm('Удалить главное видео?')">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                  <button type="submit" class="btn btn-outline-danger btn-sm ms-1">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== СПИСОК ВСЕХ ВИДЕО ========== -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <i class="bi bi-collection-play me-2"></i>
+                Все видео проекта
+                <span class="badge bg-primary ms-2" th:text="${videos != null ? videos.size() : 0}">
+                                    0
+                                </span>
+              </div>
+              <div>
+                <small class="text-muted">
+                  Перетаскивайте для изменения порядка
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Пустой список -->
+            <div th:if="${videos == null || videos.isEmpty()}" class="text-center py-5">
+              <i class="bi bi-play-circle display-1 text-muted"></i>
+              <h4 class="mt-3">Нет добавленных видео</h4>
+              <p class="text-muted">
+                Добавьте видео с YouTube или Vimeo для отображения на странице проекта
+              </p>
+              <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#addVideoModal">
+                <i class="bi bi-plus-circle me-1"></i>
+                Добавить первое видео
+              </button>
+            </div>
+
+            <!-- Список видео -->
+            <div th:if="${videos != null && !videos.isEmpty()}" id="videosList">
+              <div class="video-preview"
+                   th:each="video : ${videos}"
+                   th:data-video-id="${video.id}"
+                   th:classappend="${video.main ? 'main-video' : ''}">
+                <div class="row align-items-center">
+                  <!-- Порядковый номер и перетаскивание -->
+                  <div class="col-auto">
+                    <div class="d-flex flex-column align-items-center">
+                                            <span class="sortable-handle">
+                                                <i class="bi bi-grip-vertical fs-5"></i>
+                                            </span>
+                      <span class="badge bg-secondary mt-1"
+                            th:text="${video.sortOrder + 1}">
+                                                1
+                                            </span>
+                    </div>
+                  </div>
+
+                  <!-- Превью и информация -->
+                  <div class="col">
+                    <div class="row align-items-center">
+                      <div class="col-auto">
+                        <img th:src="${video.thumbnailUrl}"
+                             class="video-thumbnail"
+                             alt="Превью"
+                             onerror="this.src='https://img.youtube.com/vi/default/hqdefault.jpg'">
+                      </div>
+                      <div class="col">
+                        <h6 class="mb-1" th:text="${video.title}">Название</h6>
+                        <p class="mb-1 text-muted small"
+                           th:text="${video.description} ?: 'Без описания'">
+                          Описание
+                        </p>
+                        <div class="small">
+                                                    <span class="badge"
+                                                          th:classappend="${video.videoType.name() == 'YOUTUBE' ? 'bg-danger' : 'bg-primary'}">
+                                                        <i th:classappend="${video.videoType.name() == 'YOUTUBE' ? 'bi bi-youtube' : 'bi bi-vimeo'}"></i>
+                                                        <span th:text="${video.videoType.name()}">
+                                                            YouTube
+                                                        </span>
+                                                    </span>
+                          <span class="ms-2 text-muted">
+                                                        <i class="bi bi-clock"></i>
+                                                        <span th:text="${video.durationFormatted}">0:00</span>
+                                                    </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Действия -->
+                  <div class="col-auto video-actions">
+                    <div class="btn-group btn-group-sm" role="group">
+                      <!-- Кнопка воспроизведения -->
+                      <button type="button"
+                              class="btn btn-outline-primary"
+                              th:onclick="'playVideo(\'' + ${video.videoId} + '\', \'' + ${video.videoType} + '\')'">
+                        <i class="bi bi-play-fill"></i>
+                      </button>
+
+                      <!-- Сделать главным -->
+                      <form th:action="@{/admin/project-videos/set-main/{id}(id=${video.id})}"
+                            method="post"
+                            th:if="${!video.main}"
+                            class="d-inline">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button type="submit"
+                                class="btn btn-outline-success"
+                                title="Сделать главным">
+                          <i class="bi bi-star"></i>
+                        </button>
+                      </form>
+
+                      <!-- Редактировать -->
+                      <a th:href="@{/admin/project-videos/edit/{id}(id=${video.id})}"
+                         class="btn btn-outline-secondary">
+                        <i class="bi bi-pencil"></i>
+                      </a>
+
+                      <!-- Удалить -->
+                      <form th:action="@{/admin/project-videos/delete/{id}(id=${video.id})}"
+                            method="post"
+                            class="d-inline"
+                            onsubmit="return confirm('Удалить видео?')">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button type="submit" class="btn btn-outline-danger">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Кнопка сохранения порядка (если есть видео) -->
+            <div th:if="${videos != null && !videos.isEmpty()}" class="mt-4 pt-3 border-top">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVideoModal">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Добавить ещё видео
+                  </button>
+                </div>
+                <div>
+                  <form th:action="@{/admin/projects/{id}/videos/save-order(id=${project.id})}"
+                        method="post"
+                        id="saveOrderForm">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="videoOrder" id="videoOrderInput">
+                    <button type="submit" class="btn btn-success">
+                      <i class="bi bi-save me-1"></i>
+                      Сохранить порядок
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ ВИДЕО ========== -->
+<div class="modal fade" id="addVideoModal" tabindex="-1" aria-labelledby="addVideoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addVideoModalLabel">
+          <i class="bi bi-plus-circle me-2"></i>
+          Добавить видео
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form th:action="@{/admin/project-videos/create}" method="post">
+        <div class="modal-body">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <input type="hidden" name="projectId" th:value="${project.id}">
+
+          <div class="mb-3">
+            <label for="videoUrl" class="form-label">
+              <i class="bi bi-link-45deg me-1"></i>
+              URL видео *
+            </label>
+            <input type="url"
+                   class="form-control"
+                   id="videoUrl"
+                   name="youtubeUrl"
+                   placeholder="https://www.youtube.com/watch?v=... или https://vimeo.com/..."
+                   required>
+            <div class="form-text">
+              Поддерживаются YouTube и Vimeo ссылки
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-8">
+              <div class="mb-3">
+                <label for="videoTitle" class="form-label">
+                  <i class="bi bi-card-text me-1"></i>
+                  Название видео *
+                </label>
+                <input type="text"
+                       class="form-control"
+                       id="videoTitle"
+                       name="title"
+                       placeholder="Название видео"
+                       required>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label class="form-label">
+                  <i class="bi bi-star me-1"></i>
+                  Главное видео
+                </label>
+                <div class="form-check">
+                  <input class="form-check-input"
+                         type="checkbox"
+                         id="isMain"
+                         name="isMain">
+                  <label class="form-check-label" for="isMain">
+                    Сделать главным видео проекта
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="videoDescription" class="form-label">
+              <i class="bi bi-text-paragraph me-1"></i>
+              Описание видео
+            </label>
+            <textarea class="form-control"
+                      id="videoDescription"
+                      name="description"
+                      rows="3"
+                      placeholder="Описание видео (необязательно)"></textarea>
+          </div>
+
+          <!-- Предпросмотр видео -->
+          <div class="mt-3" id="videoPreview" style="display: none;">
+            <div class="card">
+              <div class="card-header">
+                <i class="bi bi-eye me-1"></i>
+                Предпросмотр
+              </div>
+              <div class="card-body text-center">
+                <div id="previewContainer"></div>
+                <div class="mt-2">
+                  <small class="text-muted" id="previewInfo"></small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Отмена
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle me-1"></i>
+            Добавить видео
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ========== МОДАЛЬНОЕ ОКНО ВОСПРОИЗВЕДЕНИЯ ========== -->
+<div class="modal fade" id="playVideoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="playVideoModalLabel">Воспроизведение видео</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="ratio ratio-16x9">
+          <iframe id="videoPlayer"
+                  src=""
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Sortable.js для перетаскивания -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<script>
+  // Инициализация Sortable для видео
+  document.addEventListener('DOMContentLoaded', function() {
+      const videosList = document.getElementById('videosList');
+      if (videosList) {
+          new Sortable(videosList, {
+              handle: '.sortable-handle',
+              animation: 150,
+              onEnd: function() {
+                  updateVideoOrder();
+              }
+          });
+      }
+
+      // Предпросмотр видео при вводе URL
+      const videoUrlInput = document.getElementById('videoUrl');
+      if (videoUrlInput) {
+          videoUrlInput.addEventListener('input', function() {
+              const url = this.value.trim();
+              if (url && (url.includes('youtube.com') || url.includes('youtu.be') || url.includes('vimeo.com'))) {
+                  showVideoPreview(url);
+              } else {
+                  hideVideoPreview();
+              }
+          });
+      }
+  });
+
+  // Обновление порядка видео
+  function updateVideoOrder() {
+      const videos = document.querySelectorAll('#videosList .video-preview');
+      const order = Array.from(videos).map(video => video.getAttribute('data-video-id'));
+      document.getElementById('videoOrderInput').value = order.join(',');
+  }
+
+  // Воспроизведение видео
+  function playVideo(videoId, videoType) {
+      let embedUrl;
+
+      if (videoType === 'YOUTUBE') {
+          embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+      } else if (videoType === 'VIMEO') {
+          embedUrl = `https://player.vimeo.com/video/${videoId}?autoplay=1`;
+      }
+
+      document.getElementById('videoPlayer').src = embedUrl;
+      new bootstrap.Modal(document.getElementById('playVideoModal')).show();
+  }
+
+  // Предпросмотр видео по URL
+  function showVideoPreview(url) {
+      const previewContainer = document.getElementById('previewContainer');
+      const previewInfo = document.getElementById('previewInfo');
+      const previewSection = document.getElementById('videoPreview');
+
+      let embedCode = '';
+      let infoText = '';
+
+      // YouTube
+      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+          let videoId = '';
+
+          if (url.includes('v=')) {
+              videoId = url.split('v=')[1].split('&')[0];
+          } else if (url.includes('youtu.be/')) {
+              videoId = url.split('youtu.be/')[1].split('?')[0];
+          }
+
+          if (videoId) {
+              embedCode = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+              infoText = 'YouTube видео';
+          }
+      }
+      // Vimeo
+      else if (url.includes('vimeo.com')) {
+          const matches = url.match(/vimeo.com\/(\d+)/);
+          if (matches && matches[1]) {
+              embedCode = `<iframe width="100%" height="200" src="https://player.vimeo.com/video/${matches[1]}" frameborder="0" allowfullscreen></iframe>`;
+              infoText = 'Vimeo видео';
+          }
+      }
+
+      if (embedCode) {
+          previewContainer.innerHTML = embedCode;
+          previewInfo.textContent = infoText;
+          previewSection.style.display = 'block';
+      }
+  }
+
+  function hideVideoPreview() {
+      document.getElementById('videoPreview').style.display = 'none';
+  }
+
+  // Закрытие модального окна видео
+  document.getElementById('playVideoModal').addEventListener('hidden.bs.modal', function() {
+      document.getElementById('videoPlayer').src = '';
+  });
+</script>
+</body>
+</html>

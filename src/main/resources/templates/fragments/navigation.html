@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<!--
+    NAVIGATION FRAGMENT - FIXED VERSION / ФРАГМЕНТ НАВИГАЦИИ - ИСПРАВЛЕННАЯ ВЕРСИЯ
+    Fixed: Removed problematic httpServletRequest expressions causing 500 errors
+    Исправлено: Убраны проблемные выражения httpServletRequest вызывающие ошибки 500
+
+    Solution: Use simpler approach for active states without httpServletRequest
+    Решение: Использовать более простой подход для активных состояний без httpServletRequest
+-->
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!--
+    MAIN NAVIGATION COMPONENT - SIMPLIFIED / ОСНОВНОЙ КОМПОНЕНТ НАВИГАЦИИ - УПРОЩЕННЫЙ
+    Fixed version without httpServletRequest dependency for fragment compatibility
+    Исправленная версия без зависимости от httpServletRequest для совместимости фрагментов
+-->
+<nav class="navbar navbar-expand-lg navbar-light navbar-custom fixed-top" th:fragment="main-navigation">
+    <div class="container">
+        <!--
+            BRAND LOGO AND NAME / ЛОГОТИП И НАЗВАНИЕ БРЕНДА
+            Organization branding remains unchanged
+            Брендинг организации остается без изменений
+        -->
+        <a class="navbar-brand logo-brand" href="/" th:href="@{/}">
+            <img src="/images/optimized/logo.png"
+                 alt="Лада - Общественная организация"
+                 class="logo-image"
+                 th:onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block'">
+            <span style="color: var(--primary-800); display: none;">🏛️ Лада</span>
+            <span class="me-1">Лада</span>
+        </a>
+
+        <!--
+            MOBILE MENU TOGGLE / ПЕРЕКЛЮЧАТЕЛЬ МОБИЛЬНОГО МЕНЮ
+            Hamburger menu button remains unchanged
+            Кнопка гамбургер-меню остается без изменений
+        -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Переключить навигацию">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!--
+            NAVIGATION MENU ITEMS - SIMPLIFIED / ПУНКТЫ НАВИГАЦИОННОГО МЕНЮ - УПРОЩЕННЫЕ
+            Fixed: Removed httpServletRequest expressions causing null pointer exceptions
+            Исправлено: Убраны выражения httpServletRequest вызывающие исключения null pointer
+            Solution: Active states will be handled by JavaScript or server-side logic
+            Решение: Активные состояния будут обрабатываться JavaScript или серверной логикой
+        -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <!--
+                    SIMPLIFIED NAVIGATION LINKS / УПРОЩЕННЫЕ НАВИГАЦИОННЫЕ ССЫЛКИ
+                    Removed problematic th:classappend with httpServletRequest
+                    Убраны проблемные th:classappend с httpServletRequest
+                    Active states will be implemented later with JavaScript
+                    Активные состояния будут реализованы позже с помощью JavaScript
+                -->
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/" th:href="@{/}">
+                        Главная
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/about" th:href="@{/about}">
+                        О нас
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/projects" th:href="@{/projects}">
+                        Наши проекты
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/gallery" th:href="@{/gallery}">
+                        Галерея
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/patrons" th:href="@{/patrons}">
+                        Меценатам
+                    </a>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/team" th:href="@{/team}">
+                        Наша команда
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold" href="/contact" th:href="@{/contact}">
+                        Контакты
+                    </a>
+                </li>
+                <!--
+                    ADMIN DASHBOARD LINK - WORKS CORRECTLY / ССЫЛКА НА ПАНЕЛЬ УПРАВЛЕНИЯ - РАБОТАЕТ КОРРЕКТНО
+                    Spring Security integration works fine with sec:authorize
+                    Интеграция Spring Security работает корректно с sec:authorize
+                    This was not the source of the problem
+                    Это не было источником проблемы
+                -->
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link fw-semibold text-success" href="/admin" th:href="@{/admin}">
+                        <span class="me-1">⚙️</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

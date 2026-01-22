@@ -1,0 +1,395 @@
+/* photo-gallery-form.css */
+/* Специальные стили для формы создания/редактирования фото-галереи */
+
+/* ========== ОБЩИЕ СТИЛИ ФОРМЫ ========== */
+
+.form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Заголовки карточек */
+.card-header.bg-white {
+    background-color: #fff !important;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* ========== СТИЛИ ДЛЯ DRAG & DROP ========== */
+
+.dropzone-area {
+    border: 2px dashed #dee2e6;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.dropzone-area:hover {
+    border-color: #0d6efd;
+    background-color: #e7f1ff;
+}
+
+.dropzone-area.dragover {
+    border-color: #0d6efd;
+    background-color: #e7f1ff;
+    transform: scale(1.02);
+}
+
+.dropzone-area.border-danger {
+    border-color: #dc3545 !important;
+    background-color: #f8d7da !important;
+    animation: pulse-danger 1s infinite;
+}
+
+@keyframes pulse-danger {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+.dropzone-area .upload-icon {
+    font-size: 3rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.dropzone-area:hover .upload-icon {
+    color: #0d6efd;
+    transform: translateY(-5px);
+}
+
+/* ========== СТИЛИ ДЛЯ СПИСКА ФАЙЛОВ ========== */
+
+.file-list-container {
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #adb5bd #f8f9fa;
+}
+
+.file-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.file-list-container::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.file-list-container::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+    border-radius: 4px;
+}
+
+.file-list-container::-webkit-scrollbar-thumb:hover {
+    background: #6c757d;
+}
+
+.file-list-item {
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    margin-bottom: 0.25rem;
+}
+
+.file-list-item:hover {
+    border-left-color: #0d6efd;
+    background-color: #f8f9fa;
+}
+
+.file-list-item.primary {
+    border-left-color: #198754;
+    background-color: #d1e7dd;
+}
+
+.file-list-item .file-preview {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.25rem;
+    object-fit: cover;
+    border: 1px solid #dee2e6;
+}
+
+.file-list-item .file-info {
+    flex: 1;
+    min-width: 0; /* Для корректной работы text-truncate */
+}
+
+.file-list-item .file-name {
+    font-weight: 500;
+    color: #212529;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-list-item .file-size {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+/* ========== СТИЛИ ДЛЯ СУЩЕСТВУЮЩИХ ИЗОБРАЖЕНИЙ ========== */
+
+.existing-images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.5rem;
+}
+
+.existing-image-item {
+    position: relative;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.existing-image-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.existing-image-item img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+}
+
+.existing-image-item .image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 0.25rem;
+}
+
+.existing-image-item .image-name {
+    color: white;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.existing-image-item .primary-badge {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    background: #198754;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+}
+
+/* ========== СТИЛИ ДЛЯ КАТЕГОРИЙ ========== */
+
+.categories-container {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+}
+
+.categories-container.border-danger {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.category-badge {
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    min-width: 80px;
+    text-align: center;
+    border-radius: 0.25rem;
+}
+
+.category-badge-main {
+    background-color: #dc3545;
+    color: white;
+}
+
+.category-badge-about {
+    background-color: #198754;
+    color: white;
+}
+
+.category-badge-projects {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.category-badge-gallery {
+    background-color: #0dcaf0;
+    color: white;
+}
+
+/* ========== СТИЛИ ДЛЯ СЧЕТЧИКА СИМВОЛОВ ========== */
+
+.char-counter {
+    font-size: 0.75rem;
+    transition: color 0.2s ease;
+}
+
+.char-counter.near-limit {
+    color: #ffc107;
+}
+
+.char-counter.over-limit {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* ========== СТИЛИ ДЛЯ ПРОГРЕСС-БАРА ========== */
+
+.upload-progress {
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    background-color: #e9ecef;
+}
+
+.upload-progress .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* ========== СТИЛИ ДЛЯ КНОПОК ========== */
+
+.action-buttons {
+    position: sticky;
+    top: 20px;
+    z-index: 1000;
+}
+
+@media (max-width: 992px) {
+    .action-buttons {
+        position: static;
+        margin-top: 1rem;
+    }
+}
+
+.btn-submit {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-submit .spinner-border {
+    vertical-align: -0.125em;
+}
+
+.btn-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* ========== АДАПТИВНЫЕ СТИЛИ ========== */
+
+@media (max-width: 768px) {
+    .form-label {
+        font-size: 0.9rem;
+    }
+
+    .form-control, .form-select {
+        font-size: 0.9rem;
+    }
+
+    .card-header h5 {
+        font-size: 1rem;
+    }
+
+    .dropzone-area {
+        padding: 1.5rem !important;
+    }
+
+    .dropzone-area .upload-icon {
+        font-size: 2rem;
+    }
+
+    .categories-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ========== АНИМАЦИИ ========== */
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* ========== УТИЛИТЫ ========== */
+
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+
+.transition-all {
+    transition: all 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+}
+
+/* ========== ВАЛИДАЦИЯ ========== */
+
+.validation-alert {
+    border-left: 4px solid #ffc107;
+    animation: slideIn 0.3s ease-out;
+}
+
+.field-error {
+    border-color: #dc3545 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.field-error:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}

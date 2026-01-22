@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление основными страницами - Админка Community CMS</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --secondary-gradient: linear-gradient(135deg, #cd9cf2 0%, #f6f3ff 100%);
+        }
+
+        .page-header-section {
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .page-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            height: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-left: 4px solid transparent;
+        }
+
+        .page-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .page-card-header {
+            padding: 1.5rem 1.5rem 0.5rem;
+            border-bottom: none;
+            background: transparent;
+        }
+
+        .page-card-body {
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .page-icon-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .page-icon-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .page-icon-success { background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; }
+        .page-icon-warning { background: linear-gradient(135deg, #fa709a, #fee140); color: white; }
+        .page-icon-info { background: linear-gradient(135deg, #a8edea, #fed6e3); color: #333; }
+        .page-icon-secondary { background: linear-gradient(135deg, #cd9cf2, #f6f3ff); color: #333; }
+        .page-icon-light { background: linear-gradient(135deg, #f8f9fa, #e9ecef); color: #333; }
+
+        .page-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+
+        .page-description {
+            font-size: 0.875rem;
+            color: #718096;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            min-width: 120px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #f8f9ff, #eef2ff);
+            border: 1px solid #e2e8f0;
+        }
+
+        .quick-nav-card {
+            background: linear-gradient(135deg, #ffffff, #f7fafc);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Анимации */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-card {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .page-card:nth-child(1) { animation-delay: 0.1s; }
+        .page-card:nth-child(2) { animation-delay: 0.2s; }
+        .page-card:nth-child(3) { animation-delay: 0.3s; }
+        .page-card:nth-child(4) { animation-delay: 0.4s; }
+        .page-card:nth-child(5) { animation-delay: 0.5s; }
+        .page-card:nth-child(6) { animation-delay: 0.6s; }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .page-header-section {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .page-card-header {
+                padding: 1rem 1rem 0.5rem;
+            }
+
+            .page-card-body {
+                padding: 0 1rem 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .page-icon-wrapper {
+                width: 50px;
+                height: 50px;
+                font-size: 1.25rem;
+            }
+
+            .page-title {
+                font-size: 1rem;
+            }
+        }
+
+        /* ДОБАВИТЬ В СЕКЦИЮ STYLE (после :root) */
+.container-content {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ИЛИ ЕСЛИ ХОТИМ БОЛЕЕ КОМПАКТНЫЙ ВАРИАНТ */
+.container-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+    </style>
+</head>
+<body>
+<div class="container-content py-4">
+
+    <!-- ЗАГОЛОВОК С НАВИГАЦИЕЙ -->
+    <div class="page-header-section">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="#" class="text-white-50 text-decoration-none">📊 Дашборд</a></li>
+                <li class="breadcrumb-item active text-white">🌐 Основные страницы сайта</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 mb-2">🌐 Управление основными страницами</h1>
+                <p class="mb-0 opacity-90">Редактируйте контент главных разделов вашего сайта</p>
+            </div>
+            <a th:href="@{/admin}" class="btn btn-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Назад
+            </a>
+        </div>
+    </div>
+
+    <!-- УВЕДОМЛЕНИЯ -->
+    <div th:if="${param.success}" class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span th:if="${param.success == 'page_updated'}">✅ Страница успешно обновлена!</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${param.error}" class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:if="${param.error == 'invalid_page_type'}">❌ Ошибка: Неверный тип страницы</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- КОМПАКТНЫЕ КАРТОЧКИ СТРАНИЦ -->
+    <div class="row g-4">
+        <!-- СТРАНИЦА "О НАС" -->
+        <div class="col-xl-4 col-lg-6 col-md-6">
+            <div class="card page-card border-primary" style="border-left-color: #667eea !important;">
+                <div class="page-card-header">
+                    <div class="d-flex align-items-start">
+                        <div class="page-icon-wrapper page-icon-primary">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="page-title">О нашей организации</h5>
+                            <span class="badge bg-primary status-badge">
+                                <i class="bi bi-globe me-1"></i>Основная
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-card-body">
+                    <p class="page-description">
+                        Информация о миссии, ценностях и команде организации
+                    </p>
+                    <div class="action-buttons">
+                        <a th:href="@{/admin/site-pages/edit/about}" class="btn btn-primary btn-action">
+                            <i class="bi bi-pencil me-1"></i>Редактировать
+                        </a>
+                        <a th:href="@{/about}" target="_blank" class="btn btn-outline-primary btn-action">
+                            <i class="bi bi-eye me-1"></i>Просмотр
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА "ПРОЕКТЫ" -->
+        <div class="col-xl-4 col-lg-6 col-md-6">
+            <div class="card page-card border-success" style="border-left-color: #4facfe !important;">
+                <div class="page-card-header">
+                    <div class="d-flex align-items-start">
+                        <div class="page-icon-wrapper page-icon-success">
+                            <i class="bi bi-rocket"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="page-title">Наши проекты</h5>
+                            <span class="badge bg-success status-badge">
+                                <i class="bi bi-globe me-1"></i>Раздел сайта "Наши проекты"
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-card-body">
+                    <p class="page-description">
+                         Создание и редактирование страниц "Наши проекты"
+                    </p>
+                    <div class="action-buttons">
+                        <a th:href="@{/admin/projects}" class="btn btn-success btn-action">
+                            <i class="bi bi-pencil me-1"></i>Редактировать
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА "ГАЛЕРЕЯ" -->
+        <div class="col-xl-4 col-lg-6 col-md-6">
+            <div class="card page-card border-warning" style="border-left-color: #fa709a !important;">
+                <div class="page-card-header">
+                    <div class="d-flex align-items-start">
+                        <div class="page-icon-wrapper page-icon-warning">
+                            <i class="bi bi-images"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="page-title">Галерея мероприятий</h5>
+                            <span class="badge bg-warning status-badge">
+                                <i class="bi bi-globe me-1"></i>Основная
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-card-body">
+                    <p class="page-description">
+                        Фотографии и видео с мероприятий, фильтрация по годам
+                    </p>
+                    <div class="action-buttons">
+                        <a th:href="@{/admin/photo-gallery}" class="btn btn-warning btn-action">
+                            <i class="bi bi-pencil me-1"></i>Редактировать
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА "МЕЦЕНАТАМ" -->
+        <div class="col-xl-4 col-lg-6 col-md-6">
+            <div class="card page-card border-info" style="border-left-color: #a8edea !important;">
+                <div class="page-card-header">
+                    <div class="d-flex align-items-start">
+                        <div class="page-icon-wrapper page-icon-info">
+                            <i class="bi bi-gem"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="page-title">Информация для меценатов</h5>
+                            <span class="badge bg-info status-badge">
+                                <i class="bi bi-globe me-1"></i>Основная
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-card-body">
+                    <p class="page-description">
+                        Условия партнерства, преимущества и процесс сотрудничества
+                    </p>
+                    <div class="action-buttons">
+                        <a th:href="@{/admin/site-pages/edit/patrons}" class="btn btn-info btn-action">
+                            <i class="bi bi-pencil me-1"></i>Редактировать
+                        </a>
+                        <a th:href="@{/patrons}" target="_blank" class="btn btn-outline-info btn-action">
+                            <i class="bi bi-eye me-1"></i>Просмотр
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА "НАША КОМАНДА -->
+        <div class="col-xl-4 col-lg-6 col-md-6">
+            <div class="card page-card border-secondary" style="border-left-color: #cd9cf2 !important;">
+                <div class="page-card-header">
+                    <div class="d-flex align-items-start">
+                        <div class="page-icon-wrapper page-icon-secondary">
+                            <i class="bi bi-telephone"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="page-title">Наша команда</h5>
+                            <span class="badge bg-secondary status-badge">
+                                <i class="bi bi-globe me-1"></i>Наша команда
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-card-body">
+                    <p class="page-description">
+                        Все члены команды принимающие участия в жизни организации
+                    </p>
+                    <div class="action-buttons">
+                        <a th:href="@{/admin/team-members}" class="btn btn-secondary btn-action">
+                            <i class="bi bi-pencil me-1"></i>Редактировать
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА "КОНТАКТЫ" -->
+        <div class="col-xl-4 col-lg-6 col-md-6">
+            <div class="card page-card border-secondary" style="border-left-color: #cd9cf2 !important;">
+                <div class="page-card-header">
+                    <div class="d-flex align-items-start">
+                        <div class="page-icon-wrapper page-icon-secondary">
+                            <i class="bi bi-telephone"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="page-title">Контактная информация</h5>
+                            <span class="badge bg-secondary status-badge">
+                                <i class="bi bi-globe me-1"></i>Основная
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-card-body">
+                    <p class="page-description">
+                        Адреса, телефоны, форма обратной связи и время работы
+                    </p>
+                    <div class="action-buttons">
+                        <a th:href="@{/admin/site-pages/edit/contact}" class="btn btn-secondary btn-action">
+                            <i class="bi bi-pencil me-1"></i>Редактировать
+                        </a>
+                        <a th:href="@{/contact}" target="_blank" class="btn btn-outline-secondary btn-action">
+                            <i class="bi bi-eye me-1"></i>Просмотр
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА "МЕЦЕНАТАМ" -->
+        <div class="col-xl-4 col-lg-6 col-md-6">
+            <div class="card page-card border-info" style="border-left-color: #a8edea !important;">
+                <div class="page-card-header">
+                    <div class="d-flex align-items-start">
+                        <div class="page-icon-wrapper page-icon-info">
+                            <i class="bi bi-gem"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="page-title">Наши партнеры</h5>
+                            <span class="badge bg-info status-badge">
+                                <i class="bi bi-globe me-1"></i>Наши партнеры
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-card-body">
+                    <p class="page-description">
+                        Условия партнерства, преимущества и процесс сотрудничества
+                    </p>
+                    <div class="action-buttons">
+                        <a th:href="@{/admin/partners}" class="btn btn-info btn-action">
+                            <i class="bi bi-pencil me-1"></i>Редактировать
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ИНФОРМАЦИОННАЯ КАРТОЧКА -->
+        <div class="col-xl-4 col-lg-6 col-md-6">
+            <div class="card page-card info-card">
+                <div class="page-card-header">
+                    <div class="d-flex align-items-start">
+                        <div class="page-icon-wrapper page-icon-light">
+                            <i class="bi bi-info-circle"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="page-title">Управление контентом</h5>
+                            <span class="badge bg-light text-dark status-badge">
+                                <i class="bi bi-lightning me-1"></i>Советы
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-card-body">
+                    <p class="page-description">
+                        Все изменения сохраняются автоматически и сразу отображаются на сайте
+                    </p>
+                    <div class="alert alert-light border rounded-2 mb-3">
+                        <small class="d-flex align-items-center">
+                            <i class="bi bi-lightbulb text-warning me-2"></i>
+                            <span><strong>Совет:</strong> Используйте WYSIWYG редактор для удобного форматирования</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- БЫСТРАЯ НАВИГАЦИЯ -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card quick-nav-card border-0 rounded-3">
+                <div class="card-header bg-transparent border-bottom-0 py-3">
+                    <h5 class="mb-0 text-dark"><i class="bi bi-speedometer2 me-2"></i>Быстрая навигация</h5>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-6">
+                            <a th:href="@{/pages}" class="btn btn-outline-primary w-100 h-100 py-3 d-flex flex-column align-items-center justify-content-center">
+                                <i class="bi bi-files fs-4 mb-2"></i>
+                                <span>Все страницы</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a th:href="@{/pages/create}" class="btn btn-outline-success w-100 h-100 py-3 d-flex flex-column align-items-center justify-content-center">
+                                <i class="bi bi-plus-circle fs-4 mb-2"></i>
+                                <span>Новая страница</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a th:href="@{/admin/users}" class="btn btn-outline-info w-100 h-100 py-3 d-flex flex-column align-items-center justify-content-center">
+                                <i class="bi bi-people fs-4 mb-2"></i>
+                                <span>Пользователи</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a th:href="@{/admin}" class="btn btn-outline-secondary w-100 h-100 py-3 d-flex flex-column align-items-center justify-content-center">
+                                <i class="bi bi-house fs-4 mb-2"></i>
+                                <span>На дашборд</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Enhanced site pages management loaded');
+
+        // Автоматическое скрытие уведомлений через 5 секунд
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                if (alert.classList.contains('show')) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 5000);
+        });
+
+        // Плавное появление карточек
+        const cards = document.querySelectorAll('.page-card');
+        cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+        });
+
+        // Запуск анимации после загрузки
+        setTimeout(() => {
+            cards.forEach(card => {
+                card.style.transition = 'all 0.5s ease-out';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            });
+        }, 100);
+    });
+</script>
+</body>
+</html>

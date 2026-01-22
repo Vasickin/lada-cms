@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<!--
+    FOOTER FRAGMENT / ФРАГМЕНТ ФУТЕРА
+    Reusable footer component for all pages / Переиспользуемый компонент футера для всех страниц
+
+    FIXED: Text color for better readability on dark background
+    ИСПРАВЛЕНО: Цвет текста для лучшей читаемости на темном фоне
+-->
+<footer class="footer-custom py-5 mt-5" th:fragment="main-footer">
+    <div class="container">
+        <div class="row">
+            <!--
+                ORGANIZATION INFORMATION / ИНФОРМАЦИЯ ОБ ОРГАНИЗАЦИИ
+                Brand information and description / Информация о бренде и описание
+            -->
+            <div class="col-lg-4 mb-4">
+                <h5 class="fw-bold mb-3 text-white"> <!-- ADDED: text-white -->
+                    <img src="/images/optimized/logo.png"
+                         alt="Лада"
+                         height="30"
+                         class="me-2"
+                         th:onerror="this.style.display='none'">
+                    Общественная организация "Лада"
+                </h5>
+                <p class="text-light mb-3"> <!-- CHANGED: text-light-emphasis to text-light -->
+                    Создаем позитивные изменения вместе с сообществом.
+                    Развиваем гражданское общество через образование, сотрудничество и социальные инициативы.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="#" class="text-light text-decoration-none">📘 Facebook</a> <!-- CHANGED: text-light-emphasis to text-light -->
+                    <a href="#" class="text-light text-decoration-none">📷 Instagram</a> <!-- CHANGED: text-light-emphasis to text-light -->
+                    <a href="#" class="text-light text-decoration-none">🐦 Twitter</a> <!-- CHANGED: text-light-emphasis to text-light -->
+                </div>
+            </div>
+
+            <!--
+                QUICK LINKS SECTION / СЕКЦИЯ БЫСТРЫХ ССЫЛОК
+                Navigation links for quick access / Навигационные ссылки для быстрого доступа
+            -->
+            <div class="col-lg-4 mb-4">
+                <h6 class="fw-bold mb-3 text-white">Быстрые ссылки</h6> <!-- ADDED: text-white -->
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <a href="/"
+                           th:href="@{/}"
+                           class="text-light text-decoration-none hover-text-white"> <!-- CHANGED: text-light-emphasis to text-light -->
+                            🏠 Главная
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/about"
+                           th:href="@{/about}"
+                           class="text-light text-decoration-none hover-text-white"> <!-- CHANGED: text-light-emphasis to text-light -->
+                            👥 О нас
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/projects"
+                           th:href="@{/projects}"
+                           class="text-light text-decoration-none hover-text-white"> <!-- CHANGED: text-light-emphasis to text-light -->
+                            🚀 Наши проекты
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/gallery"
+                           th:href="@{/gallery}"
+                           class="text-light text-decoration-none hover-text-white"> <!-- CHANGED: text-light-emphasis to text-light -->
+                            🖼️ Галерея
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/patrons"
+                           th:href="@{/patrons}"
+                           class="text-light text-decoration-none hover-text-white"> <!-- CHANGED: text-light-emphasis to text-light -->
+                            💎 Меценатам
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="/contact"
+                           th:href="@{/contact}"
+                           class="text-light text-decoration-none hover-text-white"> <!-- CHANGED: text-light-emphasis to text-light -->
+                            📞 Контакты
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!--
+                CONTACT INFORMATION SECTION / СЕКЦИЯ КОНТАКТНОЙ ИНФОРМАЦИИ
+                Organization contact details / Контактные данные организации
+            -->
+            <div class="col-lg-4 mb-4">
+                <h6 class="fw-bold mb-3 text-white">Контакты</h6> <!-- ADDED: text-white -->
+                <ul class="list-unstyled text-light"> <!-- CHANGED: text-light-emphasis to text-light -->
+                    <li class="mb-2">📧 Email: info@lada-org.ru</li>
+                    <li class="mb-2">📞 Телефон: +7 (XXX) XXX-XX-XX</li>
+                    <li class="mb-2">📍 Адрес: [Ваш юридический адрес]</li>
+                    <li class="mb-2">🕒 Время работы: Пн-Пт 9:00-18:00</li>
+                </ul>
+            </div>
+        </div>
+
+        <!--
+            FOOTER SEPARATOR / РАЗДЕЛИТЕЛЬ ФУТЕРА
+            Visual separator line above copyright / Визуальная разделительная линия над копирайтом
+        -->
+        <hr class="my-4 bg-light opacity-25">
+
+        <!--
+            COPYRIGHT NOTICE / УВЕДОМЛЕНИЕ ОБ АВТОРСКИХ ПРАВАХ
+            Copyright information and rights / Информация об авторских правах
+        -->
+        <div class="row">
+            <div class="col-12 text-center">
+                <p class="mb-0 text-light"> <!-- CHANGED: text-light-emphasis to text-light -->
+                    &copy; 2025 Общественная организация "Лада". Все права защищены.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>

@@ -1,0 +1,3 @@
+SPRING_DATASOURCE_URL=jdbc:mysql://amvera-vasickin-run-lada-db:3306/myapp_db?allowPublicKeyRetrieval=true&useSSL=false
+SPRING_DATASOURCE_USERNAME=lada_user
+SPRING_DATASOURCE_PASSWORD=Vasickin_Aleksej_3332789

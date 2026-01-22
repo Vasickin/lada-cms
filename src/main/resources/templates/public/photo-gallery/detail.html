@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="fragments/header :: html-head(${pageTitle})">
+</head>
+
+<body>
+<div th:replace="fragments/navigation :: main-navigation"></div>
+<div th:replace="fragments/banner :: header-banner(${gallery.title} + ' - Фото-галерея')"></div>
+
+<main class="container my-5 py-4">
+    <!-- Назад -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg">
+                <i class="fas fa-arrow-left me-2"></i> Назад к галереям
+            </a>
+        </div>
+    </div>
+
+    <!-- Заголовок галереи -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 bg-gradient-primary text-white shadow-lg">
+                <div class="card-body p-5">
+                    <h1 class="display-4 fw-bold mb-4" th:text="${gallery.title}"></h1>
+
+                    <div class="d-flex flex-wrap gap-4 mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-circle bg-white text-primary me-3">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div>
+                                <div class="text-white-50 small">Год</div>
+                                <div class="h4 mb-0" th:text="${gallery.year}"></div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center">
+                            <div class="icon-circle bg-white text-success me-3">
+                                <i class="fas fa-images"></i>
+                            </div>
+                            <div>
+                                <div class="text-white-50 small">Фотографий</div>
+                                <div class="h4 mb-0" th:text="${gallery.imagesCount}"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${gallery.description}" class="mt-4">
+                        <p class="lead opacity-75" th:text="${gallery.description}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Галерея -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <h2 class="display-6 fw-bold">
+                    <i class="fas fa-images me-3 text-primary"></i>
+                    Фотографии
+                </h2>
+
+                <div class="text-muted fs-5">
+                    <span class="fw-bold" th:text="${gallery.imagesCount}"></span> фото
+                </div>
+            </div>
+
+            <!-- Сетка изображений -->
+            <div th:if="${gallery.hasImages()}">
+                <div class="row g-4" id="publicGallery">
+                    <div th:each="image, iter : ${gallery.images}"
+                         class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="gallery-thumb-card">
+                            <div class="gallery-thumb-inner"
+                                 th:data-image-index="${iter.index}"
+                                 th:data-image-src="${image.publicWebPath}">
+                                <img th:src="${image.publicWebPath != null ? image.publicWebPath : image.webPath}"
+                                     th:alt="${gallery.title}"
+                                     class="gallery-thumb-img">
+
+                                <div class="gallery-thumb-overlay">
+                                    <div class="overlay-content">
+                                        <i class="fas fa-expand-alt fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Нет изображений -->
+            <div th:unless="${gallery.hasImages()}" class="text-center py-5 my-5">
+                <div class="empty-gallery">
+                    <i class="fas fa-images fa-5x text-muted mb-4"></i>
+                    <h3 class="text-muted mb-3">Нет изображений</h3>
+                    <p class="text-muted">В этой галерее пока нет фотографий.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Информация о галерее -->
+    <div class="row mt-5 pt-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-white border-0 py-4">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-3 text-primary"></i>
+                        Информация о галерее
+                    </h3>
+                </div>
+                <div class="card-body p-5">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <h4 class="h5 text-muted mb-4">Навигация</h4>
+                            <div class="d-grid gap-3">
+                                <a th:href="@{/photo-gallery}"
+                                   class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-images fa-lg me-3"></i>
+                                    <span class="fs-5">Все галереи</span>
+                                </a>
+
+                                <a th:href="@{/photo-gallery/year/} + ${gallery.year}"
+                                   class="btn btn-outline-success btn-lg d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-calendar-alt fa-lg me-3"></i>
+                                    <span class="fs-5">Галереи <span th:text="${gallery.year}"></span> года</span>
+                                </a>
+
+                                <button class="btn btn-outline-info btn-lg d-flex align-items-center justify-content-center"
+                                        onclick="window.print()">
+                                    <i class="fas fa-print fa-lg me-3"></i>
+                                    <span class="fs-5">Распечатать</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h4 class="h5 text-muted mb-4">Поделиться</h4>
+                            <div class="d-grid gap-3">
+                                <button class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center"
+                                        onclick="shareGallery()">
+                                    <i class="fas fa-share-alt fa-lg me-3"></i>
+                                    <span class="fs-5">Поделиться</span>
+                                </button>
+
+                                <button class="btn btn-outline-secondary btn-lg d-flex align-items-center justify-content-center"
+                                        onclick="copyGalleryLink()">
+                                    <i class="fas fa-link fa-lg me-3"></i>
+                                    <span class="fs-5">Копировать ссылку</span>
+                                </button>
+
+                                <a th:href="@{/}"
+                                   class="btn btn-outline-warning btn-lg d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-home fa-lg me-3"></i>
+                                    <span class="fs-5">На главную</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="fragments/footer :: main-footer"></footer>
+<div th:replace="fragments/scripts :: main-scripts"></div>
+
+<!-- Модальное окно галереи -->
+<div class="gallery-modal" id="galleryModal">
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <button class="modal-close-btn" id="modalCloseBtn">
+        <i class="fas fa-times"></i>
+    </button>
+
+    <div class="modal-container">
+        <button class="modal-nav-btn modal-prev-btn" id="modalPrevBtn">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="modal-image-area">
+            <div class="image-wrapper" id="imageWrapper">
+                <div class="modal-loader" id="modalLoader">
+                    <div class="loader-spinner"></div>
+                </div>
+
+                <img id="modalImage"
+                     src=""
+                     alt=""
+                     class="modal-image">
+
+                <div class="image-navigation">
+                    <div class="image-counter" id="imageCounter"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="modal-nav-btn modal-next-btn" id="modalNextBtn">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Стили -->
+<style>
+    /* Иконки в кружках */
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    /* Градиент для заголовка */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    /* Карточки превьюшек */
+    .gallery-thumb-card {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        height: 100%;
+    }
+
+    .gallery-thumb-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .gallery-thumb-inner {
+        position: relative;
+        display: block;
+        height: 280px;
+        overflow: hidden;
+        border-radius: 12px;
+    }
+
+    .gallery-thumb-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .gallery-thumb-card:hover .gallery-thumb-img {
+        transform: scale(1.1);
+    }
+
+    .gallery-thumb-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.8));
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .gallery-thumb-card:hover .gallery-thumb-overlay {
+        opacity: 1;
+    }
+
+    .overlay-content {
+        color: white;
+        transform: translateY(20px);
+        transition: transform 0.4s ease;
+    }
+
+    .gallery-thumb-card:hover .overlay-content {
+        transform: translateY(0);
+    }
+
+    /* Модальное окно */
+    .gallery-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .gallery-modal.active {
+        display: block;
+        opacity: 1;
+    }
+
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(10px);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+
+    .gallery-modal.active .modal-overlay {
+        opacity: 1;
+    }
+
+    .modal-close-btn {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        color: white;
+        font-size: 1.8rem;
+        cursor: pointer;
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        transform: rotate(90deg) scale(0.8);
+    }
+
+    .gallery-modal.active .modal-close-btn {
+        opacity: 1;
+        transform: rotate(0) scale(1);
+        transition-delay: 0.3s;
+    }
+
+    .modal-close-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+        transform: scale(1.1);
+    }
+
+    .modal-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 100px;
+    }
+
+    .modal-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 10000;
+        opacity: 0;
+    }
+
+    .gallery-modal.active .modal-nav-btn {
+        opacity: 0.8;
+        transition-delay: 0.4s;
+    }
+
+    .modal-prev-btn {
+        left: 40px;
+        transform: translateY(-50%) translateX(-30px);
+    }
+
+    .modal-next-btn {
+        right: 40px;
+        transform: translateY(-50%) translateX(30px);
+    }
+
+    .gallery-modal.active .modal-prev-btn {
+        transform: translateY(-50%) translateX(0);
+    }
+
+    .gallery-modal.active .modal-next-btn {
+        transform: translateY(-50%) translateX(0);
+    }
+
+    .modal-nav-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+        opacity: 1 !important;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .modal-image-area {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .image-wrapper {
+        position: relative;
+        max-width: 90%;
+        max-height: 90%;
+        opacity: 0;
+        transform: scale(0.95);
+        transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .gallery-modal.active .image-wrapper {
+        opacity: 1;
+        transform: scale(1);
+        transition-delay: 0.2s;
+    }
+
+    .modal-loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+    }
+
+    .loader-spinner {
+        width: 70px;
+        height: 70px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .modal-image {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+        opacity: 0;
+        transform: scale(0.9);
+        transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-image.loaded {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .image-navigation {
+        position: absolute;
+        bottom: -60px;
+        left: 0;
+        right: 0;
+        text-align: center;
+    }
+
+    .image-counter {
+        color: white;
+        font-size: 1.1rem;
+        opacity: 0.8;
+        font-weight: 300;
+        letter-spacing: 1px;
+    }
+
+    /* Анимации */
+    @keyframes slideOut {
+        from {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(-100px) scale(0.9);
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(100px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+    }
+
+    .slide-out {
+        animation: slideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .slide-in {
+        animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 1200px) {
+        .modal-container {
+            padding: 80px;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .modal-container {
+            padding: 60px;
+        }
+
+        .gallery-thumb-inner {
+            height: 240px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .modal-container {
+            padding: 40px 20px;
+        }
+
+        .modal-close-btn {
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+        }
+
+        .modal-nav-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+
+        .modal-prev-btn {
+            left: 20px;
+        }
+
+        .modal-next-btn {
+            right: 20px;
+        }
+
+        .gallery-thumb-inner {
+            height: 200px;
+        }
+
+        .display-4 {
+            font-size: 2.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .modal-container {
+            padding: 20px 10px;
+        }
+
+        .modal-nav-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            opacity: 0.6;
+        }
+
+        .gallery-thumb-inner {
+            height: 180px;
+        }
+
+        .col-md-6 {
+            width: 100%;
+        }
+    }
+</style>
+
+<!-- JavaScript -->
+<script>
+    // Переменные
+    let galleryImages = [];
+    let currentImageIndex = 0;
+    let isAnimating = false;
+
+    // Элементы
+    const galleryModal = document.getElementById('galleryModal');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalPrevBtn = document.getElementById('modalPrevBtn');
+    const modalNextBtn = document.getElementById('modalNextBtn');
+    const modalImage = document.getElementById('modalImage');
+    const modalLoader = document.getElementById('modalLoader');
+    const imageCounter = document.getElementById('imageCounter');
+
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', function() {
+        initGallery();
+        setupEventListeners();
+        setupKeyboardNavigation();
+    });
+
+    // Инициализация галереи
+    function initGallery() {
+        galleryImages = [];
+
+        document.querySelectorAll('.gallery-thumb-inner').forEach((element, index) => {
+            galleryImages.push({
+                index: index,
+                src: element.getAttribute('data-image-src'),
+                element: element
+            });
+        });
+    }
+
+    // Настройка обработчиков
+    function setupEventListeners() {
+        // Клик на превьюшки
+        document.querySelectorAll('.gallery-thumb-inner').forEach(element => {
+            element.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (isAnimating) return;
+
+                const index = parseInt(this.getAttribute('data-image-index'));
+                openGallery(index);
+            });
+        });
+
+        // Закрытие
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === this && !isAnimating) {
+                closeGallery();
+            }
+        });
+
+        modalCloseBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (!isAnimating) {
+                closeGallery();
+            }
+        });
+
+        // Навигация
+        modalPrevBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (!isAnimating && currentImageIndex > 0) {
+                navigateToImage(currentImageIndex - 1);
+            }
+        });
+
+        modalNextBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (!isAnimating && currentImageIndex < galleryImages.length - 1) {
+                navigateToImage(currentImageIndex + 1);
+            }
+        });
+
+        // Свайпы на мобильных
+        let touchStartX = 0;
+
+        galleryModal.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].clientX;
+        }, { passive: true });
+
+        galleryModal.addEventListener('touchend', function(e) {
+            if (isAnimating) return;
+
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchStartX - touchEndX;
+            const threshold = 50;
+
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0 && currentImageIndex < galleryImages.length - 1) {
+                    navigateToImage(currentImageIndex + 1);
+                } else if (diff < 0 && currentImageIndex > 0) {
+                    navigateToImage(currentImageIndex - 1);
+                }
+            }
+        }, { passive: true });
+    }
+
+    // Навигация клавишами
+    function setupKeyboardNavigation() {
+        document.addEventListener('keydown', function(e) {
+            if (!galleryModal.classList.contains('active')) return;
+
+            switch(e.key) {
+                case 'Escape':
+                    e.preventDefault();
+                    closeGallery();
+                    break;
+
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    if (currentImageIndex > 0) {
+                        navigateToImage(currentImageIndex - 1);
+                    }
+                    break;
+
+                case 'ArrowRight':
+                    e.preventDefault();
+                    if (currentImageIndex < galleryImages.length - 1) {
+                        navigateToImage(currentImageIndex + 1);
+                    }
+                    break;
+
+                case ' ':
+                    e.preventDefault();
+                    if (currentImageIndex < galleryImages.length - 1) {
+                        navigateToImage(currentImageIndex + 1);
+                    }
+                    break;
+            }
+        });
+    }
+
+    // Открыть галерею
+    function openGallery(index) {
+        if (isAnimating || index < 0 || index >= galleryImages.length) return;
+
+        isAnimating = true;
+        currentImageIndex = index;
+
+        // Показываем загрузчик
+        modalImage.classList.remove('loaded');
+        modalLoader.style.display = 'block';
+
+        // Обновляем счетчик
+        updateCounter();
+
+        // Загружаем изображение
+        loadImage(index, function() {
+            // Показываем модалку
+            galleryModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Скрываем загрузчик и показываем изображение
+            setTimeout(() => {
+                modalLoader.style.display = 'none';
+                modalImage.classList.add('loaded');
+                isAnimating = false;
+                updateNavigationButtons();
+            }, 400);
+        });
+    }
+
+    // Закрыть галерею
+    function closeGallery() {
+        if (isAnimating) return;
+
+        isAnimating = true;
+
+        // Скрываем модалку
+        galleryModal.classList.remove('active');
+        document.body.style.overflow = '';
+
+        // Сбрасываем
+        setTimeout(() => {
+            modalImage.classList.remove('loaded');
+            modalImage.src = '';
+            isAnimating = false;
+        }, 300);
+    }
+
+    // Перейти к изображению
+    function navigateToImage(newIndex) {
+        if (isAnimating || newIndex < 0 || newIndex >= galleryImages.length) return;
+
+        isAnimating = true;
+
+        // Определяем направление анимации
+        const direction = newIndex > currentImageIndex ? 'next' : 'prev';
+
+        // Анимация выхода текущего изображения
+        modalImage.classList.add('slide-out');
+
+        modalImage.addEventListener('animationend', function onExitEnd() {
+            modalImage.classList.remove('slide-out');
+            modalImage.removeEventListener('animationend', onExitEnd);
+
+            // Меняем индекс
+            currentImageIndex = newIndex;
+
+            // Показываем загрузчик
+            modalImage.classList.remove('loaded');
+            modalLoader.style.display = 'block';
+
+            // Обновляем счетчик
+            updateCounter();
+
+            // Загружаем новое изображение
+            loadImage(newIndex, function() {
+                // Подготавливаем анимацию входа
+                modalImage.classList.add('slide-in');
+
+                modalImage.addEventListener('animationend', function onEnterEnd() {
+                    modalImage.classList.remove('slide-in');
+                    modalImage.removeEventListener('animationend', onEnterEnd);
+
+                    modalImage.classList.add('loaded');
+                    modalLoader.style.display = 'none';
+                    isAnimating = false;
+                    updateNavigationButtons();
+                }, { once: true });
+            });
+        }, { once: true });
+    }
+
+    // Загрузить изображение
+    function loadImage(index, callback) {
+        const image = galleryImages[index];
+
+        const img = new Image();
+        img.onload = function() {
+            modalImage.src = image.src;
+            modalImage.alt = `Изображение ${index + 1} из ${galleryImages.length}`;
+
+            if (callback) callback();
+        };
+
+        img.onerror = function() {
+            modalImage.src = '';
+            modalImage.alt = 'Ошибка загрузки изображения';
+
+            if (callback) callback();
+        };
+
+        img.src = image.src;
+    }
+
+    // Обновить счетчик
+    function updateCounter() {
+        imageCounter.textContent = `${currentImageIndex + 1} / ${galleryImages.length}`;
+    }
+
+    // Обновить кнопки навигации
+    function updateNavigationButtons() {
+        modalPrevBtn.style.opacity = currentImageIndex === 0 ? '0.3' : '0.8';
+        modalPrevBtn.disabled = currentImageIndex === 0;
+
+        modalNextBtn.style.opacity = currentImageIndex === galleryImages.length - 1 ? '0.3' : '0.8';
+        modalNextBtn.disabled = currentImageIndex === galleryImages.length - 1;
+    }
+
+    // Функции для кнопок
+    function shareGallery() {
+        const url = window.location.href;
+        const title = document.querySelector('h1').textContent;
+
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                text: 'Посмотрите эту фото-галерею',
+                url: url
+            });
+        } else {
+            copyToClipboard(url);
+            alert('Ссылка скопирована в буфер обмена!');
+        }
+    }
+
+    function copyGalleryLink() {
+        const url = window.location.href;
+        copyToClipboard(url);
+        showToast('Ссылка скопирована!', 'success');
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).catch(err => {
+            console.error('Ошибка копирования: ', err);
+        });
+    }
+
+    function showToast(message, type) {
+        // Простой toast (можно заменить на библиотечный)
+        alert(message);
+    }
+</script>
+</body>
+</html>

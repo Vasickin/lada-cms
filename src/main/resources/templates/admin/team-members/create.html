@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Создание члена команды - Админ панель</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        .team-member-form-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .avatar-preview-container {
+            width: 180px;
+            height: 180px;
+            border: 2px dashed #dee2e6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: #f8f9fa;
+            margin: 0 auto 20px;
+        }
+
+        .avatar-preview-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-preview-placeholder {
+            text-align: center;
+            color: #6c757d;
+            padding: 20px;
+        }
+
+        .avatar-preview-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .initials-preview {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background-color: #e9ecef;
+            border-radius: 50%;
+        }
+
+        .section-title {
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            color: #0d6efd;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container-fluid team-member-form-container">
+        <!-- ========== ЗАГОЛОВОК ========== -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-0">
+                            <i class="bi bi-person-plus me-2"></i>
+                            Создание нового члена команды
+                        </h1>
+                        <p class="text-muted mb-0 mt-1">
+                            Заполните информацию о члене команды организации "ЛАДА"
+                        </p>
+                    </div>
+                    <div>
+                        <a th:href="@{/admin/team-members}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Назад к списку
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ФОРМА СОЗДАНИЯ ========== -->
+        <div class="row">
+            <div class="col-12">
+                <form th:action="@{/admin/team-members/create}" method="post" th:object="${teamMember}" enctype="multipart/form-data" class="needs-validation" novalidate>
+
+                    <!-- ========== ОСНОВНАЯ ИНФОРМАЦИЯ ========== -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Основная информация
+                        </h3>
+
+                        <div class="row">
+                            <!-- Полное имя -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-person-vcard me-1"></i>Полное имя *
+                                </label>
+                                <input type="text"
+                                       th:field="*{fullName}"
+                                       class="form-control"
+                                       placeholder="Иван Петров"
+                                       required
+                                       minlength="2"
+                                       maxlength="100">
+                                <div class="invalid-feedback">
+                                    Имя должно содержать от 2 до 100 символов
+                                </div>
+                                <div th:if="${#fields.hasErrors('fullName')}" class="text-danger small mt-1">
+                                    <span th:errors="*{fullName}"></span>
+                                </div>
+                            </div>
+
+                            <!-- Должность -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-briefcase me-1"></i>Должность *
+                                </label>
+                                <input type="text"
+                                       th:field="*{position}"
+                                       class="form-control"
+                                       placeholder="Художественный руководитель"
+                                       required
+                                       maxlength="100">
+                                <div class="invalid-feedback">
+                                    Введите должность члена команды
+                                </div>
+                                <div th:if="${#fields.hasErrors('position')}" class="text-danger small mt-1">
+                                    <span th:errors="*{position}"></span>
+                                </div>
+                            </div>
+
+                            <!-- Биография -->
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-card-text me-1"></i>Биография
+                                </label>
+                                <textarea th:field="*{bio}"
+                                          class="form-control"
+                                          rows="5"
+                                          placeholder="Расскажите о профессиональном опыте, образовании, достижениях члена команды..."></textarea>
+                                <div class="form-text">
+                                    Поддерживает HTML разметку для форматирования текста.
+                                    Можно использовать теги &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;a&gt;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== ФОТОГРАФИЯ ========== -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="bi bi-image me-2"></i>
+                            Фотография (аватар)
+                        </h3>
+
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <!-- Preview аватара -->
+                                <div class="avatar-preview-container" id="avatarPreview">
+                                    <div class="avatar-preview-placeholder">
+                                        <i class="bi bi-person"></i>
+                                        <div>Фото не выбрано</div>
+                                    </div>
+                                </div>
+
+                                <!-- Предпросмотр инициалов -->
+                                <div id="initialsPreview" class="d-none">
+                                    <div class="initials-preview" id="initialsText">TM</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">
+                                        Загрузка фотографии
+                                    </label>
+                                    <input type="file"
+                                           name="avatarFile"
+                                           id="avatarFile"
+                                           accept=".jpg,.jpeg,.png,.gif,.webp"
+                                           class="form-control"
+                                           onchange="previewAvatar(this)">
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Поддерживаемые форматы: JPG, PNG, GIF, WEBP. Максимальный размер: 10MB.
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="bi bi-lightbulb me-1"></i>
+                                        Рекомендуемый размер: 400×400 пикселей. Фото будет обрезано до квадрата.
+                                    </div>
+                                </div>
+
+                                <!-- Инициалы будут сгенерированы автоматически -->
+                                <input type="hidden" id="avatarPath" name="avatarPath">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== КОНТАКТНАЯ ИНФОРМАЦИЯ ========== -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="bi bi-person-lines-fill me-2"></i>
+                            Контактная информация
+                        </h3>
+
+                        <div class="row">
+                            <!-- Email -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-envelope me-1"></i>Email для контактов
+                                </label>
+                                <input type="email"
+                                       th:field="*{email}"
+                                       class="form-control"
+                                       placeholder="ivan.petrov@example.com"
+                                       maxlength="100">
+                                <div class="form-text">
+                                    Используется для формы "Связаться с командой"
+                                </div>
+                            </div>
+
+                            <!-- Телефон -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-telephone me-1"></i>Телефон
+                                </label>
+                                <input type="tel"
+                                       th:field="*{phone}"
+                                       class="form-control"
+                                       placeholder="+7 (XXX) XXX-XX-XX"
+                                       maxlength="50">
+                            </div>
+
+                            <!-- Социальные сети -->
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-share me-1"></i>Социальные сети
+                                </label>
+                                <textarea th:field="*{socialLinks}"
+                                          class="form-control"
+                                          rows="3"
+                                          placeholder='{"facebook": "https://facebook.com/username", "instagram": "https://instagram.com/username", "vk": "https://vk.com/username"}'></textarea>
+                                <div class="form-text">
+                                    <i class="bi bi-code me-1"></i>
+                                    В формате JSON. Пример: {"название_платформы": "ссылка"}
+                                </div>
+                                <div class="form-text">
+                                    <i class="bi bi-shield-check me-1"></i>
+                                    Поддерживаемые платформы: facebook, instagram, vk, telegram, youtube
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== НАСТРОЙКИ ========== -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="bi bi-gear me-2"></i>
+                            Настройки отображения
+                        </h3>
+
+                        <div class="row">
+                            <!-- Порядок сортировки -->
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-sort-numeric-down me-1"></i>Порядок сортировки
+                                </label>
+                                <input type="number"
+                                       th:field="*{sortOrder}"
+                                       class="form-control"
+                                       min="0"
+                                       max="1000"
+                                       value="0">
+                                <div class="form-text">
+                                    Меньшее число = выше в списке команды
+                                </div>
+                            </div>
+
+                            <!-- Статус активности -->
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-toggle-on me-1"></i>Статус
+                                </label>
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           role="switch"
+                                           th:field="*{active}"
+                                           checked>
+                                    <label class="form-check-label">
+                                        <span class="badge bg-success">Активен</span>
+                                    </label>
+                                </div>
+                                <div class="form-text">
+                                    Неактивные члены команды не отображаются на сайте
+                                </div>
+                            </div>
+
+                            <!-- Проекты -->
+                            <div class="col-md-4 mb-3" th:if="${allProjects != null and !allProjects.isEmpty()}">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-diagram-3 me-1"></i>Проекты
+                                </label>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Проекты можно добавить после создания члена команды
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== КНОПКИ ========== -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/admin/team-members}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Отмена
+                                </a>
+                                <div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        Создать члена команды
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== SCRIPTS ========== -->
+<script>
+    // Preview аватара
+    function previewAvatar(input) {
+        const preview = document.getElementById('avatarPreview');
+        const initialsPreview = document.getElementById('initialsPreview');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                // Показываем preview изображения
+                preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                preview.classList.remove('avatar-preview-placeholder');
+
+                // Скрываем блок с инициалами
+                initialsPreview.classList.add('d-none');
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            // Если файл не выбран, показываем placeholder
+            preview.innerHTML = `
+                <div class="avatar-preview-placeholder">
+                    <i class="bi bi-person"></i>
+                    <div>Фото не выбрано</div>
+                </div>`;
+            preview.classList.add('avatar-preview-placeholder');
+
+            // Показываем инициалы, если введено имя
+            updateInitialsPreview();
+        }
+    }
+
+    // Обновление preview инициалов
+    function updateInitialsPreview() {
+        const fullNameInput = document.querySelector('input[th\\:field="*{fullName}"]');
+        const initialsText = document.getElementById('initialsText');
+        const initialsPreview = document.getElementById('initialsPreview');
+        const avatarPreview = document.getElementById('avatarPreview');
+
+        if (fullNameInput && fullNameInput.value.trim()) {
+            // Генерируем инициалы из имени
+            const names = fullNameInput.value.trim().split(' ');
+            let initials = '';
+
+            if (names.length >= 2) {
+                initials = (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+            } else if (names.length === 1) {
+                initials = names[0].length >= 2
+                    ? names[0].substring(0, 2).toUpperCase()
+                    : names[0].toUpperCase();
+            }
+
+            if (initials) {
+                initialsText.textContent = initials;
+
+                // Если нет фото, показываем инициалы
+                const avatarFile = document.getElementById('avatarFile');
+                if (!avatarFile.files || avatarFile.files.length === 0) {
+                    initialsPreview.classList.remove('d-none');
+                    avatarPreview.classList.add('d-none');
+                }
+            }
+        }
+    }
+
+    // Слушаем изменения в поле имени
+    document.addEventListener('DOMContentLoaded', function() {
+        const fullNameInput = document.querySelector('input[th\\:field="*{fullName}"]');
+        if (fullNameInput) {
+            fullNameInput.addEventListener('input', updateInitialsPreview);
+
+            // Инициализируем при загрузке
+            updateInitialsPreview();
+        }
+    });
+
+    // Валидация формы
+    (function() {
+        'use strict';
+
+        // Получаем все формы, которые нужно валидировать
+        const forms = document.querySelectorAll('.needs-validation');
+
+        // Перебираем их и предотвращаем отправку
+        Array.from(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+
+    // Автосохранение в localStorage (опционально)
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        if (!form) return;
+
+        const formFields = form.querySelectorAll('input, textarea, select');
+
+        // Загружаем сохраненные данные
+        formFields.forEach(field => {
+            const savedValue = localStorage.getItem(`team_member_form_${field.name}`);
+            if (savedValue && !field.value) {
+                field.value = savedValue;
+
+                // Обновляем preview если это имя
+                if (field.name === 'fullName' || field.getAttribute('th:field') === '*{fullName}') {
+                    updateInitialsPreview();
+                }
+            }
+        });
+
+        // Сохраняем при изменении
+        formFields.forEach(field => {
+            field.addEventListener('input', function() {
+                localStorage.setItem(`team_member_form_${this.name}`, this.value);
+
+                // Обновляем preview если это имя
+                if (this.name === 'fullName' || this.getAttribute('th:field') === '*{fullName}') {
+                    updateInitialsPreview();
+                }
+            });
+        });
+
+        // Очищаем при успешной отправке
+        form.addEventListener('submit', function() {
+            formFields.forEach(field => {
+                localStorage.removeItem(`team_member_form_${field.name}`);
+            });
+        });
+    });
+</script>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

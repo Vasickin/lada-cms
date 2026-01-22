@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<!--
+    BASE LAYOUT FRAGMENT / БАЗОВЫЙ ФРАГМЕНТ МАКЕТА
+    Main layout template for consistent page structure / Основной шаблон макета для консистентной структуры страниц
+-->
+<html th:fragment="base-layout(title, bannerAltText)" xmlns:th="http://www.thymeleaf.org">
+<!--
+    HTML HEAD SECTION / СЕКЦИЯ HTML HEAD
+    Include header fragment with dynamic title / Включаем фрагмент хедера с динамическим заголовком
+-->
+<head th:replace="fragments/header :: html-head(${title})"></head>
+
+<body>
+<!--
+    MAIN NAVIGATION / ГЛАВНАЯ НАВИГАЦИЯ
+    Include navigation fragment / Включаем фрагмент навигации
+-->
+<div th:replace="fragments/navigation :: main-navigation"></div>
+
+<!--
+    HEADER BANNER / БАННЕР ШАПКИ
+    Include banner fragment with dynamic alt text / Включаем фрагмент баннера с динамическим alt текстом
+-->
+<div th:replace="fragments/banner :: header-banner(${bannerAltText})"></div>
+
+<!--
+    MAIN CONTENT SECTION / СЕКЦИЯ ОСНОВНОГО КОНТЕНТА
+    Dynamic content area - will be replaced by actual page content / Динамическая область контента - будет заменена реальным содержимым страницы
+-->
+<main th:fragment="content">
+    <!-- This will be replaced by specific page content / Это будет заменено специфичным содержимым страницы -->
+</main>
+
+<!--
+    MAIN FOOTER / ОСНОВНОЙ ФУТЕР
+    Include footer fragment / Включаем фрагмент футера
+-->
+<div th:replace="fragments/footer :: main-footer"></div>
+
+<!--
+    JAVASCRIPT SCRIPTS / JAVASCRIPT СКРИПТЫ
+    Include scripts fragment / Включаем фрагмент скриптов
+-->
+<div th:replace="fragments/scripts :: main-scripts"></div>
+</body>
+</html>

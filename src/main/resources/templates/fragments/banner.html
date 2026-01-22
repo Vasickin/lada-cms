@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<!--
+    BANNER FRAGMENT / ФРАГМЕНТ БАННЕРА
+    Reusable header banner component for all pages / Переиспользуемый компонент баннера шапки для всех страниц
+-->
+<div th:fragment="header-banner(bannerAltText)">
+    <section class="header-banner-section">
+        <div class="container">
+            <div class="header-banner-wrapper">
+                <!--
+                    DESKTOP BANNER IMAGE / ИЗОБРАЖЕНИЕ ДЕСКТОПНОГО БАННЕРА
+                    Full-width background image for desktop / Полноширинное фоновое изображение для десктопа
+                -->
+                <img src="/images/optimized/header-bg.jpg"
+                     th:alt="${bannerAltText} ?: 'Общественная организация Лада'"
+                     class="desktop-banner">
+
+                <!--
+                    MOBILE BANNER IMAGE / ИЗОБРАЖЕНИЕ МОБИЛЬНОГО БАННЕРА
+                    Organization logo with shadows for mobile / Логотип организации с тенями для мобильных
+                -->
+                <img src="/images/optimized/logo@2x.png"
+                     th:alt="${bannerAltText} ?: 'Общественная организация Лада - логотип'"
+                     class="mobile-banner">
+            </div>
+        </div>
+    </section>
+</div>

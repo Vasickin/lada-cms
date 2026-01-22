@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<!--
+    ABOUT PAGE WITH FRAGMENT SYSTEM INTEGRATION / СТРАНИЦА "О НАС" С ИНТЕГРАЦИЕЙ СИСТЕМЫ ФРАГМЕНТОВ
+    Integrated fragment system for consistent layout and maintainability
+    Интегрированная система фрагментов для единообразного макета и поддерживаемости
+
+    Fragment Usage / Использование фрагментов:
+    - Header: Meta tags, SEO optimization, CSS styles
+               Мета-теги, SEO оптимизация, CSS стили
+    - Navigation: Main menu with active states and Spring Security
+                  Главное меню с активными состояниями и Spring Security
+    - Banner: Responsive header images with accessibility
+              Адаптивные изображения шапки с доступностью
+    - Footer: Complete contact information and links
+              Полная контактная информация и ссылки
+    - Scripts: JavaScript functionality and Bootstrap
+               JavaScript функциональность и Bootstrap
+-->
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!--
+    HEADER FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА ХЕДЕРА
+    Replaces entire head section with standardized meta tags and SEO optimization
+    Заменяет всю секцию head стандартизированными мета-тегами и SEO оптимизацией
+-->
+<head th:replace="fragments/header :: html-head('О нас')">
+    <!-- Content will be replaced by header fragment / Контент будет заменен фрагментом хедера -->
+</head>
+
+<body>
+<!--
+    NAVIGATION FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА НАВИГАЦИИ
+    Fixed version without httpServletRequest expressions - tested and working
+    Исправленная версия без выражений httpServletRequest - протестирована и работает
+-->
+<div th:replace="fragments/navigation :: main-navigation"></div>
+
+<!--
+    BANNER FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА БАННЕРА
+    Responsive header images optimized for different devices
+    Адаптивные изображения шапки оптимизированные для разных устройств
+-->
+<div th:replace="fragments/banner :: header-banner('Общественная организация Лада - О нас, миссия и ценности')"></div>
+
+<!--
+    MAIN CONTENT SECTION / СЕКЦИЯ ОСНОВНОГО КОНТЕНТА
+    Organization information, mission, values, team, and history
+    Информация об организации, миссия, ценности, команда и история
+-->
+<main class="container my-5 py-4">
+    <!--
+        PAGE HEADER SECTION / СЕКЦИЯ ЗАГОЛОВКА СТРАНИЦЫ
+        Main title and description for the about page
+        Основной заголовок и описание для страницы "О нас"
+    -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="section-title">О нашей организации</h1>
+            <p class="lead text-muted">Знакомство с миссией, ценностями и историей общественной организации "Лада"</p>
+        </div>
+    </div>
+
+    <!--
+        MISSION AND VALUES SECTIONS / СЕКЦИИ МИССИИ И ЦЕННОСТЕЙ
+        Two-column layout showcasing organization's mission and core values
+        Двухколоночный макет, демонстрирующий миссию и основные ценности организации
+    -->
+    <div class="row">
+        <!--
+            MISSION SECTION / СЕКЦИЯ МИССИИ
+            Organization mission statement and purpose
+            Заявление о миссии организации и цели
+        -->
+        <div class="col-lg-6 mb-5">
+            <div class="card border-0 card-hover h-100">
+                <div class="card-body p-4">
+                    <div class="icon-textured text-center mb-4">🎯</div>
+                    <h3 class="card-title fw-bold mb-3">Наша миссия</h3>
+                    <p class="card-text text-muted">
+                        Развитие гражданского общества через образование, сотрудничество
+                        и поддержку социально значимых инициатив.
+                    </p>
+                    <p class="card-text text-muted">
+                        Мы стремимся создать условия для активного участия граждан
+                        в жизни сообщества и реализации их потенциала.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!--
+            VALUES SECTION / СЕКЦИЯ ЦЕННОСТЕЙ
+            Core values that guide organization's activities
+            Основные ценности, которые направляют деятельность организации
+        -->
+        <div class="col-lg-6 mb-5">
+            <div class="card border-0 card-hover h-100">
+                <div class="card-body p-4">
+                    <div class="icon-textured text-center mb-4">💡</div>
+                    <h3 class="card-title fw-bold mb-3">Наши ценности</h3>
+                    <ul class="list-unstyled text-muted">
+                        <li class="mb-2">✅ <strong>Открытость</strong> - прозрачность нашей деятельности</li>
+                        <li class="mb-2">✅ <strong>Сотрудничество</strong> - работаем вместе с сообществом</li>
+                        <li class="mb-2">✅ <strong>Инновации</strong> - ищем новые подходы к решению проблем</li>
+                        <li class="mb-2">✅ <strong>Устойчивость</strong> - создаём долгосрочные изменения</li>
+                        <li class="mb-2">✅ <strong>Ответственность</strong> - отвечаем за свои действия</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--
+        TEAM SECTION / СЕКЦИЯ КОМАНДЫ
+        Three-column layout showcasing different team members and partners
+        Трехколоночный макет, демонстрирующий различных членов команды и партнеров
+    -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="section-title text-center mb-4">Наша команда</h2>
+            <p class="text-muted text-center mb-5">Профессионалы, волонтеры и партнеры, работающие вместе для достижения общих целей</p>
+        </div>
+
+        <!-- Professionals Card / Карточка профессионалов -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 card-hover h-100 text-center">
+                <div class="card-body p-4">
+                    <div class="icon-textured">👥</div>
+                    <h5 class="card-title fw-bold mb-3">Профессионалы</h5>
+                    <p class="card-text text-muted">
+                        Опытные специалисты в области социальной работы,
+                        образования и управления проектами.
+                    </p>
+                    <div class="mt-3">
+                        <span class="badge bg-primary me-1">Социальная работа</span>
+                        <span class="badge bg-primary">Образование</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Volunteers Card / Карточка волонтёров -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 card-hover h-100 text-center">
+                <div class="card-body p-4">
+                    <div class="icon-textured">🤝</div>
+                    <h5 class="card-title fw-bold mb-3">Волонтёры</h5>
+                    <p class="card-text text-muted">
+                        Активные граждане, готовые делиться своим временем
+                        и опытом для помощи сообществу.
+                    </p>
+                    <div class="mt-3">
+                        <span class="badge bg-success me-1">Сообщество</span>
+                        <span class="badge bg-success">Поддержка</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Partners Card / Карточка партнёров -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 card-hover h-100 text-center">
+                <div class="card-body p-4">
+                    <div class="icon-textured">🌟</div>
+                    <h5 class="card-title fw-bold mb-3">Партнёры</h5>
+                    <p class="card-text text-muted">
+                        Организации и учреждения, разделяющие наши ценности
+                        и поддерживающие наши инициативы.
+                    </p>
+                    <div class="mt-3">
+                        <span class="badge bg-warning me-1">Сотрудничество</span>
+                        <span class="badge bg-warning">Поддержка</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--
+        HISTORY SECTION / СЕКЦИЯ ИСТОРИИ
+        Organization history and development timeline
+        История организации и хронология развития
+    -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 bg-light">
+                <div class="card-body p-5 text-center">
+                    <div class="icon-textured mb-4">📜</div>
+                    <h3 class="card-title fw-bold mb-3">Наша история</h3>
+                    <p class="card-text text-muted lead">
+                        Раздел находится в разработке. Скоро здесь будет представлена
+                        подробная информация об истории создания и развития
+                        нашей организации, ключевых вехах и достижениях.
+                    </p>
+                    <div class="mt-4">
+                        <span class="badge bg-primary bg-opacity-10 text-primary fs-6 p-2">Скоро будет доступно</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--
+        CALL TO ACTION SECTION / СЕКЦИЯ ПРИЗЫВА К ДЕЙСТВИЮ
+        Encourages further engagement with the organization
+        Побуждает к дальнейшему взаимодействию с организацией
+    -->
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <div class="cta-banner p-5 rounded-4">
+                <h3 class="fw-bold mb-3 text-white">Хотите узнать больше?</h3>
+                <p class="mb-4 text-white-50">
+                    Изучите наши проекты, посетите галерею или свяжитесь с нами для сотрудничества.
+                </p>
+                <div class="d-flex justify-content-center flex-wrap gap-3">
+                    <a href="/projects" class="btn btn-primary btn-lg" th:href="@{/projects}">
+                        Наши проекты
+                    </a>
+                    <a href="/contact" class="btn btn-outline-light btn-lg" th:href="@{/contact}">
+                        Связаться с нами
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!--
+    FOOTER FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА ФУТЕРА
+    Complete footer with organization information and contacts
+    Полный футер с информацией об организации и контактами
+-->
+<div th:replace="fragments/footer :: main-footer"></div>
+
+<!--
+    SCRIPTS FRAGMENT INTEGRATION / ИНТЕГРАЦИЯ ФРАГМЕНТА СКРИПТОВ
+    Provides all JavaScript functionality including Bootstrap and custom features
+    Предоставляет всю JavaScript функциональность включая Bootstrap и пользовательские возможности
+-->
+<div th:replace="fragments/scripts :: main-scripts"></div>
+</body>
+</html>

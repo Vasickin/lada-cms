@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/header :: html-head(${pageTitle})">
+</head>
+
+<body>
+<div th:replace="fragments/navigation :: main-navigation"></div>
+<div th:replace="fragments/banner :: header-banner('Наша команда - сердце культурных инициатив')"></div>
+
+<main class="container my-5 py-4">
+  <div class="row mb-5">
+    <div class="col-12 text-center">
+      <h1 class="display-4 fw-bold mb-3 text-gradient-primary" th:text="${pageTitle}">Наша команда</h1>
+      <p class="lead text-muted mb-4" style="max-width: 700px; margin: 0 auto;" th:text="${metaDescription}">
+        Творческие и увлеченные люди, которые делают культурные события реальностью.
+      </p>
+    </div>
+  </div>
+
+  <!-- КАРТОЧКИ С АНИМАЦИЕЙ -->
+  <div class="row g-4" id="teamGrid">
+    <div th:each="member, stat : ${teamMembers}"
+         class="col-lg-4 col-md-6 team-member-card-wrapper"
+         data-aos="fade-up"
+         th:attr="data-aos-delay=${stat.index * 100}">
+
+      <div class="team-card-elegant">
+        <!-- АВАТАР С ГРАДИЕНТНОЙ РАМКОЙ -->
+        <div class="avatar-container">
+          <div class="avatar-border-glow">
+            <div th:if="${member.hasAvatar()}" class="avatar-image-wrapper">
+              <img th:src="${member.avatarPath}"
+                   th:alt="${member.fullName}"
+                   class="avatar-img-animated">
+            </div>
+            <div th:unless="${member.hasAvatar()}" class="avatar-placeholder-elegant">
+              <span th:text="${member.initials}" class="avatar-initials-large">ИП</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ИНФОРМАЦИЯ -->
+        <div class="card-content">
+          <h4 class="member-name-elegant" th:text="${member.fullName}">Имя Фамилия</h4>
+          <p class="member-position-elegant" th:text="${member.position}">Должность / Роль</p>
+
+          <!-- КРАТКАЯ БИОГРАФИЯ -->
+          <div class="member-bio-short mb-3">
+            <p th:if="${member.hasBio()}"
+               th:text="${#strings.abbreviate(member.bio, 100)}">
+              Краткое описание...
+            </p>
+            <p th:unless="${member.hasBio()}" class="text-muted">
+              Участник команды организации
+            </p>
+          </div>
+
+          <!-- КНОПКА ДЛЯ МОДАЛЬНОГО ОКНА -->
+          <button class="btn-member-detail"
+                  th:attr="data-member-id=${member.id}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#memberModal">
+            <span>Подробнее</span>
+            <i class="bi bi-person-circle"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЕСЛИ КОМАНДА ПУСТАЯ -->
+  <div class="row mb-5" th:if="${teamMembers == null or teamMembers.isEmpty()}">
+    <div class="col-12 text-center py-5">
+      <div class="empty-state-animated">
+        <div class="empty-avatar-pulse">
+          <i class="bi bi-person-plus"></i>
+        </div>
+        <h3 class="mt-4">Команда формируется</h3>
+        <p class="text-muted mb-4">
+          Мы собираем команду энтузиастов для создания культурных событий.
+        </p>
+        <a th:href="@{/contact}" class="btn btn-primary btn-lg px-4">
+          <i class="bi bi-envelope me-2"></i>Присоединиться
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПРИЗЫВ К ДЕЙСТВИЮ -->
+  <div class="row mt-5" th:if="${teamMembers != null and !teamMembers.isEmpty()}">
+    <div class="col-12">
+      <div class="join-callout">
+        <div class="callout-content">
+          <h3 class="fw-bold mb-3">Станьте частью нашей команды</h3>
+          <p class="text-muted mb-4">
+            Присоединяйтесь к творческим людям, создающим культурные события для сообщества.
+          </p>
+          <a th:href="@{/contact}" class="btn btn-primary btn-lg px-4">
+            <i class="bi bi-send me-2"></i>Присоединиться
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- МОДАЛЬНОЕ ОКНО ДЛЯ ДЕТАЛЬНОЙ ИНФОРМАЦИИ -->
+<div class="modal fade" id="memberModal" tabindex="-1" aria-labelledby="memberModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0">
+
+      <!-- ШАПКА МОДАЛКИ -->
+      <div class="modal-header border-0 pb-0">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- ТЕЛО МОДАЛКИ -->
+      <div class="modal-body p-4 pt-0">
+        <div class="row">
+          <!-- ЛЕВАЯ КОЛОНКА - АВАТАР И КОНТАКТЫ -->
+          <div class="col-md-4 text-center">
+            <div class="modal-avatar-container mb-4">
+              <div class="modal-avatar-wrapper">
+                <img id="modalAvatar" src="" alt="" class="modal-avatar-img rounded-circle">
+                <div id="modalAvatarPlaceholder" class="modal-avatar-placeholder rounded-circle d-none">
+                  <span id="modalInitials" class="modal-initials"></span>
+                </div>
+              </div>
+            </div>
+
+            <h4 id="modalName" class="fw-bold mb-2"></h4>
+            <h5 id="modalPosition" class="text-primary mb-4"></h5>
+
+
+
+            <!-- КОНТАКТЫ -->
+            <!--
+            <div class="contact-info mb-4">
+              <div id="modalEmail" class="d-flex align-items-center mb-3 d-none">
+                <i class="bi bi-envelope-fill text-primary me-2"></i>
+                <a id="modalEmailLink" href="#" class="text-decoration-none"></a>
+              </div>
+              <div id="modalPhone" class="d-flex align-items-center mb-3 d-none">
+                <i class="bi bi-telephone-fill text-success me-2"></i>
+                <span id="modalPhoneText"></span>
+              </div>
+            </div>
+            -->
+
+            <!-- СОЦСЕТИ -->
+            <div id="modalSocialLinks" class="social-links d-flex justify-content-center gap-2 mb-4 d-none">
+              <!-- Динамически заполняются через JS -->
+            </div>
+          </div>
+
+          <!-- ПРАВАЯ КОЛОНКА - БИОГРАФИЯ И ДЕТАЛИ -->
+          <div class="col-md-8">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">О члене команды</h5>
+
+            <!-- БИОГРАФИЯ -->
+            <div class="member-bio-full mb-4">
+              <div id="modalBio" class="bio-content"></div>
+              <div id="modalNoBio" class="text-muted text-center py-3 d-none">
+                <i class="bi bi-card-text display-6 mb-3"></i>
+                <p>Биография пока не добавлена</p>
+              </div>
+            </div>
+
+            <!-- ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ -->
+            <!--
+            <div class="additional-info">
+              <div class="row">
+                <div class="col-6">
+                  <div class="info-card p-3 rounded-3 text-center">
+                    <i class="bi bi-calendar-check display-6 text-primary mb-2"></i>
+                    <h6 class="fw-bold">В команде с</h6>
+                    <p id="modalJoinDate" class="mb-0">2023 года</p>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="info-card p-3 rounded-3 text-center">
+                    <i class="bi bi-diagram-3 display-6 text-success mb-2"></i>
+                    <h6 class="fw-bold">Участие в проектах</h6>
+                    <p id="modalProjectsCount" class="mb-0">5+ проектов</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ФУТЕР МОДАЛКИ -->
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <a id="modalFullPageLink" href="#" class="btn btn-primary">
+          <i class="bi bi-person-badge me-1"></i>Открыть страницу
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="fragments/footer :: main-footer"></div>
+<div th:replace="fragments/scripts :: main-scripts"></div>
+
+<!-- AOS Library для анимаций -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<style>
+  /* ОСНОВНЫЕ СТИЛИ */
+  .text-gradient-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+  }
+
+  /* КАРТОЧКА */
+  .team-card-elegant {
+      background: white;
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  }
+
+  .team-card-elegant:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border-color: rgba(102, 126, 234, 0.2);
+  }
+
+  /* АВАТАР */
+  .avatar-container {
+      text-align: center;
+      margin-bottom: 1.5rem;
+  }
+
+  .avatar-border-glow {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+      border-radius: 50%;
+      padding: 5px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      position: relative;
+      animation: avatarGlow 3s infinite alternate;
+  }
+
+  .avatar-image-wrapper,
+  .avatar-placeholder-elegant {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      overflow: hidden;
+      background: white;
+      border: 4px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  .avatar-img-animated {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+  }
+
+  .team-card-elegant:hover .avatar-img-animated {
+      transform: scale(1.08);
+  }
+
+  .avatar-placeholder-elegant {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  }
+
+  .avatar-initials-large {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #667eea;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+  }
+
+  /* ИНФОРМАЦИЯ */
+  .card-content {
+      text-align: center;
+  }
+
+  .member-name-elegant {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #1a237e;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+  }
+
+  .member-position-elegant {
+      font-size: 0.95rem;
+      color: #667eea;
+      font-weight: 500;
+      margin-bottom: 1rem;
+  }
+
+  .member-bio-short {
+      font-size: 0.9rem;
+      color: #555;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      min-height: 4.5rem;
+  }
+
+  /* КНОПКА */
+  .btn-member-detail {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: none;
+      width: 100%;
+      max-width: 200px;
+      margin: 0 auto;
+      cursor: pointer;
+  }
+
+  .btn-member-detail:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      color: white;
+  }
+
+  /* СТИЛИ МОДАЛЬНОГО ОКНА */
+  .modal-avatar-container {
+      position: relative;
+  }
+
+  .modal-avatar-wrapper {
+      width: 150px;
+      height: 150px;
+      margin: 0 auto;
+      position: relative;
+  }
+
+  .modal-avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border: 5px solid white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .modal-avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  .modal-initials {
+      font-size: 3rem;
+      font-weight: 700;
+      color: white;
+  }
+
+  .bio-content {
+      line-height: 1.8;
+      font-size: 1rem;
+      color: #333;
+  }
+
+  .bio-content p {
+      margin-bottom: 1rem;
+  }
+
+  .info-card {
+      background: linear-gradient(135deg, #f8f9fa, #ffffff);
+      border: 1px solid #e9ecef;
+      transition: transform 0.3s;
+  }
+
+  .info-card:hover {
+      transform: translateY(-3px);
+  }
+
+  .social-links a {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-decoration: none;
+      font-size: 1.2rem;
+      transition: transform 0.3s;
+  }
+
+  .social-links a:hover {
+      transform: translateY(-3px);
+  }
+
+  .social-facebook { background: #1877F2; }
+  .social-instagram { background: #E4405F; }
+  .social-vk { background: #0077FF; }
+  .social-telegram { background: #0088CC; }
+  .social-youtube { background: #FF0000; }
+
+  /* ПУСТОЕ СОСТОЯНИЕ */
+  .empty-state-animated {
+      padding: 3rem;
+  }
+
+  .empty-avatar-pulse {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      color: #667eea;
+      animation: pulse 2s infinite;
+  }
+
+  /* ПРИЗЫВ К ДЕЙСТВИЮ */
+  .join-callout {
+      background: linear-gradient(135deg, #1a237e, #283593);
+      color: white;
+      border-radius: 20px;
+      padding: 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+  }
+
+  .join-callout::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+  }
+
+  .callout-content {
+      position: relative;
+      z-index: 2;
+  }
+
+  /* АНИМАЦИИ */
+  @keyframes avatarGlow {
+      0% {
+          box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.3);
+      }
+      100% {
+          box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+      }
+  }
+
+  @keyframes pulse {
+      0% {
+          transform: scale(1);
+          opacity: 1;
+      }
+      50% {
+          transform: scale(1.05);
+          opacity: 0.8;
+      }
+      100% {
+          transform: scale(1);
+          opacity: 1;
+      }
+  }
+
+  /* АДАПТИВНОСТЬ */
+  @media (max-width: 768px) {
+      .team-card-elegant {
+          padding: 2rem 1.5rem;
+      }
+
+      .avatar-border-glow {
+          width: 120px;
+          height: 120px;
+      }
+
+      .avatar-initials-large {
+          font-size: 2rem;
+      }
+
+      .member-name-elegant {
+          font-size: 1.2rem;
+      }
+
+      .join-callout {
+          padding: 2rem;
+      }
+
+      .modal-avatar-wrapper {
+          width: 120px;
+          height: 120px;
+      }
+
+      .modal-initials {
+          font-size: 2.5rem;
+      }
+  }
+
+  @media (max-width: 576px) {
+      .avatar-border-glow {
+          width: 100px;
+          height: 100px;
+      }
+
+      .avatar-initials-large {
+          font-size: 1.5rem;
+      }
+
+      .team-card-elegant {
+          padding: 1.5rem;
+      }
+  }
+
+  /* ИНИЦИАЛИЗАЦИЯ AOS */
+  .team-member-card-wrapper {
+      opacity: 0;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Инициализация AOS
+      AOS.init({
+          duration: 600,
+          once: true,
+          offset: 100
+      });
+
+      // Плавное появление карточек
+      const cards = document.querySelectorAll('.team-card-elegant');
+      cards.forEach((card, index) => {
+          setTimeout(() => {
+              card.style.opacity = '1';
+          }, index * 100);
+      });
+
+      // Обработка кликов на кнопки "Подробнее"
+      const detailButtons = document.querySelectorAll('.btn-member-detail');
+
+      detailButtons.forEach(button => {
+          button.addEventListener('click', function() {
+              const memberId = this.getAttribute('data-member-id');
+
+              // Находим карточку с данными участника
+              const card = this.closest('.team-card-elegant');
+              const memberName = card.querySelector('.member-name-elegant').textContent;
+              const memberPosition = card.querySelector('.member-position-elegant').textContent;
+              const avatarImg = card.querySelector('.avatar-img-animated');
+              const avatarPlaceholder = card.querySelector('.avatar-placeholder-elegant');
+              const initials = card.querySelector('.avatar-initials-large')?.textContent || '';
+
+              // Заполняем модальное окно
+              document.getElementById('modalName').textContent = memberName;
+              document.getElementById('modalPosition').textContent = memberPosition;
+              document.getElementById('modalFullPageLink').href = `/team/${memberId}`;
+
+              // Обработка аватара
+              if (avatarImg && avatarImg.src) {
+                  document.getElementById('modalAvatar').src = avatarImg.src;
+                  document.getElementById('modalAvatar').classList.remove('d-none');
+                  document.getElementById('modalAvatarPlaceholder').classList.add('d-none');
+              } else {
+                  document.getElementById('modalInitials').textContent = initials;
+                  document.getElementById('modalAvatar').classList.add('d-none');
+                  document.getElementById('modalAvatarPlaceholder').classList.remove('d-none');
+              }
+
+              // Для примера - можно будет заменить на реальные данные из AJAX
+              // Сейчас просто примерные данные
+              document.getElementById('modalBio').innerHTML =
+                  `<p>${memberName} - ${memberPosition} в организации "ЛАДА". Активный участник культурных мероприятий и общественных инициатив.</p>
+                   <p>Имеет опыт организации фестивалей, праздников и творческих встреч.</p>`;
+
+              // Скрываем сообщение об отсутствии биографии
+              document.getElementById('modalNoBio').classList.add('d-none');
+
+              // Примерные социальные сети
+              const socialContainer = document.getElementById('modalSocialLinks');
+              socialContainer.innerHTML = `
+                  <a href="#" class="social-facebook" title="Facebook"><i class="bi bi-facebook"></i></a>
+                  <a href="#" class="social-vk" title="ВКонтакте"><i class="bi bi-people-fill"></i></a>
+                  <a href="#" class="social-telegram" title="Telegram"><i class="bi bi-telegram"></i></a>
+              `;
+              socialContainer.classList.remove('d-none');
+
+              // Показываем контакты (пример)
+              document.getElementById('modalEmail').classList.remove('d-none');
+              document.getElementById('modalEmailLink').textContent = 'email@example.com';
+              document.getElementById('modalEmailLink').href = 'mailto:email@example.com';
+
+              document.getElementById('modalPhone').classList.remove('d-none');
+              document.getElementById('modalPhoneText').textContent = '+7 XXX XXX-XX-XX';
+          });
+      });
+
+      // Инициализация Bootstrap модального окна
+      const memberModal = new bootstrap.Modal(document.getElementById('memberModal'));
+
+      // Можно добавить загрузку данных через AJAX при необходимости
+      /*
+      async function loadMemberDetails(memberId) {
+          try {
+              const response = await fetch(`/api/team/${memberId}/details`);
+              const data = await response.json();
+              // Заполняем модалку данными
+          } catch (error) {
+              console.error('Ошибка загрузки данных:', error);
+          }
+      }
+      */
+  });
+</script>
+</body>
+</html>

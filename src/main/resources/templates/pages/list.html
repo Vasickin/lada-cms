@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <!--
+        META AND BASIC SETUP / МЕТАДАННЫЕ И БАЗОВАЯ НАСТРОЙКА
+        Character set, viewport, and page title / Кодировка, вью порт и заголовок страницы
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление страницами - Community CMS</title>
+
+    <!--
+        BOOTSTRAP 5 CSS / БИБЛИОТЕКА BOOTSTRAP 5
+        Using CDN for quick setup, later can be downloaded locally /
+        Используем CDN для быстрой настройки, позже можно скачать локально
+    -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<!--
+    MAIN CONTAINER / ОСНОВНОЙ КОНТЕЙНЕР
+    Bootstrap container for proper padding and responsiveness /
+    Bootstrap контейнер для правильных отступов и адаптивности
+-->
+<div class="container mt-4">
+
+    <!--
+        PAGE HEADER SECTION / ЗАГОЛОВОК СТРАНИЦЫ
+        Title and action buttons / Заголовок и кнопки действий
+    -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📄 Управление страницами</h1>
+        <div>
+            <!-- Кнопка возврата в админку / Back to admin dashboard button -->
+            <a th:href="@{/admin}" class="btn btn-outline-secondary me-2">
+                📊 В админку
+            </a>
+            <!-- Кнопка создания новой страницы / Create new page button -->
+            <a th:href="@{/pages/create}" class="btn btn-primary">
+                ➕ Создать страницу
+            </a>
+        </div>
+    </div>
+
+    <!--
+        PAGES TABLE CARD / КАРТОЧКА С ТАБЛИЦЕЙ СТРАНИЦ
+        Main content area with table / Основная область контента с таблицей
+    -->
+    <div class="card">
+        <!-- Card header with title / Заголовок карточки -->
+        <div class="card-header">
+            <h5 class="mb-0">Список страниц</h5>
+        </div>
+
+        <!-- Card body with table and messages / Тело карточки с таблицей и сообщениями -->
+        <div class="card-body">
+
+            <!--
+                SUCCESS MESSAGES / СООБЩЕНИЯ ОБ УСПЕХЕ
+                Display success messages from URL parameters /
+                Отображение успешных сообщений из параметров URL
+            -->
+            <div th:if="${param.success}"
+                 class="alert alert-success alert-dismissible fade show"
+                 role="alert">
+                <!-- Message from URL parameter like ?success=CustomPage+created /
+                     Сообщение из параметра URL например ?success=Страница+создана -->
+                <span th:text="${param.success}">Операция выполнена успешно</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!--
+                RESPONSIVE TABLE CONTAINER / АДАПТИВНЫЙ КОНТЕЙНЕР ТАБЛИЦЫ
+                Makes table scrollable on mobile /
+                Делает таблицу прокручиваемой на мобильных устройствах
+            -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <!-- Table header / Заголовок таблицы -->
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Заголовок</th>
+                        <th>Slug</th>
+                        <th>Статус</th>
+                        <th>Создана</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+
+                    <!-- Table body / Тело таблицы -->
+                    <tbody>
+                    <!--
+                        EMPTY STATE / СОСТОЯНИЕ ПУСТОГО СПИСКА
+                        Show when no pages exist /
+                        Показывается когда страниц нет
+                    -->
+                    <tr th:if="${#lists.isEmpty(pages)}">
+                        <td colspan="6" class="text-center text-muted py-4">
+                            📝 Страниц пока нет.
+                            <a th:href="@{/pages/create}">Создайте первую страницу</a>
+                        </td>
+                    </tr>
+
+                    <!--
+                        PAGES LIST / СПИСОК СТРАНИЦ
+                        Iterate over pages from controller model /
+                        Перебор страниц из модели контроллера
+                        th:object="${page}" creates page context for this row /
+                        th:object="${page}" создает контекст страницы для этой строки
+                    -->
+                    <tr th:each="page : ${pages}" th:object="${page}">
+                        <!-- CustomPage ID / ID страницы -->
+                        <td th:text="*{id}">1</td>
+
+                        <!-- CustomPage title / Заголовок страницы -->
+                        <td>
+                            <strong th:text="*{title}">Заголовок страницы</strong>
+                        </td>
+
+                        <!-- CustomPage slug (URL identifier) / Slug страницы (идентификатор URL) -->
+                        <td>
+                            <code th:text="*{slug}">page-slug</code>
+                        </td>
+
+                        <!-- Publication status badge / Бейдж статуса публикации -->
+                        <td>
+                                    <span th:if="*{published}" class="badge bg-success">
+                                        Опубликовано
+                                    </span>
+                            <span th:unless="*{published}" class="badge bg-secondary">
+                                        Черновик
+                                    </span>
+                        </td>
+
+                        <!-- Creation date formatted / Дата создания в формате -->
+                        <td>
+                            <small th:text="*{#temporals.format(createdAt, 'dd.MM.yyyy HH:mm')}">
+                                01.01.2025 12:00
+                            </small>
+                        </td>
+
+                        <!-- Action buttons / Кнопки действий -->
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <!-- View button - opens public page /
+                                     Кнопка просмотра - открывает публичную страницу -->
+                                <a th:href="@{/pages/{slug}(slug=*{slug})}"
+                                   class="btn btn-outline-primary"
+                                   title="Просмотр / View">
+                                    👁️
+                                </a>
+
+                                <!-- Edit button - goes to edit form /
+                                     Кнопка редактирования - переход к форме редактирования -->
+                                <a th:href="@{/pages/edit/{id}(id=*{id})}"
+                                   class="btn btn-outline-secondary"
+                                   title="Редактировать / Edit">
+                                    ✏️
+                                </a>
+
+                                <!--
+                                    PUBLISH/UNPUBLISH BUTTONS / КНОПКИ ПУБЛИКАЦИИ/СНЯТИЯ
+                                    Conditional rendering based on current status /
+                                    Условный рендеринг на основе текущего статуса
+                                -->
+                                <!-- Unpublish form for published pages /
+                                     Форма снятия с публикации для опубликованных страниц -->
+                                <form th:if="*{published}"
+                                      th:action="@{/pages/unpublish/{id}(id=*{id})}"
+                                      method="post"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-outline-warning"
+                                            title="Снять с публикации / Unpublish">
+                                        🚫
+                                    </button>
+                                </form>
+
+                                <!-- Publish form for drafts /
+                                     Форма публикации для черновиков -->
+                                <form th:unless="*{published}"
+                                      th:action="@{/pages/publish/{id}(id=*{id})}"
+                                      method="post"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-outline-success"
+                                            title="Опубликовать / Publish">
+                                        ✅
+                                    </button>
+                                </form>
+
+                                <!--
+                                    DELETE BUTTON / КНОПКА УДАЛЕНИЯ
+                                    With confirmation dialog /
+                                    С диалогом подтверждения
+                                -->
+                                <form th:action="@{/pages/delete/{id}(id=*{id})}"
+                                      method="post"
+                                      class="d-inline"
+                                      th:onclick="return confirm('Вы уверены что хотите удалить страницу? / Are you sure you want to delete this page?')">
+                                    <button type="submit" class="btn btn-outline-danger"
+                                            title="Удалить / Delete">
+                                        🗑️
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!--
+        NAVIGATION BACK / НАВИГАЦИЯ НАЗАД
+        Return to home or admin dashboard /
+        Возврат на главную или в админку
+    -->
+    <div class="mt-3">
+        <a th:href="@{/admin}" class="btn btn-outline-primary">📊 В админку</a>
+        <a th:href="@{/}" class="btn btn-outline-secondary ms-2">← На главную</a>
+
+        <!--
+            LOGOUT BUTTON / КНОПКА ВЫХОДА
+            Form for ending user session / Форма для завершения сессии пользователя
+        -->
+        <form th:action="@{/logout}" method="post" class="d-inline ms-2">
+            <button type="submit" class="btn btn-outline-danger"
+                    th:onclick="return confirm('Вы уверены что хотите выйти?')">
+                🚪 Выйти
+            </button>
+        </form>
+    </div>
+</div>
+
+
+<!--
+    BOOTSTRAP JAVASCRIPT / JAVASCRIPT БИБЛИОТЕКИ BOOTSTRAP
+    Required for interactive components /
+    Необходим для интерактивных компонентов
+-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!--
+    CUSTOM JAVASCRIPT / ПОЛЬЗОВАТЕЛЬСКИЙ JAVASCRIPT
+    Auto-hide alerts and other interactions /
+    Авто-скрытие уведомлений и другие взаимодействия
+-->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-hide success alerts after 5 seconds /
+        // Автоматическое скрытие успешных уведомлений через 5 секунд
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000);
+        });
+    });
+</script>
+</body>
+</html>

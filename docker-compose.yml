@@ -1,0 +1,42 @@
+
+volumes:
+  db-data:
+
+services:
+
+  db:
+    image: mysql:8.0
+    container_name: lada-cms-db
+    restart: always
+    environment:
+      - MYSQL_DATABASE=myapp_db
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_USER=spring_user
+      - MYSQL_PASSWORD=spring_password
+    ports:
+      - "3307:3306"
+    healthcheck:
+      # mysqladmin ping verifies the server is ready to accept connections
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db-data:/var/lib/mysql
+
+  app:
+    build:
+      context: .
+      dockerfile: dockerfile
+      target: release
+    container_name: lada-cms
+    ports:
+      - "8080:8080"
+    environment:
+      # Overrides application.properties to connect to the 'db' container
+      - SPRING_DATASOURCE_URL=jdbc:mysql://lada-cms-db:3306/myapp_db?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=spring_user
+      - SPRING_DATASOURCE_PASSWORD=spring_password
+    depends_on:
+      db:
+        condition: service_healthy

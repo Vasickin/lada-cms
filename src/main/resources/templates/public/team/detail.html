@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- HEADER FRAGMENT -->
+<head th:replace="fragments/header :: html-head(${pageTitle})">
+    <!-- Контент заменяется фрагментом хедера -->
+</head>
+
+<body>
+<!-- NAVIGATION FRAGMENT -->
+<div th:replace="fragments/navigation :: main-navigation"></div>
+
+<!-- CUSTOM BANNER FOR TEAM MEMBER -->
+<div class="team-member-banner">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center">
+                <!-- АВАТАР УЧАСТНИКА -->
+                <div class="team-member-avatar-large mb-3">
+                    <div th:if="${member.hasAvatar()}" class="avatar-image-large">
+                        <img th:src="${member.avatarPath}"
+                             th:alt="${member.fullName}"
+                             class="rounded-circle">
+                    </div>
+                    <div th:unless="${member.hasAvatar()}" class="avatar-placeholder-large">
+                        <span th:text="${member.initials}" class="fw-bold">ИП</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <h1 class="display-5 mb-2" th:text="${member.fullName}">Имя Фамилия</h1>
+                <p class="lead mb-3" th:text="${member.position}">Должность / Роль</p>
+
+                <!-- КОНТАКТНЫЕ БЕЙДЖИ -->
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span th:if="${member.email}" class="badge bg-primary">
+                        <i class="bi bi-envelope me-1"></i>
+                        <a th:href="'mailto:' + ${member.email}"
+                           th:text="${member.email}"
+                           class="text-white text-decoration-none">
+                            email@example.com
+                        </a>
+                    </span>
+
+                    <span th:if="${member.phone}" class="badge bg-success">
+                        <i class="bi bi-telephone me-1"></i>
+                        <span th:text="${member.phone}">+7 XXX XXX-XX-XX</span>
+                    </span>
+
+                    <a th:href="@{/team}" class="badge bg-secondary text-decoration-none">
+                        <i class="bi bi-arrow-left me-1"></i>Вся команда
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<main class="container my-5 py-4">
+    <div class="row">
+        <!-- ОСНОВНОЙ КОНТЕНТ -->
+        <div class="col-lg-8">
+            <!-- БЛОК "ОБО МНЕ" -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title fw-bold mb-3">
+                        <i class="bi bi-person-circle me-2"></i>Обо мне
+                    </h2>
+
+                    <!-- БИОГРАФИЯ -->
+                    <div th:if="${member.hasBio()}" class="member-bio">
+                        <div th:utext="${member.bio}">
+                            <!-- HTML-форматированная биография -->
+                            <p>Профессиональный опыт и достижения в организации культурных мероприятий, фестивалей и праздников.</p>
+                            <p>Специализация в области организации мероприятий, координации волонтеров, управления проектами.</p>
+                            <p>Ключевые навыки и компетенции, которые помогают создавать запоминающиеся события для сообщества.</p>
+                        </div>
+                    </div>
+
+                    <!-- СООБЩЕНИЕ ЕСЛИ БИОГРАФИИ НЕТ -->
+                    <div th:unless="${member.hasBio()}" class="text-muted text-center py-4">
+                        <i class="bi bi-card-text display-4 mb-3"></i>
+                        <h5>Биография в процессе наполнения</h5>
+                        <p>Информация о профессиональном опыте и достижениях скоро будет добавлена.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- СОЦИАЛЬНЫЕ СЕТИ (если есть) -->
+            <div th:if="${member.hasSocialLinks()}" class="card mb-4 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title fw-bold mb-3">
+                        <i class="bi bi-share me-2"></i>Социальные сети
+                    </h2>
+
+                    <div class="social-links d-flex flex-wrap gap-3">
+                        <!-- FACEBOOK -->
+                        <a th:if="${member.socialLinks['facebook']}"
+                           th:href="${member.socialLinks['facebook']}"
+                           class="social-link facebook"
+                           target="_blank"
+                           title="Facebook">
+                            <i class="bi bi-facebook"></i>
+                            <span>Facebook</span>
+                        </a>
+
+                        <!-- INSTAGRAM -->
+                        <a th:if="${member.socialLinks['instagram']}"
+                           th:href="${member.socialLinks['instagram']}"
+                           class="social-link instagram"
+                           target="_blank"
+                           title="Instagram">
+                            <i class="bi bi-instagram"></i>
+                            <span>Instagram</span>
+                        </a>
+
+                        <!-- VK -->
+                        <a th:if="${member.socialLinks['vk']}"
+                           th:href="${member.socialLinks['vk']}"
+                           class="social-link vk"
+                           target="_blank"
+                           title="ВКонтакте">
+                            <i class="bi bi-people-fill"></i>
+                            <span>ВКонтакте</span>
+                        </a>
+
+                        <!-- TELEGRAM -->
+                        <a th:if="${member.socialLinks['telegram']}"
+                           th:href="${member.socialLinks['telegram']}"
+                           class="social-link telegram"
+                           target="_blank"
+                           title="Telegram">
+                            <i class="bi bi-telegram"></i>
+                            <span>Telegram</span>
+                        </a>
+
+                        <!-- YOUTUBE -->
+                        <a th:if="${member.socialLinks['youtube']}"
+                           th:href="${member.socialLinks['youtube']}"
+                           class="social-link youtube"
+                           target="_blank"
+                           title="YouTube">
+                            <i class="bi bi-youtube"></i>
+                            <span>YouTube</span>
+                        </a>
+
+                        <!-- ДРУГИЕ СЕТИ -->
+                        <div th:each="entry : ${member.socialLinks}">
+                            <a th:if="${!['facebook','instagram','vk','telegram','youtube'].contains(entry.key)}"
+                               th:href="${entry.value}"
+                               class="social-link other"
+                               target="_blank"
+                               th:title="${entry.key}">
+                                <i class="bi bi-link-45deg"></i>
+                                <span th:text="${entry.key}">Соцсеть</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- САЙДБАР -->
+        <div class="col-lg-4">
+            <!-- КОНТАКТНАЯ ИНФОРМАЦИЯ -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-3">
+                        <i class="bi bi-info-circle me-2"></i>Контактная информация
+                    </h3>
+
+                    <div class="contact-info">
+                        <!-- EMAIL -->
+                        <div th:if="${member.email}" class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-envelope fs-4 text-primary me-3"></i>
+                                <div>
+                                    <small class="text-muted d-block">Email</small>
+                                    <a th:href="'mailto:' + ${member.email}"
+                                       th:text="${member.email}"
+                                       class="fw-medium text-decoration-none">
+                                        email@example.com
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ТЕЛЕФОН -->
+                        <div th:if="${member.phone}" class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-telephone fs-4 text-success me-3"></i>
+                                <div>
+                                    <small class="text-muted d-block">Телефон</small>
+                                    <span th:text="${member.phone}" class="fw-medium">
+                                        +7 XXX XXX-XX-XX
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- СООБЩЕНИЕ ЕСЛИ КОНТАКТОВ НЕТ -->
+                        <div th:unless="${member.hasContacts()}" class="text-muted text-center py-3">
+                            <i class="bi bi-person-lines-fill display-4 mb-2"></i>
+                            <p class="mb-0">Контактная информация не указана</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- КНОПКИ ДЕЙСТВИЙ -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-3">Быстрые ссылки</h3>
+
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/team}" class="btn btn-outline-primary">
+                            <i class="bi bi-people-fill me-2"></i>Вся команда
+                        </a>
+
+                        <a th:href="@{/projects}" class="btn btn-outline-success">
+                            <i class="bi bi-diagram-3 me-2"></i>Наши проекты
+                        </a>
+
+                        <a th:href="@{/contact}" class="btn btn-outline-info">
+                            <i class="bi bi-chat-dots me-2"></i>Связаться
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="card-title fw-bold mb-3">
+                        <i class="bi bi-lightbulb me-2"></i>Интересный факт
+                    </h3>
+
+                    <div class="interesting-fact">
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-quote me-1"></i>
+                            Каждый член нашей команды играет важную роль в создании
+                            культурных событий, которые объединяют сообщество и
+                            сохраняют традиции.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER FRAGMENT -->
+<div th:replace="fragments/footer :: main-footer"></div>
+
+<!-- SCRIPTS FRAGMENT -->
+<div th:replace="fragments/scripts :: main-scripts"></div>
+
+<!--
+    CUSTOM STYLES FOR TEAM MEMBER DETAIL PAGE
+-->
+<style>
+    /* БАННЕР ДЛЯ СТРАНИЦЫ УЧАСТНИКА */
+    .team-member-banner {
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .team-member-banner h1,
+    .team-member-banner .lead {
+        color: white;
+    }
+
+    /* БОЛЬШОЙ АВАТАР */
+    .team-member-avatar-large {
+        position: relative;
+    }
+
+    .avatar-image-large {
+        width: 180px;
+        height: 180px;
+        margin: 0 auto;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .avatar-image-large img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-placeholder-large {
+        width: 180px;
+        height: 180px;
+        margin: 0 auto;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.3));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: bold;
+        color: white;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* ССЫЛКИ НА СОЦИАЛЬНЫЕ СЕТИ */
+    .social-link {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: white;
+        transition: transform 0.2s;
+    }
+
+    .social-link:hover {
+        transform: translateY(-2px);
+        text-decoration: none;
+        color: white;
+    }
+
+    .social-link i {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+    }
+
+    .social-link span {
+        font-size: 0.9rem;
+    }
+
+    /* ЦВЕТА ДЛЯ РАЗНЫХ СОЦСЕТЕЙ */
+    .social-link.facebook {
+        background: linear-gradient(135deg, #1877F2, #0A5BC4);
+    }
+
+    .social-link.instagram {
+        background: linear-gradient(135deg, #E4405F, #C13584);
+    }
+
+    .social-link.vk {
+        background: linear-gradient(135deg, #0077FF, #0057D9);
+    }
+
+    .social-link.telegram {
+        background: linear-gradient(135deg, #0088CC, #006699);
+    }
+
+    .social-link.youtube {
+        background: linear-gradient(135deg, #FF0000, #CC0000);
+    }
+
+    .social-link.other {
+        background: linear-gradient(135deg, #6C757D, #495057);
+    }
+
+    /* БИОГРАФИЯ */
+    .member-bio {
+        line-height: 1.8;
+    }
+
+    .member-bio p {
+        margin-bottom: 1rem;
+    }
+
+    .member-bio ul,
+    .member-bio ol {
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .member-bio li {
+        margin-bottom: 0.5rem;
+    }
+
+    /* ИНТЕРЕСНЫЙ ФАКТ */
+    .interesting-fact {
+        background: linear-gradient(135deg, var(--surface), var(--background));
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid var(--primary);
+    }
+
+    /* АДАПТИВНОСТЬ */
+    @media (max-width: 768px) {
+        .team-member-banner {
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .avatar-image-large,
+        .avatar-placeholder-large {
+            width: 140px;
+            height: 140px;
+            margin-bottom: 1.5rem;
+        }
+
+        .avatar-placeholder-large {
+            font-size: 2.5rem;
+        }
+
+        .social-link {
+            width: 100%;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    /* Bootstrap Icons */
+    @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css");
+</style>
+</body>
+</html>
