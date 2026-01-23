@@ -509,7 +509,7 @@ public class HomeController {
                                         String publicPath = photo.getWebPath();
                                         if (publicPath.startsWith("/admin/photo-gallery/image/")) {
                                             String filename = publicPath.substring("/admin/photo-gallery/image/".length());
-                                            photoDTO.setPublicWebPath("/uploads/" + filename);
+                                            photoDTO.setPublicWebPath("/data/uploads/" + filename);
                                         } else {
                                             photoDTO.setPublicWebPath(publicPath);
                                         }
@@ -638,7 +638,7 @@ public class HomeController {
                             String publicPath = photo.getWebPath();
                             if (publicPath != null && publicPath.startsWith("/admin/photo-gallery/image/")) {
                                 String filename = publicPath.substring("/admin/photo-gallery/image/".length());
-                                photoDTO.setPublicWebPath("/uploads/" + filename);
+                                photoDTO.setPublicWebPath("/data/uploads/" + filename);
                             } else {
                                 photoDTO.setPublicWebPath(publicPath);
                             }

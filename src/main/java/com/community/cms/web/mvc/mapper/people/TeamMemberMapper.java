@@ -45,8 +45,8 @@ public class TeamMemberMapper {
         // ФИКС: Добавляем префикс к пути аватара
         String avatarPath = teamMember.getAvatarPath();
         if (avatarPath != null && !avatarPath.trim().isEmpty()) {
-            if (!avatarPath.startsWith("/uploads/") && !avatarPath.startsWith("uploads/")) {
-                dto.setAvatarPath("/uploads/" + avatarPath);
+            if (!avatarPath.startsWith("/data/uploads/") && !avatarPath.startsWith("uploads/")) {
+                dto.setAvatarPath("/data/uploads/" + avatarPath);
             } else {
                 dto.setAvatarPath(avatarPath);
             }

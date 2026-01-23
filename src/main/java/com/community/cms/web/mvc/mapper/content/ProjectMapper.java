@@ -432,13 +432,13 @@ public class ProjectMapper {
             return "/images/placeholder.jpg";
         }
 
-        // Если путь уже публичный (/uploads/), оставляем как есть
-        if (webPath.startsWith("/uploads/")) {
+        // Если путь уже публичный (data/uploads/), оставляем как есть
+        if (webPath.startsWith("data/uploads/")) {
             return webPath;
         }
 
         // Преобразуем путь контроллера (/admin/photo-gallery/image/filename)
-        // в публичный путь (/uploads/filename)
+        // в публичный путь (data/uploads/filename)
         if (webPath.startsWith("/admin/photo-gallery/image/")) {
             String filename = webPath.substring("/admin/photo-gallery/image/".length());
 
@@ -447,12 +447,12 @@ public class ProjectMapper {
                 filename = filename.substring(0, filename.indexOf("?"));
             }
 
-            return "/uploads/" + filename;
+            return "/data/uploads/" + filename;
         }
 
         // Если это относительный путь без /uploads/, добавляем префикс
         if (!webPath.startsWith("/") && !webPath.startsWith("http")) {
-            return "/uploads/" + webPath;
+            return "/data/uploads/" + webPath;
         }
 
         // Для других путей возвращаем как есть

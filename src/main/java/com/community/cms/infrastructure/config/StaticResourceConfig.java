@@ -16,7 +16,7 @@ public class StaticResourceConfig implements WebMvcConfigurer {
         System.out.println("=== StaticResourceConfig INIT ===");
 
         // Проверим путь
-        Path uploadsDir = Paths.get("uploads").toAbsolutePath();
+        Path uploadsDir = Paths.get("/data/uploads").toAbsolutePath();
         System.out.println("Uploads directory: " + uploadsDir);
         System.out.println("Directory exists: " + java.nio.file.Files.exists(uploadsDir));
         System.out.println("Directory is readable: " + java.nio.file.Files.isReadable(uploadsDir));
@@ -36,14 +36,14 @@ public class StaticResourceConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        Path uploadsDir = Paths.get("uploads").toAbsolutePath();
+        Path uploadsDir = Paths.get("/data/uploads").toAbsolutePath();
 
-        System.out.println("=== Adding resource handler for uploads ===");
-        System.out.println("URL Pattern: /uploads/**");
+        System.out.println("=== Adding resource handler for data/uploads ===");
+        System.out.println("URL Pattern: /data/uploads/**");
         System.out.println("File Location: file:" + uploadsDir + "/");
 
         // Добавляем хендлер ТОЛЬКО для uploads
-        registry.addResourceHandler("/uploads/**")
+        registry.addResourceHandler("/data/uploads/**")
                 .addResourceLocations("file:" + uploadsDir + "/")
                 .setCachePeriod(3600);
 
