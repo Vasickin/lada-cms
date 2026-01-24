@@ -65,7 +65,7 @@ public class SecurityConfig {
                         // PUBLIC ENDPOINTS / ПУБЛИЧНЫЕ ENDPOINTS
                         // Accessible without authentication / Доступны без аутентификации
                         //
-                        .requestMatchers("/", "/h2-console/**", "/css/**", "/js/**", "/images/**","/uploads/**", "/error", "/test-auth").permitAll()
+                        .requestMatchers("/", "/h2-console/**", "/css/**", "/js/**", "/images/**","/data/uploads/**", "/error", "/test-auth").permitAll()
 
                         //
                         // PUBLIC PAGES / ПУБЛИЧНЫЕ СТРАНИЦЫ

@@ -920,13 +920,13 @@ public class PhotoGalleryService {
             return "/images/placeholder.jpg";
         }
 
-        if (webPath.startsWith("/uploads/")) {
+        if (webPath.startsWith("/data/uploads/")) {
             return webPath; // Уже публичный
         }
 
         if (webPath.startsWith("/admin/photo-gallery/image/")) {
             String filename = webPath.substring("/admin/photo-gallery/image/".length());
-            return "/uploads/" + filename;
+            return "/data/uploads/" + filename;
         }
 
         return webPath;

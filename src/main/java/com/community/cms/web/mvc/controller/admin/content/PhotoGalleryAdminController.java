@@ -379,7 +379,7 @@ public class PhotoGalleryAdminController {
             System.out.println("Запрос изображения: " + filename);
 
             String projectPath = System.getProperty("user.dir");
-            String filePath = projectPath + "/uploads/" + filename;
+            String filePath = projectPath + "/data/uploads/" + filename;
             java.nio.file.Path path = java.nio.file.Paths.get(filePath);
 
             System.out.println("Ищу файл по пути: " + path.toAbsolutePath());

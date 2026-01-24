@@ -200,7 +200,7 @@
                                          id="currentAvatarPreview"
                                          class="avatar-preview-container">
                                         <img th:if="${teamMember.avatarPath != null and teamMember.avatarPath != ''}"
-                                             th:src="@{'/uploads/' + ${teamMember.avatarPath}}"
+                                             th:src="@{'/data/uploads/' + ${teamMember.avatarPath}}"
                                              th:alt="${teamMember.fullName} + ' фото'"
                                              id="currentAvatarImage">
                                     </div>

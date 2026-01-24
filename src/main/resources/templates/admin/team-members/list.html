@@ -283,7 +283,7 @@
                                                     <span th:text="${member.initials}">ИП</span>
                                                 </div>
                                                 <img th:if="${member.hasAvatar()}"
-                                                     th:src="@{'/uploads/' + ${member.avatarPath}}"
+                                                     th:src="@{'/data/uploads/' + ${member.avatarPath}}"
                                                      alt="Фото"
                                                      class="avatar-small">
                                             </div>

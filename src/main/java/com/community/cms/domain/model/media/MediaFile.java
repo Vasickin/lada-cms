@@ -382,7 +382,7 @@ public class MediaFile {
         if (filename.isEmpty()) {
             return "";
         }
-        return "/uploads/" + filename; // ← Новый метод для публичного доступа
+        return "/data/uploads/" + filename; // ← Новый метод для публичного доступа
     }
 
     @Override

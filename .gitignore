@@ -51,3 +51,6 @@ Dockerfile
 # Backup files (except those we need)
 *.backup
 *.bak
+
+data/upload/*
+!.keepme
