@@ -432,13 +432,13 @@ public class ProjectMapper {
             return "/images/placeholder.jpg";
         }
 
-        // Если путь уже публичный (data/uploads/), оставляем как есть
-        if (webPath.startsWith("data/uploads/")) {
+        // Если путь уже публичный (/data/uploads/), оставляем как есть
+        if (webPath.startsWith("/data/uploads/")) {
             return webPath;
         }
 
         // Преобразуем путь контроллера (/admin/photo-gallery/image/filename)
-        // в публичный путь (data/uploads/filename)
+        // в публичный путь (/data/uploads/filename)
         if (webPath.startsWith("/admin/photo-gallery/image/")) {
             String filename = webPath.substring("/admin/photo-gallery/image/".length());
 

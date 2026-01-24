@@ -142,7 +142,7 @@ public class PartnerService {
                 String fileName = fileStorageService.storeFile(logoFile);
 
                 // Сохраняем путь к файлу
-                partner.setLogoUrl("/uploads/" + fileName);
+                partner.setLogoUrl("/data/uploads/" + fileName);
 
             } catch (Exception e) {
                 throw new IllegalArgumentException("Ошибка при обработке логотипа: " + e.getMessage());
@@ -154,9 +154,9 @@ public class PartnerService {
      * Удаляет файл логотипа.
      */
     private void deleteLogoFile(String logoUrl) {
-        if (logoUrl != null && logoUrl.startsWith("/uploads/")) {
+        if (logoUrl != null && logoUrl.startsWith("/data/uploads/")) {
             try {
-                String fileName = logoUrl.substring("/uploads/".length());
+                String fileName = logoUrl.substring("/data/uploads/".length());
                 fileStorageService.deleteFile(fileName);
             } catch (Exception e) {
                 // Логируем ошибку, но не прерываем выполнение
