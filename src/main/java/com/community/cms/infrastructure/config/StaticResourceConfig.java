@@ -20,7 +20,7 @@ public class StaticResourceConfig implements WebMvcConfigurer {
         System.out.println("=== StaticResourceConfig INIT ===");
 
         // Проверим путь
-        Path uploadsDir = Paths.get("/data/uploads").toAbsolutePath();
+        Path uploadsDir = Paths.get(uploadDir).toAbsolutePath();
         System.out.println("Uploads directory: " + uploadsDir);
         System.out.println("Directory exists: " + java.nio.file.Files.exists(uploadsDir));
         System.out.println("Directory is readable: " + java.nio.file.Files.isReadable(uploadsDir));
