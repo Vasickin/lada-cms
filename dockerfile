@@ -14,6 +14,9 @@ WORKDIR /app
 # Copy the JAR from the build stage
 COPY --from=build /app/target/*.jar app.jar
 RUN mkdir -p /data/uploads
+RUN mkdir -p /app/data && \
+    chown -R springuser:springuser /app/data && \
+    chmod 755 /app/data
 # Run as a non-root user for security
 RUN useradd -m springuser
 USER springuser
