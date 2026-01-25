@@ -52,6 +52,9 @@ public class FileStorageService {
      * @throws FileStorageException ошибка валидации / validation error
      */
     public String storeFile(MultipartFile file) throws IOException, FileStorageException {
+        System.out.println("DEBUG: uploadDir = " + uploadDir);
+        System.out.println("DEBUG: Absolute path = " + Paths.get(uploadDir).toAbsolutePath());
+
         validateFile(file);
 
         String originalFileName = file.getOriginalFilename();
