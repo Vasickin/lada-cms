@@ -24,7 +24,7 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    @Value("${file.upload-dir:./data/uploads}")
+    @Value("${file.upload-dir:/data/uploads}")
     private String uploadDir;
 
     @Value("${file.allowed-image-types:image/jpeg,image/png,image/gif,image/webp}")
