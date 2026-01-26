@@ -37,13 +37,17 @@
                 <h1>📊 Дашборд админки</h1>
                 <div>
                     <!-- КНОПКИ УПРАВЛЕНИЯ СТРАНИЦАМИ -->
+                    <!--
                     <a th:href="@{/pages}" class="btn btn-outline-primary me-2">
                         📄 Управление страницами
                     </a>
+                    -->
                     <!-- НОВАЯ КНОПКА: ОСНОВНЫЕ СТРАНИЦЫ -->
+                    <!--
                     <a th:href="@{/admin/site-pages}" class="btn btn-outline-success me-2">
                         🌐 Основные страницы
                     </a>
+                    -->
 
                     <!-- ПЕРЕХОД НА САЙТ -->
                     <a th:href="@{/}" class="btn btn-outline-secondary">
@@ -248,10 +252,11 @@
             <!-- БЫСТРЫЕ ДЕЙСТВИЯ -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Быстрые действия</h5>
+                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Управление разделами</h5>
                 </div>
                 <div class="card-body p-0">
                     <!-- СОЗДАНИЕ СТРАНИЦЫ -->
+                    <!--
                     <a th:href="@{/pages/create}" class="btn btn-light w-100 text-start p-3 quick-action-card border-0 rounded-0">
                         <div class="d-flex align-items-center">
                             <span class="bg-primary text-white rounded p-2 me-3">
@@ -264,8 +269,10 @@
                             </div>
                         </div>
                     </a>
+                    -->
 
                     <!-- ОСНОВНЫЕ СТРАНИЦЫ -->
+                    <!--
                     <a th:href="@{/admin/site-pages}" class="btn btn-light w-100 text-start p-3 quick-action-card border-0 rounded-0">
                         <div class="d-flex align-items-center">
                             <span class="bg-success text-white rounded p-2 me-3">
@@ -278,6 +285,7 @@
                             </div>
                         </div>
                     </a>
+                    -->
 
                     <!-- УПРАВЛЕНИЕ ГАЛЕРЕЕЙ -->
                     <a th:href="@{/admin/photo-gallery}" class="btn btn-light w-100 text-start p-3 quick-action-card border-0 rounded-0">
@@ -293,7 +301,50 @@
                         </div>
                     </a>
 
+                    <!-- ПРОЕКТЫ -->
+                    <a th:href="@{/admin/projects}" class="btn btn-light w-100 text-start p-3 quick-action-card border-0 rounded-0">
+                        <div class="d-flex align-items-center">
+                            <span class="bg-success text-white rounded p-2 me-3">
+                                <i class="bi-clipboard-check"></i>
+                            </span>
+                            <div>
+                                <strong>Управление проектами</strong>
+                                <br>
+                                <small class="text-muted">Управление проектами организации</small>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- КОМАНДА -->
+                    <a th:href="@{/admin/team-members}" class="btn btn-light w-100 text-start p-3 quick-action-card border-0 rounded-0">
+                        <div class="d-flex align-items-center">
+                            <span class="bg-warning text-white rounded p-2 me-3">
+                                <i class="bi bi-people"></i>
+                            </span>
+                            <div>
+                                <strong>Управление командой</strong>
+                                <br>
+                                <small class="text-muted">Члены команды и сотрудники</small>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- ПАРТНЕРЫ -->
+                    <a th:href="@{/admin/partners}" class="btn btn-light w-100 text-start p-3 quick-action-card border-0 rounded-0">
+                        <div class="d-flex align-items-center">
+                            <span class="bg-warning text-white rounded p-2 me-3">
+                                <i class="bi-gem"></i>
+                            </span>
+                            <div>
+                                <strong>Управление партнёрами</strong>
+                                <br>
+                                <small class="text-muted">Партнеры и спонсоры организации</small>
+                            </div>
+                        </div>
+                    </a>
+
                     <!-- ВСЕ СТРАНИЦЫ -->
+                    <!--
                     <a th:href="@{/pages}" class="btn btn-light w-100 text-start p-3 quick-action-card border-0 rounded-0">
                         <div class="d-flex align-items-center">
                             <span class="bg-secondary text-white rounded p-2 me-3">
@@ -306,8 +357,10 @@
                             </div>
                         </div>
                     </a>
+                    -->
 
                     <!-- УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ -->
+                    <!--
                     <a th:href="@{/admin/users}" class="btn btn-light w-100 text-start p-3 quick-action-card border-0 rounded-0 border-bottom rounded-bottom">
                         <div class="d-flex align-items-center">
                             <span class="bg-dark text-white rounded p-2 me-3">
@@ -320,6 +373,7 @@
                             </div>
                         </div>
                     </a>
+                    -->
                 </div>
             </div>
 
