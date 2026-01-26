@@ -376,34 +376,88 @@ public class PhotoGalleryAdminController {
     @GetMapping("/image/{filename:.+}")
     public ResponseEntity<org.springframework.core.io.Resource> getImage(@PathVariable String filename) {
         try {
+            System.out.println("=== PhotoGalleryAdminController.getImage() ===");
             System.out.println("Запрос изображения: " + filename);
 
-            String projectPath = System.getProperty("user.dir");
-            String filePath = projectPath + "/data/uploads/" + filename;
-            java.nio.file.Path path = java.nio.file.Paths.get(filePath);
+            // Определяем где мы - как в FileStorageService
+            String userDir = System.getProperty("user.dir");
+            System.out.println("Current directory: " + userDir);
 
-            System.out.println("Ищу файл по пути: " + path.toAbsolutePath());
-
-            if (!java.nio.file.Files.exists(path)) {
-                System.out.println("Файл не найден!");
-                return ResponseEntity.notFound().build();
+            String uploadDir;
+            if ("/app".equals(userDir)) {
+                // AMVERA
+                uploadDir = "/data/uploads";
+                System.out.println("AMVERA MODE -> uploadDir = " + uploadDir);
+            } else {
+                // LOCAL
+                uploadDir = "./data/uploads";
+                System.out.println("LOCAL MODE -> uploadDir = " + uploadDir);
             }
 
-            byte[] imageData = java.nio.file.Files.readAllBytes(path);
+            // Собираем полный путь
+            java.nio.file.Path filePath = java.nio.file.Paths.get(uploadDir, filename);
+            System.out.println("Ищу файл по пути: " + filePath.toAbsolutePath());
+
+            // Проверяем существует ли файл
+            if (!java.nio.file.Files.exists(filePath)) {
+                System.out.println("Файл не найден по основному пути!");
+
+                // Fallback: пробуем альтернативные пути
+                java.nio.file.Path[] alternativePaths = {
+                        java.nio.file.Paths.get("/data/uploads", filename),
+                        java.nio.file.Paths.get("/app/data/uploads", filename),
+                        java.nio.file.Paths.get("./data/uploads", filename),
+                        java.nio.file.Paths.get("data/uploads", filename)
+                };
+
+                boolean found = false;
+                for (java.nio.file.Path altPath : alternativePaths) {
+                    System.out.println("Пробую альтернативный путь: " + altPath.toAbsolutePath());
+                    if (java.nio.file.Files.exists(altPath)) {
+                        filePath = altPath;
+                        found = true;
+                        System.out.println("Файл найден по альтернативному пути!");
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    System.out.println("Файл не найден ни по одному пути!");
+                    return ResponseEntity.notFound().build();
+                }
+            } else {
+                System.out.println("Файл найден по основному пути!");
+            }
+
+            // Читаем файл
+            byte[] imageData = java.nio.file.Files.readAllBytes(filePath);
             org.springframework.core.io.ByteArrayResource resource =
                     new org.springframework.core.io.ByteArrayResource(imageData);
 
-            String mimeType = java.nio.file.Files.probeContentType(path);
-            if (mimeType == null) mimeType = "image/jpeg";
+            // Определяем MIME тип
+            String mimeType = java.nio.file.Files.probeContentType(filePath);
+            if (mimeType == null) {
+                // Определяем по расширению
+                if (filename.toLowerCase().endsWith(".png")) {
+                    mimeType = "image/png";
+                } else if (filename.toLowerCase().endsWith(".gif")) {
+                    mimeType = "image/gif";
+                } else if (filename.toLowerCase().endsWith(".webp")) {
+                    mimeType = "image/webp";
+                } else {
+                    mimeType = "image/jpeg"; // По умолчанию
+                }
+            }
 
-            System.out.println("Файл найден, тип: " + mimeType);
+            System.out.println("Файл успешно загружен, тип: " + mimeType + ", размер: " + imageData.length + " байт");
 
             return ResponseEntity.ok()
                     .contentType(org.springframework.http.MediaType.parseMediaType(mimeType))
                     .body(resource);
 
         } catch (Exception e) {
-            System.out.println("Ошибка: " + e.getMessage());
+            System.out.println("ОШИБКА при загрузке изображения: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(500).build();
         }
     }

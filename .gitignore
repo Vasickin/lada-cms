@@ -52,5 +52,5 @@ Dockerfile
 *.backup
 *.bak
 
-data/upload/*
-!.keepme
+# data/upload/*
+# !.keepme

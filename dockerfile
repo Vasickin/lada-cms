@@ -13,6 +13,7 @@ FROM eclipse-temurin:21-jre-jammy AS release
 WORKDIR /app
 # Copy the JAR from the build stage
 COPY --from=build /app/target/*.jar app.jar
+RUN mkdir -p /data/uploads
 # Run as a non-root user for security
 RUN useradd -m springuser
 USER springuser
