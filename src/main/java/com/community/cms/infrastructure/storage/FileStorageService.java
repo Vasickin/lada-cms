@@ -1,6 +1,7 @@
 package com.community.cms.infrastructure.storage;
 
 import com.community.cms.domain.enums.MediaType;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +25,7 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    @Value("${file.upload-dir:/data/uploads}")
+//    @Value("${file.upload-dir:/data/uploads}")
     private String uploadDir;
 
     @Value("${file.allowed-image-types:image/jpeg,image/png,image/gif,image/webp}")
@@ -41,6 +42,34 @@ public class FileStorageService {
 
     @Value("${file.max-files-per-item:20}")
     private int maxFilesPerItem;
+
+    @PostConstruct
+    public void init() {
+        // ОПРЕДЕЛЯЕМ ГДЕ МЫ
+        String userDir = System.getProperty("user.dir");
+        System.out.println("=== FileStorageService INIT ===");
+        System.out.println("Current directory: " + userDir);
+
+        // Amvera: /app, Локально: путь к проекту
+        if ("/app".equals(userDir)) {
+            // МЫ В AMVERA
+            uploadDir = "/data/uploads";
+            System.out.println("AMVERA DETECTED -> uploadDir = " + uploadDir);
+        } else {
+            // МЫ ЛОКАЛЬНО
+            uploadDir = "./data/uploads";
+            System.out.println("LOCAL DETECTED -> uploadDir = " + uploadDir);
+        }
+
+        // Создаем папку
+        try {
+            java.nio.file.Path path = java.nio.file.Paths.get(uploadDir);
+            java.nio.file.Files.createDirectories(path);
+            System.out.println("Directory created: " + path.toAbsolutePath());
+        } catch (Exception e) {
+            System.err.println("ERROR creating directory: " + e.getMessage());
+        }
+    }
 
     /**
      * Сохраняет один файл

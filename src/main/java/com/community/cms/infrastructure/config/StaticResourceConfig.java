@@ -12,29 +12,35 @@ import java.nio.file.Paths;
 @Configuration
 public class StaticResourceConfig implements WebMvcConfigurer {
 
-    @Value("${file.upload-dir:./data/uploads}")  // ← ДОБАВИЛИ ЭТУ СТРОКУ!
+//    @Value("${file.upload-dir:./data/uploads}")  // ← ДОБАВИЛИ ЭТУ СТРОКУ!
     private String uploadDir;
 
     @PostConstruct
     public void init() {
+        // ТА ЖЕ ЛОГИКА
+        String userDir = System.getProperty("user.dir");
+
+        if ("/app".equals(userDir)) {
+            uploadDir = "/data/uploads";
+        } else {
+            uploadDir = "./data/uploads";
+        }
+
         System.out.println("=== StaticResourceConfig INIT ===");
+        System.out.println("Upload directory: " + uploadDir);
 
-        // Проверим путь
-        Path uploadsDir = Paths.get(uploadDir).toAbsolutePath();
-        System.out.println("Uploads directory: " + uploadsDir);
-        System.out.println("Directory exists: " + java.nio.file.Files.exists(uploadsDir));
-        System.out.println("Directory is readable: " + java.nio.file.Files.isReadable(uploadsDir));
+        java.nio.file.Path uploadsPath = java.nio.file.Paths.get(uploadDir).toAbsolutePath();
+        System.out.println("Absolute uploads path: " + uploadsPath);
 
-        // Проверим конкретный файл
-        Path testFile = uploadsDir.resolve("0d140be2-96c6-4693-b977-cb52155069a9.jpg");
-        System.out.println("Test file: " + testFile);
-        System.out.println("Test file exists: " + java.nio.file.Files.exists(testFile));
-        if (java.nio.file.Files.exists(testFile)) {
-            try {
-                System.out.println("Test file size: " + java.nio.file.Files.size(testFile) + " bytes");
-            } catch (Exception e) {
-                System.out.println("Error getting file size: " + e.getMessage());
-            }
+        try {
+            java.nio.file.Files.createDirectories(uploadsPath);
+            System.out.println("Uploads directory created/verified: " + uploadsPath);
+            System.out.println("Directory exists: " + java.nio.file.Files.exists(uploadsPath));
+            System.out.println("Directory is readable: " + java.nio.file.Files.isReadable(uploadsPath));
+            System.out.println("Directory is writable: " + java.nio.file.Files.isWritable(uploadsPath));
+        } catch (Exception e) {
+            System.err.println("ERROR creating uploads directory: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
