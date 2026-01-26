@@ -67,11 +67,43 @@
                         О нас
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link fw-semibold" href="/projects" th:href="@{/projects}">
+                <li class="nav-item dropdown">
+                    <a class="nav-link fw-semibold dropdown-toggle" href="#"
+                       id="projectsDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
                         Наши проекты
                     </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="projectsDropdown">
+                        <!-- All Projects Link / Ссылка на все проекты -->
+                        <li>
+                            <a class="dropdown-item" href="/projects" th:href="@{/projects}">
+                                <i class="bi bi-grid-3x3-gap me-2"></i> Все проекты
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+
+                        <!-- Category Links / Ссылки на категории -->
+                        <!--
+                            This will be dynamically populated from server-side
+                            Это будет динамически заполняться с серверной стороны
+                        -->
+                        <li th:each="category : ${projectCategories}">
+                            <a class="dropdown-item"
+                               th:href="@{/projects(category=${category})}"
+                               th:text="${category}">
+                                Категория
+                            </a>
+                        </li>
+
+                        <!-- Fallback if no categories / Запасной вариант, если нет категорий -->
+                        <li th:unless="${projectCategories != null and !projectCategories.isEmpty()}">
+                            <a class="dropdown-item text-muted disabled" href="#">
+                                <i class="bi bi-info-circle me-2"></i> Нет доступных категорий
+                            </a>
+                        </li>
+                    </ul>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link fw-semibold" href="/gallery" th:href="@{/gallery}">
                         Галерея
@@ -109,3 +141,41 @@
         </div>
     </div>
 </nav>
+
+<!-- Optional: JavaScript for better UX / Дополнительно: JavaScript для лучшего UX -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        // Highlight active category in dropdown / Подсветка активной категории в выпадающем меню
+        const currentUrl = window.location.pathname + window.location.search;
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+        dropdownItems.forEach(item => {
+            if (item.href && currentUrl.includes('/projects')) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentCategory = urlParams.get('category');
+                const itemCategory = new URL(item.href).searchParams.get('category');
+
+                if (currentUrl === item.href ||
+                    (currentCategory && currentCategory === itemCategory)) {
+                    item.classList.add('active');
+                    item.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + item.textContent;
+                }
+            }
+        });
+
+        // Mobile menu close on click / Закрытие мобильного меню при клике
+        const navbarCollapse = document.getElementById('navbarNav');
+        const dropdownToggle = document.getElementById('projectsDropdown');
+
+        if (navbarCollapse) {
+            navbarCollapse.addEventListener('click', function(e) {
+                if (e.target.classList.contains('dropdown-item')) {
+                    const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+                    bsCollapse.hide();
+                }
+            });
+        }
+    });
+    /*]]>*/
+</script>
