@@ -510,19 +510,14 @@ p {
  * Logo-based banner for mobile devices - Баннер на основе логотипа для мобильных устройств
  */
 .mobile-banner {
-    display: none;              /* Hidden by default - Скрыт по умолчанию */
-    width: 100%;                /* Full width - Полная ширина */
-    height: auto;               /* Auto height for aspect ratio - Автоматическая высота для сохранения пропорций */
-    max-height: 200px;          /* Maximum height - Максимальная высота */
-    object-fit: contain;        /* Fit entire image within container - Вместить всё изображение в контейнер */
-    border-radius: var(--radius-none); /* No rounding - Без скругления */
-    margin: var(--space-0);     /* No margin - Без внешних отступов */
-    box-shadow:                 /* Multiple shadows for depth - Множественные тени для глубины */
-        0 8px 25px -6px rgba(0, 0, 0, 0.15),
-        0 2px 8px -2px rgba(0, 0, 0, 0.1);
-    padding: var(--space-sm);   /* Internal padding - Внутренние отступы */
-    background: var(--background); /* Background color - Цвет фона */
-    border: 1px solid var(--border); /* Border styling - Стиль границы */
+    display: none;                      /* Hidden by default - Скрыт по умолчанию */
+    width: 100%;                        /* Full width - Полная ширина */
+    height: auto;                       /* Auto height - Автоматическая высота */
+    max-height: 200px;                  /* Maximum height - Максимальная высота */
+    object-fit: contain;                /* Contain within bounds - Вмещаться в границы */
+    border-radius: var(--radius-full);  /* КРУГЛАЯ ФОРМА - CIRCLE SHAPE (ИЗМЕНИЛИ: было var(--radius-none)) */
+    margin: var(--space-0);             /* No margin - Без внешних отступов */
+    /* УБРАЛИ: box-shadow, padding, background, border (были тени, отступы, фон и граница) */
 }
 
 /*
@@ -619,7 +614,7 @@ p {
         margin-top: 48px !important;        /* Adjusted top margin - Скорректированный верхний отступ */
         margin-bottom: var(--space-0) !important; /* No bottom margin - Без нижнего отступа */
         padding: var(--space-md) var(--space-0) !important; /* Vertical padding - Вертикальные отступы */
-        background: var(--surface);         /* Surface background - Фон поверхности */
+
     }
 
     /*
@@ -630,8 +625,11 @@ p {
         display: none;                      /* Hide desktop banner - Скрыть десктопный баннер */
     }
 
-    .mobile-banner {
-        display: block;                     /* Show mobile banner - Показать мобильный баннер */
+.mobile-banner {
+        display: block;                 /* Show on mobile - Показать на мобильных */
+        max-height: 180px;              /* Smaller max height - Меньшая максимальная высота */
+        border-radius: var(--radius-full); /* КРУГЛАЯ ФОРМА - CIRCLE SHAPE (ДОБАВИЛИ) */
+        /* УБРАЛИ: box-shadow и padding (не было в этой версии файла, но проверили) */
     }
 
     /*
@@ -744,9 +742,6 @@ p {
      */
     .mobile-banner {
         max-height: 180px;                  /* Smaller maximum height - Меньшая максимальная высота */
-        box-shadow:                         /* Lighter shadows - Более лёгкие тени */
-            0 6px 20px -4px rgba(0, 0, 0, 0.12),
-            0 2px 6px -1px rgba(0, 0, 0, 0.08);
         padding: var(--space-xs);           /* Smaller padding - Меньшие отступы */
     }
 
