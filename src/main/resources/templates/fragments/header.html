@@ -13,6 +13,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title} + ' - Общественная организация Лада'">Общественная организация Лада</title>
 
+
+    <!-- ПРЕДЗАГРУЗКА БАННЕРА - ТОЛЬКО ЭТО ДОБАВЛЯЕМ -->
+    <link rel="preload" as="image"
+          href="/images/optimized/header-bg.jpg"
+          media="(min-width: 768px)"
+          fetchpriority="high">
+    <link rel="preload" as="image"
+          href="/images/optimized/logo@2x.png"
+          media="(max-width: 767px)"
+          fetchpriority="high">
+
     <!--
         META DESCRIPTION AND KEYWORDS / МЕТА-ОПИСАНИЕ И КЛЮЧЕВЫЕ СЛОВА
         SEO optimization for search engines / SEO оптимизация для поисковых систем

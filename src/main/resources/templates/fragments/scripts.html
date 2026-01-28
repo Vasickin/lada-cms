@@ -47,5 +47,32 @@
 
             console.log('Lada CMS - Design system initialized successfully / Дизайн-система Лада CMS успешно инициализирована');
         });
+
+// ФИКС МОРГАНИЯ БАННЕРА
+document.addEventListener('DOMContentLoaded', function() {
+    // Десктопный баннер
+    const desktopBanner = document.querySelector('.desktop-banner');
+    if (desktopBanner && window.innerWidth >= 768) {
+        if (desktopBanner.complete) {
+            desktopBanner.classList.add('banner-loaded');
+        } else {
+            desktopBanner.addEventListener('load', function() {
+                this.classList.add('banner-loaded');
+            });
+        }
+    }
+
+    // Мобильный баннер
+    const mobileBanner = document.querySelector('.mobile-banner');
+    if (mobileBanner && window.innerWidth < 768) {
+        if (mobileBanner.complete) {
+            mobileBanner.classList.add('banner-loaded');
+        } else {
+            mobileBanner.addEventListener('load', function() {
+                this.classList.add('banner-loaded');
+            });
+        }
+    }
+});
     </script>
 </div>
