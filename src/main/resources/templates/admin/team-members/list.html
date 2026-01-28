@@ -81,7 +81,7 @@
                         </a>
 
                         <!-- Кнопка возврата в админку / Back to admin dashboard button -->
-                        <a th:href="@{/admin}" class="btn btn-outline-secondary me-2">
+                        <a th:href="@{/admin}" class="btn btn-outline-secondary">
                             📊 В админку
                         </a>
 
@@ -91,6 +91,21 @@
                             🌐 Управление основными страницами
                         </a>
                         -->
+
+                        <a th:href="@{/admin/projects}" class="btn btn-outline-secondary">
+                            <i class="bi-clipboard-check"></i>
+                            Проекты
+                        </a>
+
+                        <a th:href="@{/admin/photo-gallery}" class="btn btn-outline-secondary">
+                            <i class="bi bi-images"></i>
+                            Галерея
+                        </a>
+
+                        <a th:href="@{/admin/partners}" class="btn btn-outline-secondary">
+                            <i class="bi-gem"></i>
+                            Партнеры
+                        </a>
 
                         <a th:href="@{/admin/team-members/create}" class="btn btn-primary">
                             <i class="bi bi-person-plus me-1"></i>
