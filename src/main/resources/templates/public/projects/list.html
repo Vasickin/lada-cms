@@ -93,11 +93,13 @@
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <span class="text-muted me-3">Активные фильтры:</span>
+                            <span class="text-muted me-3">Проекты:</span>
+
                             <span class="badge bg-primary me-2" th:if="${selectedStatus != null}">
                                 Статус: <span th:text="${selectedStatus}"></span>
                                 <a href="#" class="text-white ms-2" th:href="@{/projects}"><i class="bi bi-x"></i></a>
                             </span>
+
                             <span class="badge bg-info me-2" th:if="${selectedCategory != null and selectedCategory != 'Все категории'}">
                                 Категория: <span th:text="${selectedCategory}"></span>
                                 <a href="#" class="text-white ms-2"
@@ -105,6 +107,7 @@
                                     <i class="bi bi-x"></i>
                                 </a>
                             </span>
+
                             <span class="badge bg-warning me-2" th:if="${selectedYear != null}">
                                 Год: <span th:text="${selectedYear}"></span>
                                 <a href="#" class="text-dark ms-2"
@@ -112,13 +115,15 @@
                                     <i class="bi bi-x"></i>
                                 </a>
                             </span>
+
                             <span class="badge bg-success me-2" th:if="${selectedDate != null}">
-    Дата: <span th:text="${selectedDate}"></span>
-    <a href="#" class="text-white ms-2"
-       th:href="@{/projects(status=${selectedStatus}, category=${selectedCategory}, year=${selectedYear}, search=${selectedSearch})}">
-        <i class="bi bi-x"></i>
-    </a>
-</span>
+                                    Дата: <span th:text="${selectedDate}"></span>
+                                <a href="#" class="text-white ms-2"
+                                   th:href="@{/projects(status=${selectedStatus}, category=${selectedCategory}, year=${selectedYear}, search=${selectedSearch})}">
+                                    <i class="bi bi-x"></i>
+                                </a>
+                            </span>
+
                             <span class="badge bg-secondary me-2" th:if="${selectedSearch != null}">
                                 Поиск: "<span th:text="${selectedSearch}"></span>"
                                 <a href="#" class="text-white ms-2"
@@ -128,7 +133,7 @@
                             </span>
                         </div>
                         <a th:href="@{/projects}" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-x-circle me-1"></i> Сброс всех
+                            <i class="bi bi-x-circle me-1"></i> Все проекты
                         </a>
                     </div>
                 </div>
@@ -678,15 +683,15 @@
             });
         });
 
-        const filters = ['statusFilter', 'categoryFilter', 'yearFilter'];
-        filters.forEach(filterId => {
-            const filter = document.getElementById(filterId);
-            if (filter) {
-                filter.addEventListener('change', function() {
-                    this.form.submit();
-                });
-            }
-        });
+<!--        const filters = ['statusFilter', 'categoryFilter', 'yearFilter'];-->
+<!--        filters.forEach(filterId => {-->
+<!--            const filter = document.getElementById(filterId);-->
+<!--            if (filter) {-->
+<!--                filter.addEventListener('change', function() {-->
+<!--                    this.form.submit();-->
+<!--                });-->
+<!--            }-->
+<!--        });-->
 
         const carousel = document.getElementById('projectCarousel');
         if (carousel) {
