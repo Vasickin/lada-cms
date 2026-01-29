@@ -135,137 +135,145 @@
             </div>
 
             <!-- Projects Grid -->
-            <div class="row g-4">
-                <div class="col-12" th:if="${projects != null and !projects.isEmpty()}">
-                    <div class="row row-cols-1 g-4">
-                        <div class="col" th:each="project : ${projects}">
-                            <div class="card border-0 shadow-sm project-card card-hover" style="min-height: 250px; max-height: 300px;">
-                                <div class="row g-0 h-100">
+            <div class="col mb-4" th:each="project : ${projects}">
+                <!-- Десктоп: фиксированная высота, Мобилка: авто высота -->
+                <div class="card border-0 shadow-sm project-card card-hover"
+                     style="min-height: 250px; max-height: 300px;"
+                     th:classappend="'mobile-card'">
+                    <div class="row g-0 h-100">
 
-                                    <!-- ЛЕВАЯ ЧАСТЬ: БАННЕР (A4 формат) -->
-                                    <div class="col-md-4 col-lg-3 h-100">
-                                        <div class="h-100 d-flex align-items-center p-3"> <!-- Добавили p-3 для отступов -->
-                                            <div class="w-100 h-100 position-relative"
-                                                 style="overflow: hidden; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                        <!-- ЛЕВАЯ ЧАСТЬ: БАННЕР (A4 формат) - ТОЛЬКО ДЛЯ ДЕСКТОПА -->
+                        <div class="col-md-4 col-lg-3 h-100 d-none d-md-block">
+                            <div class="h-100 d-flex align-items-center p-3">
+                                <div class="w-100 h-100 position-relative"
+                                     style="overflow: hidden; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
 
-                                                <!-- Есть ключевые фото -->
-                                                <div th:if="${project.keyPhotos != null and !project.keyPhotos.isEmpty()}" class="h-100">
-                                                    <a th:href="${project.detailUrl}">
-                                                        <img th:src="${project.keyPhotos[0].publicWebPath}"
-                                                             class="h-100 w-100 object-fit-cover"
-                                                             style="aspect-ratio: 1/1.414;"
-                                                             th:alt="${project.title}">
-                                                    </a>
-                                                </div>
-
-                                                <!-- Нет ключевых фото, но есть обложка -->
-                                                <div th:if="${project.keyPhotos == null or project.keyPhotos.isEmpty()}" class="h-100">
-                                                    <div th:if="${project.featuredImagePath != null and project.featuredImagePath != ''}" class="h-100">
-                                                        <img th:src="${project.featuredImagePath}"
-                                                             class="h-100 w-100 object-fit-cover"
-                                                             style="aspect-ratio: 1/1.414;"
-                                                             th:alt="${project.title}">
-                                                    </div>
-                                                    <div th:if="${project.featuredImagePath == null or project.featuredImagePath == ''}"
-                                                         class="h-100 d-flex align-items-center justify-content-center bg-light">
-                                                        <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </div>
+                                    <!-- Есть ключевые фото -->
+                                    <div th:if="${project.keyPhotos != null and !project.keyPhotos.isEmpty()}" class="h-100">
+                                        <a th:href="${project.detailUrl}">
+                                            <img th:src="${project.keyPhotos[0].publicWebPath}"
+                                                 class="h-100 w-100 object-fit-cover"
+                                                 style="aspect-ratio: 1/1.414;"
+                                                 th:alt="${project.title}">
+                                        </a>
                                     </div>
 
-                                    <!-- ПРАВАЯ ЧАСТЬ: ИНФОРМАЦИЯ О ПРОЕКТЕ -->
-                                    <div class="col-md-8 col-lg-9">
-                                        <div class="card-body h-100 d-flex flex-column p-3">
-
-                                            <!-- Верхняя строка: Категория -->
-                                            <div class="mb-2">
-                                                <span class="badge bg-light text-dark border">
-                                                    <i class="bi bi-tag me-1"></i>
-                                                    <span th:text="${project.category}"></span>
-                                                </span>
-
-                                                <!-- Status Badge -->
-                                                <!-- <div class="position-absolute top-0 end-0 m-2"> -->
-                                                    <span th:switch="${project.status}">
-                                                        <span th:case="'ARCHIVED'" class="badge bg-secondary">След времени</span>
-                                                        <span th:case="'ANNUAL'" class="badge bg-primary">Ежегодный</span>
-                                                        <span th:case="'ACTIVE'" class="badge bg-success">Активный</span>
-                                                    </span>
-                                                <!-- </div> -->
-                                            </div>
-
-                                            <!-- Project Title -->
-                                            <h5 class="card-title fw-bold mb-2" style="font-size: 1.1rem; min-height: 2.5rem;">
-                                                <a th:href="${project.detailUrl}" class="text-dark text-decoration-none">
-                                                    <span th:text="${project.title}"></span>
-                                                </a>
-                                            </h5>
-
-                                            <!-- Project Description -->
-                                            <div class="mb-2 flex-grow-1">
-                                                <p class="card-text text-muted mb-0" style="font-size: 0.9rem; line-height: 1.4;">
-                                        <span th:text="${project.shortDescription != null ?
-                                                       (project.shortDescription.length() > 200 ?
-                                                        project.shortDescription.substring(0, 197) + '...' :
-                                                        project.shortDescription) :
-                                                       'Описание проекта недоступно'}"></span>
-                                                </p>
-                                            </div>
-
-                                            <!-- Project Dates and Location -->
-                                            <div class="d-flex flex-column gap-2 mb-3">
-                                                <div th:if="${project.eventDate}" class="d-flex align-items-center">
-                                                    <i class="bi bi-calendar-event text-primary me-2"></i>
-                                                    <small class="text-muted">
-                                                        <span th:text="${#temporals.format(project.eventDate, 'dd MMMM yyyy')}"></span>
-                                                    </small>
-                                                </div>
-                                                <div th:if="${project.location}" class="d-flex align-items-center">
-                                                    <i class="bi bi-geo-alt text-primary me-2"></i>
-                                                    <small class="text-muted" th:text="${project.location}"></small>
-                                                </div>
-                                            </div>
-
-                                            <!-- Action Button и дополнительные иконки -->
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <a th:href="${project.detailUrl}" class="btn btn-primary btn-sm">
-                                                    <i class="bi bi-arrow-right me-1"></i> Подробнее
-                                                </a>
-                                                <small class="text-muted">
-                                                    <i class="bi bi-eye me-1"></i>
-                                                    <span th:if="${project.hasVideo}">
-                                            <i class="bi bi-camera-video text-success ms-2" title="Есть видео"></i>
-                                        </span>
-                                                    <span th:if="${project.keyPhotos != null and !project.keyPhotos.isEmpty()}">
-                                            <span class="badge bg-info ms-2" th:text="${project.keyPhotos.size()} + ' фото'"></span>
-                                        </span>
-                                                </small>
-                                            </div>
+                                    <!-- Нет ключевых фото, но есть обложка -->
+                                    <div th:if="${project.keyPhotos == null or project.keyPhotos.isEmpty()}" class="h-100">
+                                        <div th:if="${project.featuredImagePath != null and project.featuredImagePath != ''}" class="h-100">
+                                            <img th:src="${project.featuredImagePath}"
+                                                 class="h-100 w-100 object-fit-cover"
+                                                 style="aspect-ratio: 1/1.414;"
+                                                 th:alt="${project.title}">
+                                        </div>
+                                        <div th:if="${project.featuredImagePath == null or project.featuredImagePath == ''}"
+                                             class="h-100 d-flex align-items-center justify-content-center bg-light">
+                                            <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
                                         </div>
                                     </div>
 
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- No Projects Found -->
-                <div class="col-12" th:if="${projects == null or projects.isEmpty()}">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body text-center py-5">
-                            <i class="bi bi-inbox display-1 text-muted mb-4"></i>
-                            <h4 class="text-muted mb-3">Проекты не найдены</h4>
-                            <p class="text-muted mb-4">
-                                Попробуйте изменить параметры фильтрации или поиска
-                            </p>
-                            <a th:href="@{/projects}" class="btn btn-primary">
-                                <i class="bi bi-arrow-clockwise me-1"></i> Показать все проекты
-                            </a>
+                        <!-- ПОСТЕР ДЛЯ МОБИЛЬНОЙ ВЕРСИИ (сверху) -->
+                        <div class="col-12 d-md-none">
+                            <div class="text-center pt-2 px-2">
+                                <!-- Есть ключевые фото -->
+                                <div th:if="${project.keyPhotos != null and !project.keyPhotos.isEmpty()}">
+                                    <a th:href="${project.detailUrl}" class="d-block">
+                                        <img th:src="${project.keyPhotos[0].publicWebPath}"
+                                             class="img-fluid rounded"
+                                             style="max-width: 92%; height: auto;"
+                                             th:alt="${project.title}">
+                                    </a>
+                                </div>
+
+                                <!-- Нет ключевых фото, но есть обложка -->
+                                <div th:if="${project.keyPhotos == null or project.keyPhotos.isEmpty()}">
+                                    <div th:if="${project.featuredImagePath != null and project.featuredImagePath != ''}">
+                                        <img th:src="${project.featuredImagePath}"
+                                             class="img-fluid rounded"
+                                             style="max-width: 92%; height: auto;"
+                                             th:alt="${project.title}">
+                                    </div>
+                                    <div th:if="${project.featuredImagePath == null or project.featuredImagePath == ''}"
+                                         class="d-flex align-items-center justify-content-center bg-light rounded py-4">
+                                        <i class="bi bi-image text-muted" style="font-size: 2.5rem;"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- ПРАВАЯ ЧАСТЬ: ИНФОРМАЦИЯ О ПРОЕКТЕ -->
+                        <div class="col-md-8 col-lg-9 col-12">
+                            <div class="card-body h-100 d-flex flex-column p-3 pt-md-3">
+
+                                <!-- Верхняя строка: Категория -->
+                                <div class="mb-2">
+                                                <span class="badge bg-light text-dark border">
+                                                    <i class="bi bi-tag me-1"></i>
+                                                    <span th:text="${project.category}"></span>
+                                                </span>
+
+                                    <!-- Status Badge -->
+                                    <span th:switch="${project.status}" class="ms-2">
+                                                    <span th:case="'ARCHIVED'" class="badge bg-secondary">След времени</span>
+                                                    <span th:case="'ANNUAL'" class="badge bg-primary">Ежегодный</span>
+                                                    <span th:case="'ACTIVE'" class="badge bg-success">Активный</span>
+                                                </span>
+                                </div>
+
+                                <!-- Project Title -->
+                                <h5 class="card-title fw-bold mb-2" style="font-size: 1.1rem; min-height: 2.5rem;">
+                                    <a th:href="${project.detailUrl}" class="text-dark text-decoration-none">
+                                        <span th:text="${project.title}"></span>
+                                    </a>
+                                </h5>
+
+                                <!-- Project Description -->
+                                <div class="mb-2 flex-grow-1">
+                                    <p class="card-text text-muted mb-0" style="font-size: 0.9rem; line-height: 1.4;">
+                                        <span th:text="${project.shortDescription != null ?
+                                                       (project.shortDescription.length() > 200 ?
+                                                        project.shortDescription.substring(0, 197) + '...' :
+                                                        project.shortDescription) :
+                                                       'Описание проекта недоступно'}"></span>
+                                    </p>
+                                </div>
+
+                                <!-- Project Dates and Location -->
+                                <div class="d-flex flex-column gap-2 mb-3">
+                                    <div th:if="${project.eventDate}" class="d-flex align-items-center">
+                                        <i class="bi bi-calendar-event text-primary me-2"></i>
+                                        <small class="text-muted">
+                                            <span th:text="${#temporals.format(project.eventDate, 'dd MMMM yyyy')}"></span>
+                                        </small>
+                                    </div>
+                                    <div th:if="${project.location}" class="d-flex align-items-center">
+                                        <i class="bi bi-geo-alt text-primary me-2"></i>
+                                        <small class="text-muted" th:text="${project.location}"></small>
+                                    </div>
+                                </div>
+
+                                <!-- Action Button и дополнительные иконки -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a th:href="${project.detailUrl}" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-arrow-right me-1"></i> Подробнее
+                                    </a>
+                                    <small class="text-muted">
+                                        <i class="bi bi-eye me-1"></i>
+                                        <span th:if="${project.hasVideo}">
+                                            <i class="bi bi-camera-video text-success ms-2" title="Есть видео"></i>
+                                        </span>
+                                        <span th:if="${project.keyPhotos != null and !project.keyPhotos.isEmpty()}">
+                                            <span class="badge bg-info ms-2" th:text="${project.keyPhotos.size()} + ' фото'"></span>
+                                        </span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -728,6 +736,94 @@
             transform: none !important;
         }
     }
+
+    /* Мобильная адаптация карточек проектов */
+@media (max-width: 992px) {
+    .mobile-card-layout {
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+    }
+
+    .mobile-card-layout .row {
+        flex-direction: column !important;
+        height: auto !important;
+    }
+
+    .mobile-card-layout .card-body {
+        padding: 1rem !important;
+        height: auto !important;
+    }
+
+    /* Правильное отображение постера в мобильной версии */
+    .object-fit-contain {
+        object-fit: contain !important;
+    }
+
+    /* Убираем фиксированные высоты для мобильных */
+    .col-12.d-lg-none .position-relative {
+        height: auto !important;
+        min-height: 280px;
+    }
+
+    .col-12.d-lg-none img {
+        height: auto !important;
+        max-height: 280px !important;
+        width: 100% !important;
+    }
+
+    /* Улучшаем отступы для мобильных */
+    .card-body.pt-lg-3 {
+        padding-top: 1rem !important;
+    }
+
+    /* Делаем кнопку "Подробнее" более доступной на мобильных */
+    .btn-primary.btn-sm {
+        padding: 0.5rem 1rem !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 576px) {
+    .col-12.d-lg-none .position-relative {
+        min-height: 240px;
+    }
+
+    .col-12.d-lg-none img {
+        max-height: 240px !important;
+    }
+
+    .card-title {
+        font-size: 1rem !important;
+    }
+
+    .card-text {
+        font-size: 0.85rem !important;
+        line-height: 1.4 !important;
+    }
+}
+
+    /* Исправление для мобильной версии карточек */
+@media (max-width: 767.98px) {
+    .mobile-card {
+        min-height: auto !important;
+        max-height: none !important;
+        height: auto !important;
+    }
+
+    .mobile-card .row {
+        height: auto !important;
+        flex-direction: column !important;
+    }
+
+    .mobile-card .card-body {
+        height: auto !important;
+        padding: 1rem !important;
+    }
+}
+
+
 </style>
 
 <!--
