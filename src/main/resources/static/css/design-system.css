@@ -891,6 +891,26 @@ p {
         background: rgba(255, 255, 255, 0.95);
     }
 }
+
+/* Плавное появление фона после загрузки */
+.main-background {
+    animation: fadeInBg 1s ease-out 1s forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInBg {
+    to {
+        opacity: 0.08; /* Твоя текущая прозрачность */
+    }
+}
+
+/* Уважаем настройки пользователя */
+@media (prefers-reduced-motion: reduce) {
+    .main-background {
+        animation: none;
+        opacity: 0.08;
+    }
+}
 /* ================================================================= */
 /* END OF DESIGN SYSTEM - КОНЕЦ ДИЗАЙН-СИСТЕМЫ */
 /* ================================================================= */
