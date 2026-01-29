@@ -68,6 +68,8 @@
 <div th:replace="fragments/banner :: header-banner('Общественная организация Лада - Наши проекты и инициативы')"></div>
 
 <main class="container my-5 py-4">
+    <div class="main-background" id="mainBackground"></div>
+    <div class="main-content">
     <div class="row mb-5">
         <div class="col-12">
             <h1 class="display-5 fw-bold text-primary mb-3">Наши проекты</h1>
@@ -651,6 +653,7 @@
 
         </div>
     </div>
+    </div>
 </main>
 
 <div th:replace="fragments/footer :: main-footer"></div>
@@ -1174,5 +1177,82 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- ==== ПАРАЛЛАКС ЭФЕКТ ==== -->
+<script>
+    class BackgroundParallax {
+    constructor() {
+        this.bg = document.getElementById('mainBackground');
+        this.lastScroll = 0;
+        this.ticking = false;
+        this.settings = {
+            intensity: 0.01,     // Сила движения (0.1-0.5)
+            opacityMin: 0.05,   // Минимальная прозрачность
+            opacityMax: 0.15,   // Максимальная прозрачность
+            enabled: true       // Включить/выключить
+        };
+
+        if (this.bg && this.settings.enabled) {
+            this.init();
+        }
+    }
+
+    init() {
+        // Дебаунс скролла для производительности
+        window.addEventListener('scroll', () => {
+            if (!this.ticking) {
+                window.requestAnimationFrame(() => {
+                    this.update();
+                    this.ticking = false;
+                });
+                this.ticking = true;
+            }
+        });
+
+        // Предзагрузка фона
+        this.preloadImage();
+    }
+
+    update() {
+        const scrolled = window.pageYOffset;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.body.scrollHeight;
+
+        // Рассчитываем позицию (0 вверху, 1 внизу)
+        const scrollProgress = scrolled / (documentHeight - windowHeight);
+
+        // Движение фона (лёгкий параллакс)
+        const moveY = scrolled * this.settings.intensity;
+        this.bg.style.transform = `translateY(${moveY}px)`;
+
+        // Изменение прозрачности
+        const opacity = this.settings.opacityMin +
+                       (scrollProgress * (this.settings.opacityMax - this.settings.opacityMin));
+        this.bg.style.opacity = Math.min(this.settings.opacityMax,
+                                        Math.max(this.settings.opacityMin, opacity));
+
+        this.lastScroll = scrolled;
+    }
+
+    preloadImage() {
+        const img = new Image();
+        const bgStyle = window.getComputedStyle(this.bg).backgroundImage;
+        const url = bgStyle.replace(/url\(['"]?(.*?)['"]?\)/i, '$1');
+
+        if (url !== 'none') {
+            img.src = url;
+        }
+    }
+
+    // Метод для изменения настроек
+    updateSettings(newSettings) {
+        this.settings = { ...this.settings, ...newSettings };
+    }
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', () => {
+    new BackgroundParallax();
+});
+</script>
 </body>
 </html>
