@@ -101,11 +101,11 @@
                             <!-- Статус: показываем только если не пусто и не null -->
                             <span class="badge bg-primary me-2"
                                   th:if="${selectedStatus != null and selectedStatus != ''}">
-                                Статус: <span th:text="${selectedStatus}"></span>
-                                <a href="#" class="text-white ms-2"
-                                   th:href="@{/projects(category=${selectedCategory}, year=${selectedYear}, date=${selectedDate}, search=${selectedSearch})}">
-                                    <i class="bi bi-x"></i>
-                                </a>
+                                    Статус: <span th:text="${selectedStatus == 'ARCHIVED' ? 'Архивные' : selectedStatus == 'ANNUAL' ? 'Ежегодные' : selectedStatus == 'ACTIVE' ? 'Активные' : selectedStatus}"></span>
+                                        <a href="#" class="text-white ms-2"
+                                           th:href="@{/projects(category=${selectedCategory}, year=${selectedYear}, date=${selectedDate}, search=${selectedSearch})}">
+                                            <i class="bi bi-x"></i>
+                                        </a>
                             </span>
 
                             <!-- Категория: показываем только если не пусто, не null и не "Все категории" -->
@@ -167,7 +167,7 @@
                         <div class="col-md-4 col-lg-3 h-100 d-none d-md-block">
                             <div class="h-100 d-flex align-items-center p-3">
                                 <div class="w-100 h-100 position-relative"
-                                     style="overflow: hidden; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                     style="overflow: hidden; border-radius: 6px; box-shadow: 0 2px 8px RGBA(0,0,0,0.15);">
 
                                     <!-- Есть ключевые фото -->
                                     <div th:if="${project.keyPhotos != null and !project.keyPhotos.isEmpty()}" class="h-100">
@@ -420,9 +420,6 @@
                                                 <span th:text="${#temporals.format(project.eventDate, 'dd.MM.yyyy')}"></span>
                                             </span>
                                         </div>
-                                        <a th:href="${project.detailUrl}" class="btn btn-primary btn-sm">
-                                            <i class="bi bi-arrow-right me-1"></i> Подробнее
-                                        </a>
                                     </div>
                                 </div>
                             </div>
