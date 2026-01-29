@@ -97,7 +97,7 @@
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <span class="text-muted me-3">Проекты:</span>
+                            <span class="text-muted me-3 fw-bold">Проекты:</span>
                             <!-- Статус: показываем только если не пусто и не null -->
                             <span class="badge bg-primary me-2"
                                   th:if="${selectedStatus != null and selectedStatus != ''}">
@@ -149,7 +149,7 @@
                             </span>
                         </div>
                         <a th:href="@{/projects}" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-x-circle me-1"></i> Все проекты
+                            <i class="bi bi-x-circle me-1"></i> <strong>Все проекты</strong>
                         </a>
                     </div>
                 </div>
@@ -267,13 +267,13 @@
                                 <div class="d-flex flex-column gap-2 mb-3">
                                     <div th:if="${project.eventDate}" class="d-flex align-items-center">
                                         <i class="bi bi-calendar-event text-primary me-2"></i>
-                                        <small class="text-muted">
+                                        <small class="text-muted fw-bold">
                                             <span th:text="${#temporals.format(project.eventDate, 'dd MMMM yyyy')}"></span>
                                         </small>
                                     </div>
                                     <div th:if="${project.location}" class="d-flex align-items-center">
                                         <i class="bi bi-geo-alt text-primary me-2"></i>
-                                        <small class="text-muted" th:text="${project.location}"></small>
+                                        <small class="text-muted fw-bold" th:text="${project.location}"></small>
                                     </div>
                                 </div>
 
