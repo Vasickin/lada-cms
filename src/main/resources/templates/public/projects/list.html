@@ -143,7 +143,7 @@
                             <!-- Поиск: показываем только если не пусто и не null -->
                             <span class="badge bg-secondary me-2"
                                   th:if="${selectedSearch != null and selectedSearch != ''}">
-                                Поиск: "<span th:text="${selectedSearch}"></span>"
+                                Название: "<span th:text="${selectedSearch}"></span>"
                                 <a href="#" class="text-white ms-2"
                                    th:href="@{/projects(status=${selectedStatus}, category=${selectedCategory}, year=${selectedYear}, date=${selectedDate})}">
                                     <i class="bi bi-x"></i>
@@ -1177,7 +1177,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- ==== ПАРАЛЛАКС ЭФЕКТ ==== -->
+<!-- ==== ПАРАЛЛАКС ЭФФЕКТ ==== -->
 <script>
     class BackgroundParallax {
     constructor() {
