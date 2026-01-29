@@ -89,45 +89,61 @@
         <div class="col-lg-8">
             <!-- Active Filters Display -->
             <div class="card border-0 shadow-sm mb-4"
-                 th:if="${selectedStatus != null or selectedCategory != null or selectedYear != null or selectedSearch != null}">
+                 th:if="${selectedStatus != null and selectedStatus != '' or
+                          selectedCategory != null and selectedCategory != '' and selectedCategory != 'Все категории' or
+                          selectedYear != null and selectedYear != '' or
+                          selectedDate != null and selectedDate != '' or
+                          selectedSearch != null and selectedSearch != ''}">
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <span class="text-muted me-3">Проекты:</span>
-
-                            <span class="badge bg-primary me-2" th:if="${selectedStatus != null}">
+                            <!-- Статус: показываем только если не пусто и не null -->
+                            <span class="badge bg-primary me-2"
+                                  th:if="${selectedStatus != null and selectedStatus != ''}">
                                 Статус: <span th:text="${selectedStatus}"></span>
-                                <a href="#" class="text-white ms-2" th:href="@{/projects}"><i class="bi bi-x"></i></a>
+                                <a href="#" class="text-white ms-2"
+                                   th:href="@{/projects(category=${selectedCategory}, year=${selectedYear}, date=${selectedDate}, search=${selectedSearch})}">
+                                    <i class="bi bi-x"></i>
+                                </a>
                             </span>
 
-                            <span class="badge bg-info me-2" th:if="${selectedCategory != null and selectedCategory != 'Все категории'}">
+                            <!-- Категория: показываем только если не пусто, не null и не "Все категории" -->
+                            <span class="badge bg-light text-dark border"
+                                  th:if="${selectedCategory != null and selectedCategory != '' and selectedCategory != 'Все категории'}">
                                 Категория: <span th:text="${selectedCategory}"></span>
                                 <a href="#" class="text-white ms-2"
-                                   th:href="@{/projects(status=${selectedStatus}, year=${selectedYear}, search=${selectedSearch})}">
+                                   th:href="@{/projects(status=${selectedStatus}, year=${selectedYear}, date=${selectedDate}, search=${selectedSearch})}">
                                     <i class="bi bi-x"></i>
                                 </a>
                             </span>
 
-                            <span class="badge bg-warning me-2" th:if="${selectedYear != null}">
+                            <!-- Год: показываем только если не пусто и не null -->
+                            <span class="badge bg-warning me-2"
+                                  th:if="${selectedYear != null and selectedYear != ''}">
                                 Год: <span th:text="${selectedYear}"></span>
                                 <a href="#" class="text-dark ms-2"
-                                   th:href="@{/projects(status=${selectedStatus}, category=${selectedCategory}, search=${selectedSearch})}">
+                                   th:href="@{/projects(status=${selectedStatus}, category=${selectedCategory}, date=${selectedDate}, search=${selectedSearch})}">
                                     <i class="bi bi-x"></i>
                                 </a>
                             </span>
 
-                            <span class="badge bg-success me-2" th:if="${selectedDate != null}">
-                                    Дата: <span th:text="${selectedDate}"></span>
+                            <!-- Дата: показываем только если не пусто и не null -->
+                            <span class="badge bg-success me-2"
+                                  th:if="${selectedDate != null and selectedDate != ''}">
+                                Дата: <span th:text="${selectedDate}"></span>
                                 <a href="#" class="text-white ms-2"
                                    th:href="@{/projects(status=${selectedStatus}, category=${selectedCategory}, year=${selectedYear}, search=${selectedSearch})}">
                                     <i class="bi bi-x"></i>
                                 </a>
                             </span>
 
-                            <span class="badge bg-secondary me-2" th:if="${selectedSearch != null}">
+                            <!-- Поиск: показываем только если не пусто и не null -->
+                            <span class="badge bg-secondary me-2"
+                                  th:if="${selectedSearch != null and selectedSearch != ''}">
                                 Поиск: "<span th:text="${selectedSearch}"></span>"
                                 <a href="#" class="text-white ms-2"
-                                   th:href="@{/projects(status=${selectedStatus}, category=${selectedCategory}, year=${selectedYear})}">
+                                   th:href="@{/projects(status=${selectedStatus}, category=${selectedCategory}, year=${selectedYear}, date=${selectedDate})}">
                                     <i class="bi bi-x"></i>
                                 </a>
                             </span>
