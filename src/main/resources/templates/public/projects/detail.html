@@ -49,6 +49,14 @@
                 <li class="breadcrumb-item">
                     <a th:href="@{/projects}" class="text-decoration-none fw-bold">Проекты</a>
                 </li>
+                <!-- Категория проекта (если есть) -->
+                <li class="breadcrumb-item" th:if="${project.category != null and project.category != ''}">
+                    <a th:href="@{/projects(category=${project.category})}"
+                       class="text-decoration-none fw-bold"
+                       th:text="${project.category}">
+                        Категория проекта
+                    </a>
+                </li>
                 <li class="breadcrumb-item active fw-bold" aria-current="page">
                     <span th:text="${project.title}">Название проекта</span>
                 </li>
