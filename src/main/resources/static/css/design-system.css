@@ -894,7 +894,7 @@ p {
 
 /* Плавное появление фона после загрузки */
 .main-background {
-    animation: fadeInBg 1s ease-out 1s forwards;
+    animation: fadeInBg 2s ease-out 2s forwards;
     opacity: 0;
 }
 

@@ -77,7 +77,6 @@
                     <div class="key-points mb-4">
                         <span class="badge bg-primary bg-opacity-10 text-primary me-2 mb-2">Миссия</span>
                         <span class="badge bg-primary bg-opacity-10 text-primary me-2 mb-2">Ценности</span>
-                        <span class="badge bg-primary bg-opacity-10 text-primary me-2 mb-2">Команда</span>
                         <span class="badge bg-primary bg-opacity-10 text-primary mb-2">История</span>
                     </div>
 
@@ -98,7 +97,7 @@
             <div class="card border-0 card-hover h-100 text-center">
                 <div class="card-body p-5">
                     <!-- Thematic icon with animation / Тематическая иконка с анимацией -->
-                    <div class="icon-textured mb-4">🚀</div>
+                    <div class="icon-textured mb-4">🎭</div>
 
                     <!-- Section title / Заголовок секции -->
                     <h3 class="card-title fw-bold mb-3">Наши проекты</h3>
@@ -111,10 +110,9 @@
 
                     <!-- Key highlights / Ключевые моменты -->
                     <div class="key-points mb-4">
-                        <span class="badge bg-success bg-opacity-10 text-success me-2 mb-2">Активные</span>
-                        <span class="badge bg-warning bg-opacity-10 text-warning me-2 mb-2">Завершенные</span>
-                        <span class="badge bg-info bg-opacity-10 text-info me-2 mb-2">Образование</span>
-                        <span class="badge bg-info bg-opacity-10 text-info mb-2">Сообщество</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary me-2 mb-2">Активные</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary me-2 mb-2">Ежегодные</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary me-2 mb-2">Архивные</span>
                     </div>
 
                     <!-- Call-to-action button / Кнопка призыва к действию -->
@@ -126,36 +124,42 @@
         </div>
 
         <!--
-            PATRONS PILLAR / СЕКЦИЯ "МЕЦЕНАТАМ"
-            Partnership and support opportunities
-            Возможности партнерства и поддержки
-        -->
+    OUR TEAM PILLAR / СЕКЦИЯ "НАША КОМАНДА"
+    Team members and collaborators
+    Члены команды и соавторы
+-->
         <div class="col-lg-4 mb-4">
             <div class="card border-0 card-hover h-100 text-center">
                 <div class="card-body p-5">
                     <!-- Thematic icon with animation / Тематическая иконка с анимацией -->
-                    <div class="icon-textured mb-4">💎</div>
+                    <div class="icon-textured mb-4">🤝</div>
+
+                    <!-- Альтернативные иконки (выберите одну):
+                    🚀 - для активной команды
+                    💡 - для креативной команды
+                    🏆 - для команды победителей
+                    🤝 - для сплоченной команды
+                    -->
 
                     <!-- Section title / Заголовок секции -->
-                    <h3 class="card-title fw-bold mb-3">Меценатам и партнерам</h3>
+                    <h3 class="card-title fw-bold mb-3">Наша команда</h3>
 
                     <!-- Minimal description / Минимальное описание -->
                     <p class="card-text text-muted mb-4">
-                        Узнайте о возможностях поддержки нашей работы.
-                        Станьте частью позитивных изменений в обществе.
+                        Познакомьтесь с творческими людьми, которые создают
+                        уникальную атмосферу искусства и вдохновения в нашем сообществе.
                     </p>
 
                     <!-- Key highlights / Ключевые моменты -->
                     <div class="key-points mb-4">
-                        <span class="badge bg-warning bg-opacity-10 text-warning me-2 mb-2">Партнерство</span>
-                        <span class="badge bg-warning bg-opacity-10 text-warning me-2 mb-2">Волонтерство</span>
-                        <span class="badge bg-warning bg-opacity-10 text-warning me-2 mb-2">Поддержка</span>
-                        <span class="badge bg-warning bg-opacity-10 text-warning mb-2">Сотрудничество</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary me-2 mb-2">Художники</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary me-2 mb-2">Музыканты</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary me-2 mb-2">Волонтеры</span>
                     </div>
 
                     <!-- Call-to-action button / Кнопка призыва к действию -->
-                    <a href="/patrons" class="btn btn-primary-custom btn-lg" th:href="@{/patrons}">
-                        Поддержать
+                    <a href="/team" class="btn btn-primary-custom btn-lg" th:href="@{/team}">
+                        Познакомиться
                     </a>
                 </div>
             </div>
@@ -163,23 +167,32 @@
     </div>
 
     <!--
-        QUICK NAVIGATION SECTION / СЕКЦИЯ БЫСТРОЙ НАВИГАЦИИ
-        Additional navigation options for other important pages
-        Дополнительные навигационные опции для других важных страниц
-    -->
-    <div class="row mt-5">
-        <div class="col-12 text-center">
-            <div class="quick-nav p-4 rounded-3">
-                <h4 class="fw-bold mb-3">Быстрый доступ</h4>
-                <p class="text-muted mb-4">Другие важные разделы нашего сайта</p>
+    NEWS SECTION / СЕКЦИЯ НОВОСТЕЙ
+    Latest updates and announcements
+    Последние обновления и анонсы
+-->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 bg-light">
+                <div class="card-body p-5 text-center">
+                    <!-- Иконка для новостей -->
+                    <div class="icon-textured mb-4">📰</div>
 
-                <div class="d-flex justify-content-center flex-wrap gap-3">
-                    <a href="/gallery" class="btn btn-outline-primary" th:href="@{/gallery}">
-                        🖼️ Галерея
-                    </a>
-                    <a href="/contact" class="btn btn-outline-primary" th:href="@{/contact}">
-                        📞 Контакты
-                    </a>
+                    <!-- Заголовок секции -->
+                    <h3 class="card-title fw-bold mb-3">Новости и анонсы</h3>
+
+                    <!-- Описание секции -->
+                    <p class="card-text text-muted lead mb-4">
+                        Будьте в курсе последних событий, мероприятий и важных объявлений
+                        нашей творческой организации. Скоро здесь появится актуальная информация.
+                    </p>
+
+                    <!-- Ключевые темы новостей -->
+                    <div class="key-points mb-4">
+                        <span class="badge bg-primary bg-opacity-10 text-primary me-2 mb-2">Анонсы</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary me-2 mb-2">Мероприятия</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary me-2 mb-2">Отчёты</span>
+                    </div>
                 </div>
             </div>
         </div>
