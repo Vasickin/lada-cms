@@ -3,6 +3,34 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head th:replace="fragments/header :: html-head(${project.effectiveMetaTitle})">
+
+    <style>
+        /* ==== ХЛЕБНЫЕ КРОШКИ - ПРОЗРАЧНЫЕ ==== */
+
+/* Убираем серый фон */
+.bg-light {
+    background-color: transparent !important;
+}
+
+/* Делаем шрифт больше и жирный */
+.breadcrumb {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Разделители делаем более заметными */
+.breadcrumb-item + .breadcrumb-item::before {
+    font-weight: 700;
+    color: #666;
+    padding: 0 10px;
+}
+
+/* Активный элемент делаем темнее */
+.breadcrumb-item.active {
+    color: #333;
+}
+    </style>
+
 </head>
 
 <body>
@@ -12,16 +40,16 @@
 
 <!-- Хлебные крошки -->
 <div class="container my-5">
-    <nav class="bg-light py-3">
+    <nav class="py-3">
         <div class="container">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item">
-                    <a th:href="@{/}" class="text-decoration-none">Главная</a>
+                    <a th:href="@{/}" class="text-decoration-none fw-bold">Главная</a>
                 </li>
                 <li class="breadcrumb-item">
-                    <a th:href="@{/projects}" class="text-decoration-none">Проекты</a>
+                    <a th:href="@{/projects}" class="text-decoration-none fw-bold">Проекты</a>
                 </li>
-                <li class="breadcrumb-item active" aria-current="page">
+                <li class="breadcrumb-item active fw-bold" aria-current="page">
                     <span th:text="${project.title}">Название проекта</span>
                 </li>
             </ol>
@@ -49,11 +77,11 @@
                 <div class="col-lg-8">
                     <!-- 1. ГАЛЕРЕЯ КЛЮЧЕВЫХ ФОТО -->
                     <section id="gallery" th:if="${project.showPhotos} and ${project.hasKeyPhotos}" class="card border-0 shadow-sm mb-5">
-                        <div class="card-header bg-white border-0 py-4">
-                            <h2 class="h3 fw-bold mb-0">
-                                <i class="bi bi-images text-primary me-2"></i> Фото проекта
-                            </h2>
-                        </div>
+<!--                        <div class="card-header bg-white border-0 py-4">-->
+<!--                            <h2 class="h3 fw-bold mb-0">-->
+<!--                                <i class="bi bi-images text-primary me-2"></i> Фото проекта-->
+<!--                            </h2>-->
+<!--                        </div>-->
                         <div class="card-body p-0">
                             <div th:if="${#lists.size(project.keyPhotos) == 1}" class="p-4">
                                 <!-- Одно фото -->
