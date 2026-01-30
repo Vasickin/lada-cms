@@ -117,7 +117,6 @@
                                                 <img th:src="${photo.publicWebPath}"
                                                      th:alt="${photo.title ?: project.title}"
                                                      class="carousel-image">
-                                                <div class="image-gradient"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -834,20 +833,15 @@
         }
     }
 
-    /* ==== СЛАЙДЕР ==== */
+/* ==== СЛАЙДЕР (ТОЛЬКО ФОТО) ==== */
 
-/* Контейнер для фото с градиентом */
+/* Контейнер для фото - ТОЛЬКО ФОТО */
 .carousel-image-container {
-    position: relative;
     height: 500px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(90deg,
-        RGBA(248,249,250,0.9) 0%,
-        RGBA(233,236,239,0.7) 20%,
-        RGBA(233,236,239,0.7) 80%,
-        RGBA(248,249,250,0.9) 100%);
+    background: transparent;
     overflow: hidden;
 }
 
@@ -857,64 +851,73 @@
     max-height: 100%;
     width: auto;
     height: auto;
-    object-fit: contain; /* Важно: вмещает целиком */
+    object-fit: contain;
     display: block;
     margin: 0 auto;
+    background: transparent;
 }
 
-/* Дополнительный градиент поверх (опционально) */
+/* УБРАН градиент */
 .image-gradient {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg,
-        RGBA(255,255,255,0.4) 0%,
-        RGBA(255,255,255,0) 10%,
-        RGBA(255,255,255,0) 90%,
-        RGBA(255,255,255,0.4) 100%);
-    pointer-events: none;
-    z-index: 1;
+    display: none;
 }
 
-/* Индикаторы карусели - поднять повыше */
+/* Индикаторы карусели - оставляем только для навигации */
 #projectGallery .carousel-indicators {
-    bottom: -50px; /* Опустить ниже если мешает */
+    bottom: -40px;
     z-index: 2;
 }
 
-/* Кнопки навигации */
+#projectGallery .carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 4px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: none;
+}
+
+#projectGallery .carousel-indicators button.active {
+    background-color: var(--primary-color);
+}
+
+/* Кнопки навигации - минималистичные */
 #projectGallery .carousel-control-prev,
 #projectGallery .carousel-control-next {
     z-index: 2;
+    width: 40px;
+    height: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    margin: 0 10px;
+    opacity: 0.7;
 }
 
-/* Для одного фото тоже обновляем */
+#projectGallery .carousel-control-prev:hover,
+#projectGallery .carousel-control-next:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+    opacity: 1;
+}
+
+/* УБРАН фон для одного фото */
 #gallery .img-fluid {
     object-fit: contain !important;
-    background: linear-gradient(90deg,
-        RGBA(248,249,250,0.9) 0%,
-        RGBA(233,236,239,0.7) 20%,
-        RGBA(233,236,239,0.7) 80%,
-        RGBA(248,249,250,0.9) 100%);
-    padding: 20px;
-    border-radius: 12px;
+    background: transparent !important;
+    padding: 0;
+    border-radius: 0;
 }
 
-    /* Контейнер для одного фото */
+/* Контейнер для одного фото - ТОЛЬКО ФОТО */
 .single-image-container {
     height: 500px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(90deg,
-        RGBA(248,249,250,0.9) 0%,
-        RGBA(233,236,239,0.7) 20%,
-        RGBA(233,236,239,0.7) 80%,
-        RGBA(248,249,250,0.9) 100%);
-    border-radius: 12px;
-    padding: 20px;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
 }
 
 /* Изображение для одного фото */
@@ -924,9 +927,86 @@
     width: auto;
     height: auto;
     object-fit: contain;
-    border-radius: 8px;
+    border-radius: 0;
+    background: transparent;
 }
-</style>
+
+/* ===== УБИРАЕМ ВСЕ ЛИШНЕЕ У КАРТОЧКИ ГАЛЕРЕИ ===== */
+
+/* Карточка галереи - БЕЗ ФОНА, БЕЗ ТЕНИ, БЕЗ ГРАНИЦ */
+#gallery.card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* Хедер карточки - ПРОЗРАЧНЫЙ */
+#gallery .card-header {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 0 20px 0; /* Только нижний отступ для заголовка */
+}
+
+/* Тело карточки - ПРОЗРАЧНОЕ */
+#gallery .card-body {
+    background: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+/* Внутренний контейнер карусели - ПРОЗРАЧНЫЙ */
+#gallery .carousel-inner {
+    background: transparent !important;
+    border-radius: 0 !important;
+    border: none !important;
+}
+
+/* Заголовок галереи - делаем нейтральным */
+#gallery .card-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+/* Убираем иконку в заголовке или делаем нейтральной */
+#gallery .card-header h2 .bi-images {
+    color: #666;
+}
+
+/* Для слайдера с одним фото */
+#gallery .p-4 {
+    padding: 0 !important;
+}
+
+/* Убираем все тени и границы у карусели */
+#projectGallery.carousel {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+    .carousel-image-container,
+    .single-image-container {
+        height: 400px;
+    }
+
+    #projectGallery .carousel-control-prev,
+    #projectGallery .carousel-control-next {
+        width: 30px;
+        height: 30px;
+        margin: 0 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-image-container,
+    .single-image-container {
+        height: 300px;
+    }
+}
 
 <!-- ==== ПАРАЛЛАКС ЭФФЕКТ ==== -->
 <script>
