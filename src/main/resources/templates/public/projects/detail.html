@@ -198,95 +198,145 @@
                         </div>
                     </section>
 
+
+
+
+
+
                     <!-- 4. КОМАНДА ПРОЕКТА -->
-                    <section id="team" th:if="${project.showTeam} and ${project.teamMembers != null} and ${!#lists.isEmpty(project.teamMembers)}" class="card border-0 shadow-sm mb-5">
-                            <div class="card-header bg-white border-0 py-4">
-                                <h2 class="h3 fw-bold mb-0">
-                                    <i class="bi bi-people text-primary me-2"></i> Команда проекта
-                                </h2>
-                            </div>
-                        <div class="card-body">
-                            <div class="row g-4">
-                                <div th:each="member : ${project.teamMembers}" class="col-md-6 col-lg-4">
-                                    <div class="card border h-100 team-member-card">
-                                        <!-- Фото участника -->
-                                        <div class="text-center p-3">
-                                            <div class="rounded-circle overflow-hidden mx-auto mb-3"
-                                                 style="width: 120px; height: 120px;">
-                                                <!-- Используем avatarPath -->
-                                                <img th:if="${member.avatarPath != null}"
-                                                     th:src="${member.avatarPath}"
-                                                     th:alt="${member.fullName}"
-                                                     class="img-fluid w-100 h-100 object-fit-cover">
-                                                <!-- Если нет фото, показываем инициалы -->
-                                                <div th:unless="${member.avatarPath != null}"
-                                                     class="w-100 h-100 bg-primary text-white d-flex align-items-center justify-content-center">
-                                        <span class="fw-bold fs-3">
-                                            <!-- Используем initials если есть, иначе вычисляем -->
-                                            <span th:if="${member.initials != null}" th:text="${member.initials}"></span>
-                                            <span th:unless="${member.initials != null}">
-                                                [[${#strings.substring(member.fullName, 0, 1)}]]
-                                                <span th:if="${#strings.contains(member.fullName, ' ')}"
-                                                      th:text="${#strings.substring(member.fullName, #strings.indexOf(member.fullName, ' ') + 1, #strings.indexOf(member.fullName, ' ') + 2)}"></span>
-                                            </span>
-                                        </span>
+                    <section id="team" th:if="${project.showTeam} and ${project.teamMembers != null} and ${!#lists.isEmpty(project.teamMembers)}" class="card border-0 shadow-sm mb-5" style="min-height: 300px;">
+                        <div class="card-header bg-white border-0 py-4">
+                            <h2 class="h3 fw-bold mb-0">
+                                <i class="bi bi-people text-primary me-2"></i> Команда проекта
+                            </h2>
+                        </div>
+                        <div class="card-body p-0 position-relative" style="min-height: 100px;">
+                            <!-- Карусель для команды -->
+                            <div id="teamCarousel" class="carousel slide h-100" data-bs-ride="carousel" data-bs-interval="9000">
+                                <!-- Индикаторы - фиксируем внизу секции -->
+<!--                                <div class="carousel-indicators position-absolute" style="bottom: -10px;">-->
+<!--                                    <th:block th:with="memberCount=${#lists.size(project.teamMembers)}, slides=${(memberCount + 2) / 3}">-->
+<!--                                        <button th:each="slideNum : ${#numbers.sequence(0, slides - 1)}"-->
+<!--                                                type="button"-->
+<!--                                                data-bs-target="#teamCarousel"-->
+<!--                                                th:data-bs-slide-to="${slideNum}"-->
+<!--                                                th:classappend="${slideNum == 0} ? 'active' : ''"-->
+<!--                                                th:aria-label="'Слайд ' + ${slideNum + 1}">-->
+<!--                                        </button>-->
+<!--                                    </th:block>-->
+<!--                                </div>-->
+
+                                <!-- Слайды -->
+                                <div class="carousel-inner p-4 h-100">
+                                    <!-- Создаем слайды по 3 человека -->
+                                    <th:block th:with="memberCount=${#lists.size(project.teamMembers)}">
+                                        <!-- Вычисляем количество слайдов -->
+                                        <th:block th:each="slideIndex : ${#numbers.sequence(0, (memberCount - 1) / 3)}">
+                                            <div th:classappend="${slideIndex == 0} ? 'carousel-item active h-100' : 'carousel-item h-100'">
+                                                <div class="row g-4 h-100 align-items-center">
+                                                    <!-- Отображаем до 3 карточек на слайде -->
+                                                    <th:block th:each="memberIndex : ${#numbers.sequence(0, 2)}">
+                                                        <th:block th:if="${slideIndex * 3 + memberIndex < memberCount}">
+                                                            <div th:with="member=${project.teamMembers[slideIndex * 3 + memberIndex]}"
+                                                                 class="col-md-6 col-lg-4 h-100">
+                                                                <div class="card border-0 h-100 team-member-card d-flex flex-column">
+                                                                    <!-- Фото участника -->
+                                                                    <div class="text-center p-3 flex-grow-1 d-flex flex-column">
+                                                                        <div class="rounded-circle overflow-hidden mx-auto mb-3"
+                                                                             style="width: 120px; height: 120px; flex-shrink: 0;">
+                                                                            <!-- Используем avatarPath -->
+                                                                            <img th:if="${member.avatarPath != null}"
+                                                                                 th:src="${member.avatarPath}"
+                                                                                 th:alt="${member.fullName}"
+                                                                                 class="img-fluid w-100 h-100 object-fit-cover">
+                                                                            <!-- Если нет фото, показываем инициалы -->
+                                                                            <div th:unless="${member.avatarPath != null}"
+                                                                                 class="w-100 h-100 bg-primary text-white d-flex align-items-center justify-content-center">
+                                                            <span class="fw-bold fs-3">
+                                                                <!-- Используем initials если есть, иначе вычисляем -->
+                                                                <span th:if="${member.initials != null}" th:text="${member.initials}"></span>
+                                                                <span th:unless="${member.initials != null}">
+                                                                    [[${#strings.substring(member.fullName, 0, 1)}]]
+                                                                    <span th:if="${#strings.contains(member.fullName, ' ')}"
+                                                                          th:text="${#strings.substring(member.fullName, #strings.indexOf(member.fullName, ' ') + 1, #strings.indexOf(member.fullName, ' ') + 2)}"></span>
+                                                                </span>
+                                                            </span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <!-- Имя и должность -->
+                                                                        <h5 class="fw-bold mb-1" th:text="${member.fullName}">
+                                                                            Имя Фамилия
+                                                                        </h5>
+                                                                        <p class="text-muted small mb-2" th:text="${member.position}">
+                                                                            Должность
+                                                                        </p>
+
+                                                                        <!-- Краткая биография - фиксированная высота -->
+                                                                        <div class="mb-3" style="flex: 1; min-height: 60px; max-height: 100px; overflow: hidden;">
+                                                                            <p class="small text-muted mb-0"
+                                                                               th:if="${member.bio != null} and ${#strings.length(member.bio) > 0}"
+                                                                               style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                                                                [[${#strings.abbreviate(member.bio, 120)}]]
+                                                                            </p>
+                                                                        </div>
+
+<!--                                                                        &lt;!&ndash; Контакты - фиксированная позиция внизу &ndash;&gt;-->
+<!--                                                                        <div class="d-flex justify-content-center gap-2 mt-auto pt-2">-->
+<!--                                                                            <a th:if="${member.email != null}"-->
+<!--                                                                               th:href="|mailto:${member.email}|"-->
+<!--                                                                               class="text-decoration-none"-->
+<!--                                                                               title="Email">-->
+<!--                                                                                <i class="bi bi-envelope text-primary"></i>-->
+<!--                                                                            </a>-->
+<!--                                                                            <a th:if="${member.phone != null}"-->
+<!--                                                                               th:href="|tel:${member.phone}|"-->
+<!--                                                                               class="text-decoration-none"-->
+<!--                                                                               title="Телефон">-->
+<!--                                                                                <i class="bi bi-telephone text-primary"></i>-->
+<!--                                                                            </a>-->
+<!--                                                                            &lt;!&ndash; Социальные сети &ndash;&gt;-->
+<!--                                                                            <a th:if="${member.socialLinks != null} and ${member.socialLinks.containsKey('linkedin')}"-->
+<!--                                                                               th:href="${member.socialLinks.get('linkedin')}"-->
+<!--                                                                               target="_blank"-->
+<!--                                                                               class="text-decoration-none"-->
+<!--                                                                               title="LinkedIn">-->
+<!--                                                                                <i class="bi bi-linkedin text-primary"></i>-->
+<!--                                                                            </a>-->
+<!--                                                                            <a th:if="${member.socialLinks != null} and ${member.socialLinks.containsKey('facebook')}"-->
+<!--                                                                               th:href="${member.socialLinks.get('facebook')}"-->
+<!--                                                                               target="_blank"-->
+<!--                                                                               class="text-decoration-none"-->
+<!--                                                                               title="Facebook">-->
+<!--                                                                                <i class="bi bi-facebook text-primary"></i>-->
+<!--                                                                            </a>-->
+<!--                                                                            <a th:if="${member.socialLinks != null} and ${member.socialLinks.containsKey('instagram')}"-->
+<!--                                                                               th:href="${member.socialLinks.get('instagram')}"-->
+<!--                                                                               target="_blank"-->
+<!--                                                                               class="text-decoration-none"-->
+<!--                                                                               title="Instagram">-->
+<!--                                                                                <i class="bi bi-instagram text-primary"></i>-->
+<!--                                                                            </a>-->
+<!--                                                                        </div>-->
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </th:block>
+                                                    </th:block>
                                                 </div>
                                             </div>
-                                            <!-- Имя и должность -->
-                                            <h5 class="fw-bold mb-1" th:text="${member.fullName}">
-                                                Имя Фамилия
-                                            </h5>
-                                            <p class="text-muted small mb-2" th:text="${member.position}">
-                                                Должность
-                                            </p>
-
-                                            <!-- Краткая биография -->
-                                            <p class="small text-muted mb-3"
-                                               th:if="${member.bio != null} and ${#strings.length(member.bio) > 0}"
-                                               th:text="${#strings.abbreviate(member.bio, 100)} + '...'">
-                                                Краткое описание
-                                            </p>
-
-                                            <!-- Контакты -->
-                                            <div class="d-flex justify-content-center gap-2">
-                                                <a th:if="${member.email != null}"
-                                                   th:href="|mailto:${member.email}|"
-                                                   class="text-decoration-none"
-                                                   title="Email">
-                                                    <i class="bi bi-envelope text-primary"></i>
-                                                </a>
-                                                <a th:if="${member.phone != null}"
-                                                   th:href="|tel:${member.phone}|"
-                                                   class="text-decoration-none"
-                                                   title="Телефон">
-                                                    <i class="bi bi-telephone text-primary"></i>
-                                                </a>
-                                                <!-- Социальные сети -->
-                                                <a th:if="${member.socialLinks != null} and ${member.socialLinks.containsKey('linkedin')}"
-                                                   th:href="${member.socialLinks.get('linkedin')}"
-                                                   target="_blank"
-                                                   class="text-decoration-none"
-                                                   title="LinkedIn">
-                                                    <i class="bi bi-linkedin text-primary"></i>
-                                                </a>
-                                                <a th:if="${member.socialLinks != null} and ${member.socialLinks.containsKey('facebook')}"
-                                                   th:href="${member.socialLinks.get('facebook')}"
-                                                   target="_blank"
-                                                   class="text-decoration-none"
-                                                   title="Facebook">
-                                                    <i class="bi bi-facebook text-primary"></i>
-                                                </a>
-                                                <a th:if="${member.socialLinks != null} and ${member.socialLinks.containsKey('instagram')}"
-                                                   th:href="${member.socialLinks.get('instagram')}"
-                                                   target="_blank"
-                                                   class="text-decoration-none"
-                                                   title="Instagram">
-                                                    <i class="bi bi-instagram text-primary"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        </th:block>
+                                    </th:block>
                                 </div>
+
+                                <!-- Стрелки навигации -->
+                                <button class="carousel-control-prev" type="button" data-bs-target="#teamCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Предыдущий</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#teamCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Следующий</span>
+                                </button>
                             </div>
                         </div>
                     </section>
@@ -1087,6 +1137,191 @@ document.addEventListener('DOMContentLoaded', () => {
     new BackgroundParallax();
 });
 </script>
+
+<style>
+    /* Стили для карусели команды */
+#teamCarousel .carousel-indicators {
+    bottom: -20px;
+}
+
+#teamCarousel .carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 5px;
+    background-color: rgba(0, 0, 0, 0.25);
+    border: none;
+}
+
+#teamCarousel .carousel-indicators button.active {
+    background-color: var(--primary-color);
+}
+
+#teamCarousel .carousel-control-prev,
+#teamCarousel .carousel-control-next {
+    width: 40px;
+    height: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    margin: 0 15px;
+    opacity: 0.7;
+}
+
+#teamCarousel .carousel-control-prev:hover,
+#teamCarousel .carousel-control-next:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+    opacity: 1;
+}
+
+/* Адаптивность для планшетов и мобильных */
+@media (max-width: 992px) {
+    #teamCarousel .carousel-inner .row .col-lg-4 {
+        flex: 0 0 50%;
+        max-width: 50%; /* 2 карточки на планшете */
+    }
+}
+
+@media (max-width: 768px) {
+    #teamCarousel .carousel-inner .row .col-lg-4 {
+        flex: 0 0 100%;
+        max-width: 100%; /* 1 карточка на мобильных */
+    }
+
+    #teamCarousel .carousel-control-prev,
+    #teamCarousel .carousel-control-next {
+        width: 30px;
+        height: 30px;
+        margin: 0 5px;
+    }
+}
+
+    /* Стили для карусели команды - ФИКСИРОВАННАЯ ВЫСОТА */
+#teamCarousel .carousel-indicators {
+    position: absolute !important;
+    bottom: -10px !important;
+    margin-bottom: 0 !important;
+    z-index: 5;
+}
+
+#teamCarousel .carousel-indicators button {
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50% !important;
+    margin: 0 6px !important;
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    border: none !important;
+    opacity: 0.7 !important;
+}
+
+#teamCarousel .carousel-indicators button.active {
+    background-color: var(--primary-color) !important;
+    opacity: 1 !important;
+    transform: scale(1.2);
+}
+
+#teamCarousel .carousel-control-prev,
+#teamCarousel .carousel-control-next {
+    width: 50px !important;
+    height: 50px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background-color: rgba(0, 0, 0, 0.15) !important;
+    border-radius: 50% !important;
+    margin: 0 20px !important;
+    opacity: 0.8 !important;
+    z-index: 10;
+}
+
+#teamCarousel .carousel-control-prev:hover,
+#teamCarousel .carousel-control-next:hover {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    opacity: 1 !important;
+}
+
+/* Фиксируем высоту карточек */
+/* высота на десктопе */
+.team-member-card {
+    height: 310px !important;
+    min-height: 310px !important;
+}
+
+/* Адаптивность для планшетов и мобильных */
+/* высота на планшете */
+@media (max-width: 992px) {
+    #teamCarousel .carousel-inner .row .col-lg-4 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+
+    .team-member-card {
+        height: 400px !important;
+        min-height: 400px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #teamCarousel .carousel-inner .row .col-lg-4 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+
+    #teamCarousel .carousel-control-prev,
+    #teamCarousel .carousel-control-next {
+        width: 40px !important;
+        height: 40px !important;
+        margin: 0 10px !important;
+    }
+
+    /* высота на телефоне */
+    .team-member-card {
+        height: 300px !important;
+        min-height: 300px !important;
+    }
+
+    #teamCarousel .carousel-indicators {
+        bottom: 10px !important;
+    }
+}
+
+    /* === СКОРОСТЬ ПРОКРУТКИ КАРУСЕЛИ КОМАНДЫ === */
+#teamCarousel.carousel {
+    --bs-carousel-transition-duration: 2s !important;
+}
+
+#teamCarousel .carousel-item {
+    transition: transform 2s ease-in-out !important;
+}
+
+/* Для плавности и на мобильных */
+#teamCarousel .carousel-item-next.carousel-item-start,
+#teamCarousel .carousel-item-prev.carousel-item-end,
+#teamCarousel .carousel-item-next,
+#teamCarousel .carousel-item-prev,
+#teamCarousel .carousel-item.active {
+    transition: transform 2s ease-in-out !important;
+}
+
+    /* СОВСЕМ НЕВИДИМЫЕ СТРЕЛКИ (появляются при наведении) */
+#teamCarousel .carousel-control-prev,
+#teamCarousel .carousel-control-next {
+    background-color: transparent !important;
+    opacity: 0 !important; /* ← СОВСЕМ НЕВИДИМЫ */
+    transition: opacity 0.3s ease !important;
+}
+
+#teamCarousel:hover .carousel-control-prev,
+#teamCarousel:hover .carousel-control-next {
+    opacity: 0.3 !important; /* ← ПОЯВЛЯЮТСЯ ПРИ НАВЕДЕНИИ НА ВСЮ КАРУСЕЛЬ */
+}
+
+#teamCarousel .carousel-control-prev:hover,
+#teamCarousel .carousel-control-next:hover {
+    background-color: rgba(0, 0, 0, 0.15) !important;
+    opacity: 0.8 !important;
+}
+</style>
 
 </body>
 </html>
