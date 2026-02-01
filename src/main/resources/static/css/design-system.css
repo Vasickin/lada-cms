@@ -478,6 +478,10 @@ p {
     padding: var(--space-0);    /* No padding - Без внутренних отступов */
     background: transparent;    /* Transparent background - Прозрачный фон */
     margin-bottom: var(--space-0); /* No bottom margin - Без нижнего отступа */
+
+    /* ДОБАВЛЯЕМ: Контейнер адаптируется под высоту банера */
+    height: auto;               /* Auto height - Автоматическая высота */
+    min-height: 0;              /* Reset min-height - Сбросить минимальную высоту */
 }
 
 /*
@@ -487,6 +491,35 @@ p {
 .header-banner-wrapper {
     width: 100%;                /* Full width - Полная ширина */
     position: relative;         /* For absolute positioning of children - Для абсолютного позиционирования дочерних элементов */
+    overflow: visible;          /* Don't clip the banner - Не обрезать баннер */
+    padding: 0 var(--space-sm); /* Базовые отступы для мобильных */
+
+    /* ДОБАВЛЯЕМ: Адаптивная высота под баннер */
+    height: auto;               /* Auto height - Автоматическая высота */
+    min-height: 0;              /* No minimum height - Без минимальной высоты */
+}
+
+/* Для планшетов и десктопов увеличиваем отступы */
+@media (min-width: 768px) {
+    .header-banner-wrapper {
+        padding: 0 var(--space-lg); /* Medium padding on tablets and up - Средние отступы на планшетах и выше */
+    }
+}
+
+/* Для больших экранов еще больше */
+@media (min-width: 1200px) {
+    .header-banner-wrapper {
+        padding: 0 var(--space-xl); /* Large padding on desktops - Большие отступы на десктопах */
+    }
+}
+
+/* Для очень больших экранов ограничиваем максимальные отступы */
+@media (min-width: 1600px) {
+    .header-banner-wrapper {
+        padding: 0 var(--space-2xl); /* Extra large padding - Очень большие отступы */
+        max-width: 1600px;           /* Optional: limit max width - Опционально: ограничить максимальную ширину */
+        margin: 0 auto;              /* Center the banner - Центрировать баннер */
+    }
 }
 
 /*
@@ -496,8 +529,9 @@ p {
 .desktop-banner {
     display: block;             /* Block display - Блочное отображение */
     width: 100%;                /* Full width - Полная ширина */
-    height: 400px;              /* Fixed height - Фиксированная высота */
-    object-fit: cover;          /* Cover container while preserving aspect ratio - Заполнение контейнера с сохранением пропорций */
+    height: auto;               /* Auto height - Автоматическая высота для сохранения пропорций */
+    max-height: 500px;          /* Maximum height - Максимальная высота */
+    object-fit: contain;        /* Contain within bounds - Вмещаться в границы (не обрезать) */
     object-position: center center; /* Center the image - Центрирование изображения */
     border-radius: var(--radius-md); /* Rounded corners - Скруглённые углы */
     box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.25); /* Custom shadow - Пользовательская тень */
@@ -527,6 +561,11 @@ p {
 .header-banner-section .container {
     max-width: 1400px;          /* Maximum width - Максимальная ширина */
     padding: var(--space-0);    /* No padding - Без внутренних отступов */
+
+    /* ДОБАВЛЯЕМ: Контейнер тоже адаптируется по высоте */
+    height: auto;               /* Auto height - Автоматическая высота */
+    min-height: 0;              /* No minimum height - Без минимальной высоты */
+    display: block;             /* Ensure block display - Обеспечить блочное отображение */
 }
 
 /* ================================================================= */
@@ -604,6 +643,7 @@ p {
         min-height: 48px !important;        /* Smaller navbar height - Меньшая высота навбара */
         padding-top: var(--space-sm) !important;    /* Reduced top padding - Уменьшенный верхний отступ */
         padding-bottom: var(--space-sm) !important; /* Reduced bottom padding - Уменьшенный нижний отступ */
+        height: auto !important;
     }
 
     /*
@@ -922,3 +962,4 @@ p {
  * Эта дизайн-система предоставляет комплексную основу
  * для создания последовательных, доступных и адаптивных интерфейсов.
  */
+
