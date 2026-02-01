@@ -725,6 +725,26 @@
         border: 1px solid RGBA(0,0,0,0.05);
     }
 
+/* АДАПТИВНЫЕ КАРТОЧКИ ДЛЯ ПЛАНШЕТОВ */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .col.mb-4 .project-card {
+        min-height: unset !important;
+        max-height: unset !important;
+        height: auto !important;
+    }
+
+    /* Опционально: улучшаем отступы */
+    .project-card .card-body {
+        padding: 1.25rem !important;
+    }
+
+    /* Гарантируем, что кнопка останется внизу */
+    .project-card .card-body > .d-flex:last-child {
+        margin-top: auto;
+        padding-top: 1rem;
+    }
+}
+
     .card-hover:hover {
         border-color: var(--bs-primary);
     }
