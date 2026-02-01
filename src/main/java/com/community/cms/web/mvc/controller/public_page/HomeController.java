@@ -112,6 +112,14 @@ public class HomeController {
             List<String> allCategories = projectService.findAllDistinctCategories();
             model.addAttribute("categories", allCategories);
 
+            // Статистика по категориям для правой колонки
+            Map<String, Long> categoryStats = new LinkedHashMap<>();
+            for (String cat : allCategories) {
+                long count = projectService.countByCategory(cat);
+                categoryStats.put(cat, count);
+            }
+            model.addAttribute("categoryStats", categoryStats);
+
             // Все статусы для фильтра
             List<ProjectStatus> allStatuses = Arrays.asList(ProjectStatus.values());
             model.addAttribute("statuses", allStatuses);

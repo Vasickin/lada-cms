@@ -456,6 +456,7 @@
                         </div>
                         <div class="card-body">
                             <div class="list-group list-group-flush">
+                                <!-- Статистика по статусам -->
                                 <div class="list-group-item border-0 px-0 py-2 d-flex justify-content-between">
                                     <span>Все проекты:</span>
                                     <span class="fw-bold" th:text="${totalProjectsCount}">0</span>
@@ -471,6 +472,32 @@
                                 <div class="list-group-item border-0 px-0 py-2 d-flex justify-content-between">
                                     <span>Архивные проекты:</span>
                                     <span class="fw-bold text-secondary" th:text="${archivedProjectsCount}">0</span>
+                                </div>
+
+                                <!-- Заголовок для категорий -->
+                                <div class="list-group-item border-0 px-0 pt-3 pb-1">
+                                    <h6 class="small fw-bold text-muted mb-2">
+                                        <i class="bi bi-tags me-1"></i> По категориям:
+                                    </h6>
+                                </div>
+
+                                <!-- Статистика по категориям -->
+                                <div th:each="entry : ${categoryStats}"
+                                     class="list-group-item border-0 px-0 py-2 d-flex justify-content-between align-items-center">
+                                    <a th:href="@{/projects(category=${entry.key})}"
+                                       class="text-decoration-none text-dark hover-primary"
+                                       th:title="'Показать проекты в категории ' + ${entry.key}">
+                                        <i class="bi bi-folder me-1"></i>
+                                        <span th:text="${entry.key}">Категория</span>
+                                    </a>
+                                    <span class="fw-bold"
+                                          th:text="${entry.value}">0</span>
+                                </div>
+
+                                <!-- Если категорий нет -->
+                                <div th:unless="${categoryStats != null and !categoryStats.isEmpty()}"
+                                     class="list-group-item border-0 px-0 py-2 text-muted">
+                                    <i class="bi bi-info-circle me-1"></i> Нет данных по категориям
                                 </div>
                             </div>
                         </div>
@@ -867,7 +894,16 @@
     }
 }
 
+/* Стиль для ссылок категорий - черный по умолчанию, синий при наведении */
+.hover-primary {
+    color: #212529 !important; /* Черный цвет */
+    transition: color 0.2s ease;
+}
 
+.hover-primary:hover {
+    color: #0d6efd !important; /* Синий цвет при наведении */
+    /* БЕЗ ПОДЧЕРКИВАНИЯ */
+}
 </style>
 
 <!--
