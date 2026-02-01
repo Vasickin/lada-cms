@@ -286,9 +286,13 @@
                                             </a>
                                             <small class="text-muted">
                                                 <i class="bi bi-eye me-1"></i>
+                                                <!-- Бейдж "Видео" -->
                                                 <span th:if="${project.hasVideo}">
-                                                    <i class="bi bi-camera-video text-success ms-2" title="Есть видео"></i>
+                                                    <span class="badge bg-danger ms-2">
+                                                        <i class="bi bi-camera-video me-1"></i> Видео
+                                                    </span>
                                                 </span>
+                                                <!-- Бейдж "Фото" -->
                                                 <span th:if="${project.keyPhotos != null and !project.keyPhotos.isEmpty()}">
                                                     <span class="badge bg-info ms-2" th:text="${project.keyPhotos.size()} + ' фото'"></span>
                                                 </span>
@@ -296,7 +300,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>

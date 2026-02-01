@@ -163,6 +163,7 @@ public class ProjectMapper {
 
         dto.setKeyPhotoIds(project.getKeyPhotoIds());  // ← ЭТО
         dto.setHasKeyPhotos(project.hasKeyPhotos());   // ← И ЭТО
+        dto.setHasVideo(project.hasVideo());
 
         if (project.getEventDate() != null) {
             dto.setEventYear(project.getEventDate().getYear());
@@ -218,6 +219,7 @@ public class ProjectMapper {
 
         dto.setKeyPhotoIds(project.getKeyPhotoIds());
         dto.setHasKeyPhotos(project.hasKeyPhotos());
+        dto.setHasVideo(project.hasVideo());
 
         // Загружаем фото для карусели
         List<PhotoGalleryDTO> keyPhotos = loadKeyPhotosForProject(project);
