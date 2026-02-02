@@ -344,40 +344,48 @@
                     <!-- 5. ПАРТНЕРЫ -->
                     <section id="partners" th:if="${project.showPartners} and ${project.partners != null} and ${!#lists.isEmpty(project.partners)}"
                              class="card border-0 shadow-sm mb-5 partners-section">
-                        <div class="card-body">
+                        <div class="card-body p-0">
                             <!-- Контейнер карусели -->
                             <div class="partners-carousel-container">
                                 <div class="partners-carousel-track" id="partnersCarouselTrack">
-                                    <!-- Первый набор логотипов -->
-                                    <div class="partners-carousel-slide">
+                                    <!-- Набор логотипов (будет продублирован JavaScript) -->
+                                    <div class="partners-carousel-slide" id="partnersOriginalSlide">
                                         <div th:each="partner : ${project.partners}" class="partner-logo-item">
-                                            <div class="partner-logo-wrapper">
-                                                <img th:if="${partner.getLogoUrl != null}"
-                                                     th:src="${partner.getLogoUrl}"
-                                                     th:alt="${partner.name}"
-                                                     class="partner-logo-img">
-                                                <div th:unless="${partner.getLogoUrl != null}"
-                                                     class="partner-logo-placeholder">
-                                                    <span class="partner-name" th:text="${partner.name}"></span>
+                                            <!-- Ссылка на сайт партнера (если есть) -->
+                                            <a th:if="${partner.website != null and !#strings.isEmpty(partner.website)}"
+                                               th:href="${partner.website}"
+                                               target="_blank"
+                                               rel="noopener noreferrer"
+                                               class="partner-link"
+                                               th:title="'Сайт партнера: ' + ${partner.name}">
+                                                <div class="partner-logo-wrapper">
+                                                    <img th:if="${partner.logoUrl != null}"
+                                                         th:src="${partner.logoUrl}"
+                                                         th:alt="${partner.name}"
+                                                         class="partner-logo-img">
+                                                    <div th:unless="${partner.logoUrl != null}"
+                                                         class="partner-logo-placeholder">
+                                                        <span class="partner-name" th:text="${partner.name}"></span>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <!-- Без ссылки (если URL нет) -->
+                                            <div th:unless="${partner.website != null and !#strings.isEmpty(partner.website)}"
+                                                 class="partner-no-link">
+                                                <div class="partner-logo-wrapper">
+                                                    <img th:if="${partner.logoUrl != null}"
+                                                         th:src="${partner.logoUrl}"
+                                                         th:alt="${partner.name}"
+                                                         class="partner-logo-img">
+                                                    <div th:unless="${partner.logoUrl != null}"
+                                                         class="partner-logo-placeholder">
+                                                        <span class="partner-name" th:text="${partner.name}"></span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Дублированный набор для бесконечного эффекта -->
-                                    <div class="partners-carousel-slide">
-                                        <div th:each="partner : ${project.partners}" class="partner-logo-item">
-                                            <div class="partner-logo-wrapper">
-                                                <img th:if="${partner.getLogoUrl != null}"
-                                                     th:src="${partner.getLogoUrl}"
-                                                     th:alt="${partner.name}"
-                                                     class="partner-logo-img">
-                                                <div th:unless="${partner.getLogoUrl != null}"
-                                                     class="partner-logo-placeholder">
-                                                    <span class="partner-name" th:text="${partner.name}"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <!-- Дублированный набор для бесконечного эффекта (добавится через JS) -->
                                 </div>
                             </div>
                         </div>
@@ -1142,68 +1150,298 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+
+
+<!-- ==== КАРУСЕЛЬ ПАРТНЁРОВ ==== -->
 <script>
-    // Инициализация карусели партнеров
-document.addEventListener('DOMContentLoaded', function() {
-    const partnersCarousel = document.getElementById('partnersCarouselTrack');
+    // ================== КАРУСЕЛЬ ПАРТНЕРОВ ==================
 
-    if (partnersCarousel) {
-        initPartnersCarousel();
-    }
-});
-
+/**
+ * Инициализация горизонтальной карусели партнеров с бесконечной анимацией
+ */
 function initPartnersCarousel() {
+    console.log('Инициализация карусели партнеров...');
+
     const track = document.getElementById('partnersCarouselTrack');
-    const slides = document.querySelectorAll('.partners-carousel-slide');
+    const originalSlide = document.getElementById('partnersOriginalSlide');
 
-    if (!track || slides.length === 0) return;
-
-    // Если мало партнеров (меньше 4), дублируем больше раз для плавности
-    const firstSlide = slides[0];
-    const partnerItems = firstSlide.querySelectorAll('.partner-logo-item');
-
-    if (partnerItems.length < 4) {
-        // Добавляем дополнительные копии для более плавного эффекта
-        const originalHTML = firstSlide.innerHTML;
-        for (let i = 0; i < 2; i++) {
-            const newSlide = document.createElement('div');
-            newSlide.className = 'partners-carousel-slide';
-            newSlide.innerHTML = originalHTML;
-            track.appendChild(newSlide);
-        }
+    // Проверяем наличие элементов
+    if (!track) {
+        console.error('Не найден элемент partnersCarouselTrack');
+        return;
     }
 
-    // Настраиваем скорость анимации в зависимости от количества элементов
-    const totalItems = partnerItems.length * slides.length;
-    const baseDuration = 40; // секунд для полного цикла
+    if (!originalSlide) {
+        console.error('Не найден элемент partnersOriginalSlide');
+        return;
+    }
 
-    // Адаптивная скорость: больше элементов = медленнее
+    const partnerItems = originalSlide.querySelectorAll('.partner-logo-item');
+    console.log(`Найдено ${partnerItems.length} логотипов партнеров`);
+
+    if (partnerItems.length === 0) {
+        console.warn('Нет логотипов партнеров для отображения');
+        return;
+    }
+
+    // 1. Дублируем слайд для бесконечного эффекта
+    const clone = originalSlide.cloneNode(true);
+    clone.id = 'partnersClonedSlide';
+    clone.classList.remove('partners-carousel-slide');
+    clone.classList.add('partners-carousel-slide', 'cloned-slide');
+    track.appendChild(clone);
+
+    console.log('Слайд дублирован для бесконечного эффекта');
+
+    // 2. Настраиваем скорость анимации в зависимости от количества элементов
+    const totalItems = partnerItems.length * 2; // оригинал + клон
+    const baseDuration = 40; // секунд для полного цикла
     const adjustedDuration = baseDuration * (totalItems / 8);
 
-    // Применяем адаптивную скорость
-    track.style.animationDuration = `${adjustedDuration}s`;
+    // 3. Применяем анимацию
+    track.style.animation = `scrollPartners ${adjustedDuration}s linear infinite`;
 
-    // Добавляем событие для перезапуска анимации при завершении цикла
-    track.addEventListener('animationiteration', function() {
-        // Плавный переход без скачков
-        this.style.animation = 'none';
-        setTimeout(() => {
-            this.style.animation = `scrollPartners ${adjustedDuration}s linear infinite`;
-        }, 10);
-    });
+    console.log(`Скорость анимации: ${adjustedDuration} секунд на полный цикл`);
 
-    // Пауза при наведении
+    // 4. Добавляем паузу при наведении
     const container = track.closest('.partners-carousel-container');
-    container.addEventListener('mouseenter', function() {
-        track.style.animationPlayState = 'paused';
+    if (container) {
+        container.addEventListener('mouseenter', function() {
+            track.style.animationPlayState = 'paused';
+            console.log('Анимация приостановлена (наведение)');
+        });
+
+        container.addEventListener('mouseleave', function() {
+            track.style.animationPlayState = 'running';
+            console.log('Анимация возобновлена');
+        });
+    }
+
+    // 5. Обработка завершения цикла для плавного перезапуска
+    track.addEventListener('animationiteration', function() {
+        // Можно добавить дополнительную логику, если нужно
+        console.log('Цикл анимации завершен, начинается следующий');
     });
 
-    container.addEventListener('mouseleave', function() {
-        track.style.animationPlayState = 'running';
-    });
+    // 6. Настраиваем поведение ссылок
+    setupPartnerLinks();
 
-    console.log(`Карусель партнеров инициализирована: ${partnerItems.length} логотипов, скорость: ${adjustedDuration}с`);
+    console.log('✅ Карусель партнеров успешно инициализирована');
 }
+
+/**
+ * Настройка поведения ссылок на сайты партнеров
+ */
+function setupPartnerLinks() {
+    const partnerLinks = document.querySelectorAll('.partner-link');
+
+    partnerLinks.forEach(link => {
+        // Останавливаем анимацию при наведении на конкретную ссылку
+        link.addEventListener('mouseenter', function(e) {
+            const track = document.getElementById('partnersCarouselTrack');
+            if (track) {
+                track.style.animationPlayState = 'paused';
+            }
+            e.stopPropagation();
+        });
+
+        // Возобновляем анимацию когда убираем курсор
+        link.addEventListener('mouseleave', function(e) {
+            const track = document.getElementById('partnersCarouselTrack');
+            const container = track?.closest('.partners-carousel-container');
+
+            if (track && container && !container.matches(':hover')) {
+                track.style.animationPlayState = 'running';
+            }
+            e.stopPropagation();
+        });
+
+        // Добавляем атрибуты для безопасности и доступности
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+        link.setAttribute('aria-label', 'Перейти на сайт партнера');
+    });
+
+    console.log(`Настроено ${partnerLinks.length} ссылок на партнеров`);
+}
+
+/**
+ * Создание CSS анимации динамически (на случай, если стили не загрузились)
+ */
+function createCarouselStyles() {
+    // Проверяем, существуют ли уже стили
+    if (document.getElementById('partners-carousel-styles')) {
+        return;
+    }
+
+    const style = document.createElement('style');
+    style.id = 'partners-carousel-styles';
+    style.textContent = `
+        /* Основные стили для карусели партнеров */
+        .partners-carousel-track {
+            display: flex !important;
+            width: max-content !important;
+            animation: scrollPartners 40s linear infinite !important;
+            will-change: transform !important;
+        }
+
+        .partners-carousel-slide {
+            display: flex !important;
+            flex-shrink: 0 !important;
+            align-items: center !important;
+            height: 100% !important;
+        }
+
+        .partner-logo-item {
+            flex: 0 0 auto !important;
+            padding: 0 40px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 100% !important;
+        }
+
+        .partners-carousel-container {
+            width: 100% !important;
+            overflow: hidden !important;
+            position: relative !important;
+            padding: 30px 0 !important;
+            background: transparent !important;
+        }
+
+        /* Анимация прокрутки */
+        @keyframes scrollPartners {
+            0% {
+                transform: translateX(0) !important;
+            }
+            100% {
+                transform: translateX(-50%) !important;
+            }
+        }
+
+        /* Пауза при наведении */
+        .partners-carousel-container:hover .partners-carousel-track {
+            animation-play-state: paused !important;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1200px) {
+            .partner-logo-item {
+                padding: 0 30px !important;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .partner-logo-item {
+                padding: 0 25px !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .partner-logo-item {
+                padding: 0 20px !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .partner-logo-item {
+                padding: 0 15px !important;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+    console.log('Динамические стили карусели добавлены');
+}
+
+/**
+ * Проверка и адаптация для мобильных устройств
+ */
+function adaptForMobile() {
+    const isMobile = window.innerWidth <= 768;
+    const track = document.getElementById('partnersCarouselTrack');
+
+    if (!track) return;
+
+    if (isMobile) {
+        // На мобильных увеличиваем скорость
+        const currentDuration = parseFloat(track.style.animationDuration || '40s');
+        track.style.animationDuration = `${currentDuration * 0.7}s`;
+        console.log('Скорость анимации увеличена для мобильных устройств');
+    }
+}
+
+/**
+ * Перезапуск анимации (на случай сбоев)
+ */
+function restartCarouselAnimation() {
+    const track = document.getElementById('partnersCarouselTrack');
+    if (!track) return;
+
+    track.style.animation = 'none';
+
+    // Принудительный рефлоу для сброса анимации
+    void track.offsetWidth;
+
+    const currentDuration = track.dataset.animationDuration || '40s';
+    track.style.animation = `scrollPartners ${currentDuration}s linear infinite`;
+
+    console.log('Анимация карусели перезапущена');
+}
+
+/**
+ * Основная функция инициализации, которая объединяет все компоненты
+ */
+function initializePartnersCarousel() {
+    try {
+        console.log('🚀 Запуск инициализации карусели партнеров...');
+
+        // 1. Создаем стили (на всякий случай)
+        createCarouselStyles();
+
+        // 2. Инициализируем карусель
+        initPartnersCarousel();
+
+        // 3. Адаптируем для мобильных
+        adaptForMobile();
+
+        // 4. Добавляем обработчик изменения размера окна
+        window.addEventListener('resize', function() {
+            adaptForMobile();
+        });
+
+        // 5. Добавляем обработчик для перезапуска по клику (для отладки)
+        const container = document.querySelector('.partners-carousel-container');
+        if (container) {
+            container.addEventListener('dblclick', function() {
+                restartCarouselAnimation();
+            });
+        }
+
+        console.log('🎉 Карусель партнеров полностью инициализирована!');
+
+    } catch (error) {
+        console.error('❌ Ошибка при инициализации карусели партнеров:', error);
+    }
+}
+
+// Автоматическая инициализация при загрузке документа
+document.addEventListener('DOMContentLoaded', function() {
+    // Ждем немного, чтобы DOM полностью загрузился
+    setTimeout(() => {
+        initializePartnersCarousel();
+    }, 100);
+});
+
+// Экспорт функций для ручного управления (если нужно)
+window.PartnersCarousel = {
+    init: initializePartnersCarousel,
+    restart: restartCarouselAnimation,
+    adaptForMobile: adaptForMobile,
+    setupLinks: setupPartnerLinks
+};
+
+console.log('Модуль карусели партнеров загружен и готов к использованию');
 </script>
 
 <style>
@@ -1391,185 +1629,250 @@ function initPartnersCarousel() {
 }
 </style>
 
+
+<!-- ==== КАРУСЕЛЬ ПАРТНЁРОВ ==== -->
 <style>
     /* ==== КАРУСЕЛЬ ПАРТНЕРОВ ==== */
 
-/* Основной контейнер */
-.partners-carousel-container {
-    width: 100%;
-    overflow: hidden;
-    position: relative;
-    padding: 20px 0;
-}
+ /* Основной контейнер */
+ .partners-carousel-container {
+     width: 100%;
+     overflow: hidden;
+     position: relative;
+     padding: 30px 0;
+     background: transparent;
+ }
 
-/* Дорожка с логотипами */
-.partners-carousel-track {
-    display: flex;
-    width: max-content; /* Автоматическая ширина */
-    animation: scrollPartners 40s linear infinite;
-}
+ /* Дорожка с логотипами */
+ .partners-carousel-track {
+     display: flex;
+     width: max-content;
+     animation: scrollPartners 40s linear infinite;
+     will-change: transform;
+ }
 
-/* Эффект градиента по краям для плавности */
-.partners-carousel-container::before,
-.partners-carousel-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 100px;
-    z-index: 2;
-    pointer-events: none;
-}
+ /* Слайд с набором логотипов */
+ .partners-carousel-slide {
+     display: flex;
+     flex-shrink: 0;
+     align-items: center;
+     height: 100%;
+ }
 
-.partners-carousel-container::before {
-    left: 0;
-    background: linear-gradient(to right,
-        rgba(255,255,255,1) 0%,
-        rgba(255,255,255,0) 100%);
-}
+ /* Отдельный логотип */
+ .partner-logo-item {
+     flex: 0 0 auto;
+     padding: 0 40px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     height: 100%;
+ }
 
-.partners-carousel-container::after {
-    right: 0;
-    background: linear-gradient(to left,
-        rgba(255,255,255,1) 0%,
-        rgba(255,255,255,0) 100%);
-}
+ /* Обертка для логотипа */
+ .partner-logo-wrapper {
+     height: 80px;
+     width: 160px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     transition: all 0.3s ease;
+ }
 
-/* Слайд с набором логотипов */
-.partners-carousel-slide {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-}
+ /* Изображение логотипа */
+ .partner-logo-img {
+     max-width: 100%;
+     max-height: 100%;
+     width: auto;
+     height: auto;
+     object-fit: contain;
+     filter: grayscale(100%);
+     opacity: 0.7;
+     transition: all 0.3s ease;
+ }
 
-/* Отдельный логотип */
-.partner-logo-item {
-    flex: 0 0 auto;
-    padding: 0 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+ /* Плейсхолдер если нет логотипа */
+ .partner-logo-placeholder {
+     width: 100%;
+     height: 100%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+     border-radius: 8px;
+     padding: 15px;
+     border: 1px solid #dee2e6;
+ }
 
-/* Обертка для логотипа */
-.partner-logo-wrapper {
-    height: 80px;
-    width: 160px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s ease;
-}
+ .partner-name {
+     font-size: 0.9rem;
+     font-weight: 600;
+     color: #6c757d;
+     text-align: center;
+     line-height: 1.2;
+ }
 
-/* Изображение логотипа */
-.partner-logo-img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    filter: grayscale(100%);
-    opacity: 0.7;
-    transition: all 0.3s ease;
-}
+ /* Стили для ссылок */
+ .partner-link {
+     display: block;
+     text-decoration: none !important;
+     color: inherit;
+     cursor: pointer;
+     transition: all 0.3s ease;
+ }
 
-/* Эффект при наведении */
-.partner-logo-item:hover .partner-logo-img {
-    filter: grayscale(0%);
-    opacity: 1;
-    transform: scale(1.05);
-}
+ .partner-link:hover {
+     text-decoration: none !important;
+ }
 
-/* Плейсхолдер если нет логотипа */
-.partner-logo-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 8px;
-    padding: 10px;
-    border: 1px solid #dee2e6;
-}
+ /* Эффект при наведении на ССЫЛКУ */
+ .partner-link:hover .partner-logo-img {
+     filter: grayscale(0%);
+     opacity: 1;
+     transform: scale(1.05);
+ }
 
-.partner-name {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #6c757d;
-    text-align: center;
-    line-height: 1.2;
-}
+ .partner-link:hover .partner-logo-placeholder {
+     background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+     border-color: #0d6efd;
+     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+ }
 
-/* Анимация прокрутки */
-@keyframes scrollPartners {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-50%); /* Сдвигаем на половину ширины */
-    }
-}
+ /* Эффект при наведении на логотип БЕЗ ссылки */
+ .partner-no-link:hover .partner-logo-img {
+     filter: grayscale(50%);
+     opacity: 0.9;
+     transform: scale(1.02);
+ }
 
-/* Пауза при наведении */
-.partners-carousel-container:hover .partners-carousel-track {
-    animation-play-state: paused;
-}
+ /* Индикатор ссылки (стрелочка) */
+ .partner-link .partner-logo-wrapper::after {
+     content: '↗';
+     position: absolute;
+     bottom: -5px;
+     right: -5px;
+     background: #0d6efd;
+     color: white;
+     width: 20px;
+     height: 20px;
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 0.7rem;
+     font-weight: bold;
+     opacity: 0;
+     transform: scale(0.8);
+     transition: all 0.3s ease;
+     z-index: 3;
+ }
 
-/* Адаптивность для планшетов */
-@media (max-width: 992px) {
-    .partner-logo-item {
-        padding: 0 20px;
-    }
+ .partner-link:hover .partner-logo-wrapper::after {
+     opacity: 1;
+     transform: scale(1);
+ }
 
-    .partner-logo-wrapper {
-        height: 70px;
-        width: 140px;
-    }
+ /* Градиентные края для плавности */
+ .partners-carousel-container::before,
+ .partners-carousel-container::after {
+     content: '';
+     position: absolute;
+     top: 0;
+     bottom: 0;
+     width: 100px;
+     z-index: 2;
+     pointer-events: none;
+ }
 
-    .partners-carousel-container::before,
-    .partners-carousel-container::after {
-        width: 60px;
-    }
-}
+ .partners-carousel-container::before {
+     left: 0;
+     background: linear-gradient(to right,
+         rgba(255,255,255,1) 0%,
+         rgba(255,255,255,0.8) 50%,
+         rgba(255,255,255,0) 100%);
+ }
 
-/* Адаптивность для мобильных */
-@media (max-width: 768px) {
-    .partner-logo-item {
-        padding: 0 15px;
-    }
+ .partners-carousel-container::after {
+     right: 0;
+     background: linear-gradient(to left,
+         rgba(255,255,255,1) 0%,
+         rgba(255,255,255,0.8) 50%,
+         rgba(255,255,255,0) 100%);
+ }
 
-    .partner-logo-wrapper {
-        height: 60px;
-        width: 120px;
-    }
+ /* Анимация прокрутки */
+ @keyframes scrollPartners {
+     0% {
+         transform: translateX(0);
+     }
+     100% {
+         transform: translateX(-50%);
+     }
+ }
 
-    .partners-carousel-container::before,
-    .partners-carousel-container::after {
-        width: 40px;
-    }
+ /* Пауза при наведении */
+ .partners-carousel-container:hover .partners-carousel-track {
+     animation-play-state: paused;
+ }
 
-    @keyframes scrollPartners {
-        0% {
-            transform: translateX(0);
-        }
-        100% {
-            transform: translateX(-50%);
-        }
-    }
-}
+ /* Адаптивность */
+ @media (max-width: 1200px) {
+     .partner-logo-item {
+         padding: 0 30px;
+     }
 
-/* Для очень маленьких экранов */
-@media (max-width: 480px) {
-    .partner-logo-item {
-        padding: 0 10px;
-    }
+     .partner-logo-wrapper {
+         height: 70px;
+         width: 140px;
+     }
+ }
 
-    .partner-logo-wrapper {
-        height: 50px;
-        width: 100px;
-    }
-}
+ @media (max-width: 992px) {
+     .partner-logo-item {
+         padding: 0 25px;
+     }
+
+     .partner-logo-wrapper {
+         height: 65px;
+         width: 130px;
+     }
+
+     .partners-carousel-container::before,
+     .partners-carousel-container::after {
+         width: 60px;
+     }
+ }
+
+ @media (max-width: 768px) {
+     .partner-logo-item {
+         padding: 0 20px;
+     }
+
+     .partner-logo-wrapper {
+         height: 60px;
+         width: 120px;
+     }
+
+     .partners-carousel-container::before,
+     .partners-carousel-container::after {
+         width: 40px;
+     }
+ }
+
+ @media (max-width: 576px) {
+     .partner-logo-item {
+         padding: 0 15px;
+     }
+
+     .partner-logo-wrapper {
+         height: 50px;
+         width: 100px;
+     }
+
+     .partners-carousel-container {
+         padding: 20px 0;
+     }
+ }
 </style>
 
 </body>
