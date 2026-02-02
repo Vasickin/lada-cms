@@ -423,15 +423,16 @@
                                                                     project.shortDescription.substring(0, 97) + '...' :
                                                                     project.shortDescription) : ''}"></span>
                                                 </p>
-                                                <div class="d-flex justify-content-between small">
-                                                    <span th:if="${project.location}" class="text-muted">
+                                                <!-- Внутри карусели, где отображается location: -->
+                                                <div class="d-flex justify-content-between small" style="min-height: 1.5rem; max-height: 1.5rem; overflow: hidden;">
+                                                    <div th:if="${project.location}" class="text-muted" style="max-width: 50%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                                         <i class="bi bi-geo-alt me-1"></i>
                                                         <span th:text="${project.location}"></span>
-                                                    </span>
-                                                    <span th:if="${project.eventDate}" class="text-muted">
+                                                    </div>
+                                                    <div th:if="${project.eventDate}" class="text-muted">
                                                         <i class="bi bi-calendar me-1"></i>
                                                         <span th:text="${#temporals.format(project.eventDate, 'dd.MM.yyyy')}"></span>
-                                                    </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
