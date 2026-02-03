@@ -496,27 +496,6 @@
                                         </small>
                                     </div>
                                 </div>
-
-                                <!-- Краткое описание -->
-                                <div class="row mb-3">
-                                    <div class="col-12">
-                                        <label for="shortDescription" class="form-label">
-                                            Краткое описание
-                                        </label>
-                                        <textarea th:field="*{shortDescription}"
-                                                  class="form-control"
-                                                  id="shortDescription"
-                                                  rows="3"
-                                                  maxlength="500"
-                                                  placeholder="Краткое описание проекта (до 500 символов)..."></textarea>
-                                        <small class="form-text text-muted">
-                                            До 500 символов. Будет отображаться в карточке проекта.
-                                            <span class="float-end">
-                                                Символов: <span th:text="${#strings.length(project.shortDescription ?: '')}">0</span>/500
-                                            </span>
-                                        </small>
-                                    </div>
-                                </div>
                             </div>
 
                             <!-- ===== ДАТЫ И МЕСТО ПРОВЕДЕНИЯ ===== -->
@@ -592,6 +571,27 @@
                                             Текущее: <span th:text="${project.location}"></span>
                                         </small>
                                     </div>
+                                </div>
+                            </div>
+
+                            <!-- Краткое описание -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label for="shortDescription" class="form-label">
+                                        Краткое описание
+                                    </label>
+                                    <textarea th:field="*{shortDescription}"
+                                              class="form-control"
+                                              id="shortDescription"
+                                              rows="3"
+                                              maxlength="500"
+                                              placeholder="Краткое описание проекта (до 500 символов)..."></textarea>
+                                    <small class="form-text text-muted">
+                                        До 500 символов. Будет отображаться в карточке проекта.
+                                        <span class="float-end">
+                                                Символов: <span th:text="${#strings.length(project.shortDescription ?: '')}">0</span>/500
+                                            </span>
+                                    </small>
                                 </div>
                             </div>
 
@@ -1004,6 +1004,7 @@
                                                             <div th:each="partner : ${projectPartners}"
                                                                  class="partner-draggable mb-2 p-2 border rounded"
                                                                  th:data-partner-id="${partner.id}"
+                                                                 th:data-logo-url="${partner.logoUrl}"
                                                                  th:id="'project-partner-' + ${partner.id}">
                                                                 <div class="d-flex align-items-center">
                                                                     <div class="me-3">
@@ -1094,9 +1095,9 @@
                                         Фотографии проекта
                                     </h3>
                                     <span class="badge bg-primary">
-            <i class="bi bi-camera"></i>
-            <span id="selectedPhotosCount">0</span>/5 фото
-        </span>
+                                        <i class="bi bi-camera"></i>
+                                        <span id="selectedPhotosCount">0</span>/5 фото
+                                    </span>
                                 </div>
 
                                 <div class="row mb-4">
@@ -3354,66 +3355,78 @@ function updateSelectedPhotosCounter() {
     }
 
     // Обновление превью партнёров
-    function updatePartnersPreview() {
-        const previewContainer = document.getElementById('selectedPartnersPreview');
-        if (!previewContainer) {
-            console.log('Контейнер превью партнёров не найден');
-            return;
-        }
-
-        // Получаем все партнёры в проекте
-        const projectContainer = document.getElementById('projectPartnersContainer');
-        if (!projectContainer) {
-            console.log('Контейнер партнёров проекта не найден для превью');
-            return;
-        }
-
-        const selectedElements = projectContainer.querySelectorAll('[data-partner-id]');
-
-        if (selectedElements.length === 0) {
-            // Показываем сообщение об отсутствии партнёров
-            previewContainer.innerHTML = `
-                <div class="col-12">
-                    <div class="alert alert-light text-center py-4">
-                        <i class="bi bi-handshake display-4 text-muted mb-3"></i>
-                        <h6 class="text-muted">Партнёры не выбраны</h6>
-                        <p class="text-muted small mb-0">
-                            Добавьте партнёров в проект для отображения логотипов на странице
-                        </p>
-                    </div>
-                </div>
-            `;
-            return;
-        }
-
-        // Создаем превью карточек
-        let html = '<div class="col-12 mb-2"><strong>Выбранные партнёры:</strong></div>';
-
-        selectedElements.forEach((element, index) => {
-            const partnerId = element.getAttribute('data-partner-id');
-            const name = element.querySelector('strong')?.textContent || `Партнёр ${partnerId}`;
-            const typeElement = element.querySelector('small.text-muted');
-            const type = typeElement ? typeElement.textContent : 'Тип не указан';
-
-            html += `
-                <div class="col-6 col-md-4 col-lg-3 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <div class="mb-3" style="height: 60px; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-handshake fs-1 text-success"></i>
-                            </div>
-                            <h6 class="mb-1">${escapeHtml(name)}</h6>
-                            <small class="text-muted d-block mb-2">${escapeHtml(type)}</small>
-                            <span class="badge bg-success">В проекте</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-
-        previewContainer.innerHTML = html;
-        console.log('Превью обновлено, партнёров:', selectedElements.length);
+function updatePartnersPreview() {
+    const previewContainer = document.getElementById('selectedPartnersPreview');
+    if (!previewContainer) {
+        console.log('Контейнер превью партнёров не найден');
+        return;
     }
+
+    // Получаем все партнёры в проекте
+    const projectContainer = document.getElementById('projectPartnersContainer');
+    if (!projectContainer) {
+        console.log('Контейнер партнёров проекта не найден для превью');
+        return;
+    }
+
+    const selectedElements = projectContainer.querySelectorAll('[data-partner-id]');
+
+    if (selectedElements.length === 0) {
+        // Показываем сообщение об отсутствии партнёров
+        previewContainer.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-light text-center py-4">
+                    <i class="bi bi-handshake display-4 text-muted mb-3"></i>
+                    <h6 class="text-muted">Партнёры не выбраны</h6>
+                    <p class="text-muted small mb-0">
+                        Добавьте партнёров в проект для отображения логотипов на странице
+                    </p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    // Создаем превью карточек
+    let html = '<div class="col-12 mb-2"><strong>Выбранные партнёры:</strong></div>';
+
+    selectedElements.forEach((element, index) => {
+        const partnerId = element.getAttribute('data-partner-id');
+        const logoUrl = element.getAttribute('data-logo-url') || ''; // ВОТ ЭТО ДОБАВИТЬ
+        const name = element.querySelector('strong')?.textContent || `Партнёр ${partnerId}`;
+        const typeElement = element.querySelector('small.text-muted');
+        const type = typeElement ? typeElement.textContent : 'Тип не указан';
+
+        // ОТОБРАЖЕНИЕ ЛОГОТИПА
+        let logoHtml;
+        if (logoUrl && logoUrl.trim() !== '') {
+            logoHtml = `<img src="${escapeHtml(logoUrl)}"
+                             alt="${escapeHtml(name)}"
+                             style="max-height: 60px; max-width: 100%; object-fit: contain;"
+                             class="img-fluid">`;
+        } else {
+            logoHtml = `<i class="bi bi-handshake fs-1 text-success"></i>`;
+        }
+
+        html += `
+            <div class="col-6 col-md-4 col-lg-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-3" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                            ${logoHtml}
+                        </div>
+                        <h6 class="mb-1">${escapeHtml(name)}</h6>
+                        <small class="text-muted d-block mb-2">${escapeHtml(type)}</small>
+                        <span class="badge bg-success">В проекте</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    previewContainer.innerHTML = html;
+    console.log('Превью обновлено, партнёров:', selectedElements.length);
+}
 
     // Функции для массового перемещения
     function addSelectedPartnersToProject() {
