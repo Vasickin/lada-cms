@@ -418,6 +418,8 @@ public class PartnerAdminController {
         model.addAttribute("partnerTypes", PartnerType.values());
         model.addAttribute("allProjects", projectService.findAllActive());
         model.addAttribute("partnerProjects", partner.getProjects());
+        model.addAttribute("hasLogo", partner.hasLogo());
+        model.addAttribute("logoUrl", partner.getLogoUrl());
 
         return "admin/partners/edit";
     }
@@ -454,8 +456,12 @@ public class PartnerAdminController {
 
             // Сохраняем существующие связи с проектами
             Partner existingPartner = existingPartnerOpt.get();
+            String existingLogoUrl = existingPartner.getLogoUrl();
             partner.setProjects(existingPartner.getProjects());
             partner.setId(id); // Убедимся, что ID сохраняется
+
+            // Проверяем, загружен ли новый файл логотипа
+            boolean newLogoUploaded = false;
 
             // Получаем файл логотипа из запроса
             if (request instanceof MultipartHttpServletRequest multipartRequest) {
@@ -464,6 +470,10 @@ public class PartnerAdminController {
                 if (logoFile != null && !logoFile.isEmpty()) {
                     partner.setLogoFile(logoFile);
                 }
+            }
+
+            if (!newLogoUploaded && existingLogoUrl != null && !existingLogoUrl.isEmpty()) {
+                partner.setLogoUrl(existingLogoUrl);
             }
 
             Partner updatedPartner = partnerService.update(partner);
