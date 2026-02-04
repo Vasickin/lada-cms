@@ -95,8 +95,8 @@ public class Project {
      * Краткое описание проекта.
      * Отображается в карточках и превью.
      */
-    @Size(max = 500, message = "Краткое описание не должно превышать 500 символов / Short description must not exceed 500 characters")
-    @Column(name = "short_description", length = 500)
+    @Size(max = 2000, message = "Краткое описание не должно превышать 2000 символов / Short description must not exceed 500 characters")
+    @Column(name = "short_description", length = 2000)
     private String shortDescription;
 
     /**

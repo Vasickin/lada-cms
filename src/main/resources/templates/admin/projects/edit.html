@@ -578,20 +578,30 @@
                             <div class="row mb-3">
                                 <div class="col-12">
                                     <label for="shortDescription" class="form-label">
-                                        Краткое описание
+                                        Краткое описание *
                                     </label>
                                     <textarea th:field="*{shortDescription}"
                                               class="form-control"
                                               id="shortDescription"
                                               rows="3"
-                                              maxlength="500"
-                                              placeholder="Краткое описание проекта (до 500 символов)..."></textarea>
-                                    <small class="form-text text-muted">
-                                        До 500 символов. Будет отображаться в карточке проекта.
-                                        <span class="float-end">
-                                                Символов: <span th:text="${#strings.length(project.shortDescription ?: '')}">0</span>/500
-                                            </span>
-                                    </small>
+                                              maxlength="2000"
+                                              placeholder="Введите краткое описание проекта (до 2000 символов)..."
+                                              oninput="updateShortDescriptionCounter()"></textarea>
+
+                                    <!-- Счетчик символов -->
+                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                        <small class="form-text text-muted">
+                                            До 2000 символов. Будет отображаться в карточке проекта.
+                                        </small>
+                                        <small id="shortDescriptionCounter" class="text-muted">
+                                            <span id="shortDescriptionCount">0</span>/2000 символов
+                                        </small>
+                                    </div>
+
+                                    <!-- Сообщение об ошибке -->
+                                    <div class="invalid-feedback" id="shortDescriptionError">
+                                        Превышен лимит в 2000 символов. Текущее количество: <span id="shortDescriptionErrorCount">0</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -2422,9 +2432,9 @@ function updateProjectMembersCount() {
             selectedPhotos.splice(existingIndex, 1);
             console.log(`Удалено фото ID: ${photoId}`);
         } else {
-            // Проверяем лимит (максимум 5 фото)
-            if (selectedPhotos.length >= 5) {
-                showAlert('Можно выбрать максимум 5 фото. Удалите одно из выбранных.', 'warning');
+            // Проверяем лимит (максимум 10 фото)
+            if (selectedPhotos.length >= 10) {
+                showAlert('Можно выбрать максимум 10 фото. Удалите одно из выбранных.', 'warning');
                 return;
             }
 
@@ -3644,6 +3654,349 @@ function updatePartnersPreview() {
             length: text.length
         };
     };
+</script>
+
+<!-- ===== ВАЛИДАЦИЯ И СЧЕТЧИК КРАТКОГО ОПИСАНИЯ ===== -->
+<script>
+    // Максимальное количество символов
+    const MAX_SHORT_DESCRIPTION_LENGTH = 2000;
+
+    // Элементы DOM
+    let shortDescriptionTextarea;
+    let counterElement;
+    let countElement;
+    let errorElement;
+    let errorCountElement;
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        // Находим элементы
+        shortDescriptionTextarea = document.getElementById('shortDescription');
+        counterElement = document.getElementById('shortDescriptionCounter');
+        countElement = document.getElementById('shortDescriptionCount');
+        errorElement = document.getElementById('shortDescriptionError');
+        errorCountElement = document.getElementById('shortDescriptionErrorCount');
+
+        if (!shortDescriptionTextarea) {
+            console.error('Элемент shortDescription не найден');
+            return;
+        }
+
+        // Инициализируем счетчик при загрузке (если уже есть текст)
+        updateShortDescriptionCounter();
+
+        // Добавляем валидацию при отправке формы
+        const form = document.querySelector('form.needs-validation');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                validateShortDescription(event);
+            });
+
+            // Также валидируем при blur (когда поле теряет фокус)
+            shortDescriptionTextarea.addEventListener('blur', function() {
+                validateShortDescriptionField();
+            });
+        }
+
+        // Добавляем стили для счетчика
+        addCounterStyles();
+    });
+
+    // Обновление счетчика в реальном времени
+    function updateShortDescriptionCounter() {
+        if (!shortDescriptionTextarea || !countElement) return;
+
+        const text = shortDescriptionTextarea.value;
+        const length = text.length;
+
+        // Обновляем счетчик
+        countElement.textContent = length;
+
+        // Меняем цвет в зависимости от количества символов
+        if (length > MAX_SHORT_DESCRIPTION_LENGTH) {
+            // Превышен лимит - красный
+            countElement.style.color = '#dc3545';
+            countElement.style.fontWeight = 'bold';
+            counterElement.style.color = '#dc3545';
+
+            // Подсвечиваем поле
+            shortDescriptionTextarea.classList.add('is-invalid');
+            shortDescriptionTextarea.classList.remove('is-valid');
+
+            // Показываем ошибку
+            if (errorElement) {
+                errorElement.style.display = 'block';
+                if (errorCountElement) {
+                    errorCountElement.textContent = length;
+                }
+            }
+
+            // Автоматически обрезаем текст при вводе (опционально)
+            // shortDescriptionTextarea.value = text.substring(0, MAX_SHORT_DESCRIPTION_LENGTH);
+
+        } else if (length > MAX_SHORT_DESCRIPTION_LENGTH * 0.9) {
+            // Близко к лимиту (90%) - оранжевый
+            countElement.style.color = '#fd7e14';
+            countElement.style.fontWeight = 'bold';
+            counterElement.style.color = '#fd7e14';
+
+            // Убираем подсветку ошибки
+            shortDescriptionTextarea.classList.remove('is-invalid');
+            shortDescriptionTextarea.classList.add('is-valid');
+
+            // Скрываем ошибку
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+
+        } else if (length > MAX_SHORT_DESCRIPTION_LENGTH * 0.7) {
+            // Средняя заполненность (70%) - синий
+            countElement.style.color = '#0d6efd';
+            counterElement.style.color = '#0d6efd';
+            shortDescriptionTextarea.classList.remove('is-invalid');
+            shortDescriptionTextarea.classList.add('is-valid');
+
+            // Скрываем ошибку
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+
+        } else {
+            // Норма - стандартный цвет
+            countElement.style.color = '';
+            countElement.style.fontWeight = '';
+            counterElement.style.color = 'var(--bs-text-muted)';
+            shortDescriptionTextarea.classList.remove('is-invalid', 'is-valid');
+
+            // Скрываем ошибку
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        // Добавляем вибрацию на телефонах при превышении лимита (опционально)
+        if (length > MAX_SHORT_DESCRIPTION_LENGTH && length % 10 === 0) {
+            vibrateIfSupported();
+        }
+    }
+
+    // Валидация при отправке формы
+    function validateShortDescription(event) {
+        if (!shortDescriptionTextarea) return;
+
+        const text = shortDescriptionTextarea.value;
+        const length = text.length;
+
+        if (length > MAX_SHORT_DESCRIPTION_LENGTH) {
+            // Отменяем отправку формы
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            // Помечаем поле как невалидное
+            shortDescriptionTextarea.classList.add('is-invalid');
+
+            // Показываем ошибку
+            if (errorElement) {
+                errorElement.style.display = 'block';
+                if (errorCountElement) {
+                    errorCountElement.textContent = length;
+                }
+            }
+
+            // Прокручиваем к полю с ошибкой
+            scrollToErrorField();
+
+            // Фокусируемся на поле
+            shortDescriptionTextarea.focus();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    // Валидация при потере фокуса
+    function validateShortDescriptionField() {
+        if (!shortDescriptionTextarea) return;
+
+        const text = shortDescriptionTextarea.value;
+        const length = text.length;
+
+        if (length > MAX_SHORT_DESCRIPTION_LENGTH) {
+            shortDescriptionTextarea.classList.add('is-invalid');
+
+            if (errorElement) {
+                errorElement.style.display = 'block';
+                if (errorCountElement) {
+                    errorCountElement.textContent = length;
+                }
+            }
+
+            return false;
+        } else {
+            shortDescriptionTextarea.classList.remove('is-invalid');
+
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+
+            return true;
+        }
+    }
+
+    // Прокрутка к полю с ошибкой
+    function scrollToErrorField() {
+        if (!shortDescriptionTextarea) return;
+
+        shortDescriptionTextarea.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+
+        // Добавляем анимацию для привлечения внимания
+        shortDescriptionTextarea.classList.add('error-highlight');
+        setTimeout(() => {
+            shortDescriptionTextarea.classList.remove('error-highlight');
+        }, 1500);
+    }
+
+    // Виброотклик для мобильных устройств (опционально)
+    function vibrateIfSupported() {
+        if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+        }
+    }
+
+    // Добавляем стили для счетчика
+    function addCounterStyles() {
+        const style = document.createElement('style');
+        style.textContent = `
+            #shortDescriptionCounter {
+                font-size: 0.875rem;
+                transition: color 0.3s ease;
+            }
+
+            #shortDescriptionCounter .warning {
+                color: #fd7e14;
+                font-weight: 500;
+            }
+
+            #shortDescriptionCounter .danger {
+                color: #dc3545;
+                font-weight: 600;
+            }
+
+            #shortDescription:focus {
+                border-color: #86b7fe;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            }
+
+            #shortDescription.is-invalid {
+                border-color: #dc3545;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right calc(0.375em + 0.1875rem) center;
+                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            }
+
+            #shortDescription.is-valid {
+                border-color: #198754;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right calc(0.375em + 0.1875rem) center;
+                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            }
+
+            .error-highlight {
+                animation: errorPulse 1.5s ease-in-out;
+            }
+
+            @keyframes errorPulse {
+                0%, 100% {
+                    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+                }
+                50% {
+                    box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+                }
+            }
+
+            /* Прогресс-бар (опционально) */
+            .short-description-progress {
+                height: 4px;
+                background-color: #e9ecef;
+                border-radius: 2px;
+                margin-top: 5px;
+                overflow: hidden;
+            }
+
+            .short-description-progress-bar {
+                height: 100%;
+                background-color: #0d6efd;
+                border-radius: 2px;
+                transition: width 0.3s ease, background-color 0.3s ease;
+            }
+
+            .short-description-progress-bar.warning {
+                background-color: #fd7e14;
+            }
+
+            .short-description-progress-bar.danger {
+                background-color: #dc3545;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Дополнительная функция для автоматической обрезки (опционально)
+    function autoTrimShortDescription() {
+        if (!shortDescriptionTextarea) return;
+
+        const text = shortDescriptionTextarea.value;
+        if (text.length > MAX_SHORT_DESCRIPTION_LENGTH) {
+            shortDescriptionTextarea.value = text.substring(0, MAX_SHORT_DESCRIPTION_LENGTH);
+            updateShortDescriptionCounter();
+
+            // Показываем уведомление об обрезке
+            showTrimNotification();
+        }
+    }
+
+    // Уведомление об обрезке текста
+    function showTrimNotification() {
+        // Удаляем старое уведомление
+        const oldAlert = document.querySelector('.trim-alert');
+        if (oldAlert) oldAlert.remove();
+
+        // Создаем новое уведомление
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'trim-alert alert alert-warning alert-dismissible fade show position-fixed';
+        alertDiv.style.cssText = `
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            max-width: 300px;
+            animation: slideInRight 0.3s ease;
+        `;
+
+        alertDiv.innerHTML = `
+            <i class="bi bi-scissors me-2"></i>
+            <strong>Текст обрезан</strong>
+            <div class="small mt-1">Достигнут лимит в ${MAX_SHORT_DESCRIPTION_LENGTH} символов</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        // Автоматически скрыть через 5 секунд
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                const bsAlert = bootstrap.Alert.getOrCreateInstance(alertDiv);
+                if (bsAlert) bsAlert.close();
+            }
+        }, 5000);
+    }
 </script>
 </body>
 </html>
