@@ -335,7 +335,7 @@ public class ProjectAdminController {
                             .map(String::trim)
                             .filter(s -> !s.isEmpty())
                             .map(Long::parseLong)
-                            .limit(5)
+                            .limit(10)
                             .collect(Collectors.toList());
                     savedProject.setKeyPhotoIds(photoIds);
                     projectService.save(savedProject);
@@ -634,7 +634,7 @@ public class ProjectAdminController {
                             .map(String::trim)
                             .filter(s -> !s.isEmpty())
                             .map(Long::parseLong)
-                            .limit(5)
+                            .limit(10)
                             .collect(Collectors.toList());
                     existingProject.setKeyPhotoIds(photoIds);
                 } catch (Exception ignored) {}

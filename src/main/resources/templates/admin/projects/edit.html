@@ -1106,7 +1106,7 @@
                                     </h3>
                                     <span class="badge bg-primary">
                                         <i class="bi bi-camera"></i>
-                                        <span id="selectedPhotosCount">0</span>/5 фото
+                                        <span id="selectedPhotosCount">0</span>/10 фото
                                     </span>
                                 </div>
 
@@ -1127,7 +1127,7 @@
                                                         <div>
                                                             <h6 class="alert-heading">Рекомендации по выбору фото</h6>
                                                             <ul class="mb-0 small">
-                                                                <li>Выберите до 5 ключевых фотографий для проекта</li>
+                                                                <li>Выберите до 10 ключевых фотографий для проекта</li>
                                                                 <li>Первое фото будет отображаться как главное (отмечается звездочкой)</li>
                                                                 <li>Можно выбирать фото из разных галерей</li>
                                                                 <li>Используйте кнопку ниже для выбора фото из доступных галерей</li>
@@ -1220,9 +1220,9 @@
                                         Видео проекта (быстрое добавление)
                                     </h3>
                                     <span class="badge bg-info">
-            <i class="bi bi-film"></i>
-            Простое поле
-        </span>
+                                        <i class="bi bi-film"></i>
+                                        Простое поле
+                                    </span>
                                 </div>
 
                                 <div class="row mb-3">
@@ -1583,7 +1583,7 @@
                             <i class="bi bi-check2-circle me-1 text-success"></i>
                             Выбранные фото
                             <span id="selectedCount" class="badge bg-success ms-1">0</span>
-                            <small class="text-muted">/5</small>
+                            <small class="text-muted">/10</small>
                         </h6>
                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearSelectedPhotos()">
                             <i class="bi bi-trash me-1"></i>Очистить все
@@ -1595,7 +1595,7 @@
                         <div class="col-12">
                             <div class="alert alert-warning py-2 mb-0">
                                 <i class="bi bi-info-circle me-1"></i>
-                                Фото не выбраны. Выберите фото из галерей выше (максимум 5).
+                                Фото не выбраны. Выберите фото из галерей выше (максимум 10).
                             </div>
                         </div>
                     </div>
@@ -2279,7 +2279,7 @@ function updateProjectMembersCount() {
         let html = `
             <div class="col-12 mb-2">
                 <div class="d-flex justify-content-between align-items-center">
-                    <strong>Выбранные фото (${selectedPhotos.length}/5):</strong>
+                    <strong>Выбранные фото (${selectedPhotos.length}/10):</strong>
                     <small class="text-muted">Первое фото будет главным</small>
                 </div>
             </div>
@@ -2346,7 +2346,7 @@ function updateProjectMembersCount() {
                 <div class="col-12">
                     <div class="alert alert-warning py-2 mb-0">
                         <i class="bi bi-info-circle me-1"></i>
-                        Фото не выбраны. Выберите фото из галерей выше (максимум 5).
+                        Фото не выбраны. Выберите фото из галерей выше (максимум 10).
                     </div>
                 </div>
             `;

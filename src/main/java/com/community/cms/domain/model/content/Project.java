@@ -556,7 +556,7 @@ public class Project {
 
     /**
      * Список ID ключевых фотографий из галереи для проекта.
-     * Хранит до 5 ID фотографий из PhotoGallery.
+     * Хранит до 10 ID фотографий из PhotoGallery.
      * Key photo IDs from gallery for the project.
      * Stores up to 5 photo IDs from PhotoGallery.
      */
@@ -566,7 +566,7 @@ public class Project {
             joinColumns = @JoinColumn(name = "project_id")
     )
     @Column(name = "photo_gallery_item_id")
-    @Size(max = 5, message = "Можно выбрать не более 5 ключевых фотографий / Maximum 5 key photos allowed")
+    @Size(max = 10, message = "Можно выбрать не более 10 ключевых фотографий / Maximum 10 key photos allowed")
     private List<Long> keyPhotoIds = new ArrayList<>();
 
 // И добавьте getter и setter (в раздел геттеров/сеттеров):
@@ -618,7 +618,7 @@ public class Project {
         if (keyPhotoIds == null) {
             keyPhotoIds = new ArrayList<>();
         }
-        if (keyPhotoIds.size() >= 5) {
+        if (keyPhotoIds.size() >= 10) {
             return false; // Превышен лимит
         }
         if (photoId != null && !keyPhotoIds.contains(photoId)) {
