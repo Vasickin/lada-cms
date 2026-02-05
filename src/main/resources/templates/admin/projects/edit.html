@@ -946,6 +946,7 @@
                                                             <div th:each="partner : ${availablePartners}"
                                                                  class="partner-draggable mb-2 p-2 border rounded"
                                                                  th:data-partner-id="${partner.id}"
+                                                                 th:data-logo-url="${partner.logoUrl}"
                                                                  th:id="'partner-' + ${partner.id}">
                                                                 <div class="d-flex align-items-center">
                                                                     <div class="me-3">
@@ -3146,87 +3147,97 @@ function updateSelectedPhotosCounter() {
         console.log('DnD для партнёров настроен');
     }
 
-    // Перемещение партнёра между колонками
-    function movePartnerToContainer(partnerId, targetContainerId) {
-        console.log(`movePartnerToContainer: ${partnerId} -> ${targetContainerId}`);
+    // Перемещение партнёра между колонками - ИСПРАВЛЕННАЯ ВЕРСИЯ
+function movePartnerToContainer(partnerId, targetContainerId) {
+    console.log(`movePartnerToContainer: ${partnerId} -> ${targetContainerId}`);
 
-        // Находим элемент партнёра
-        const partnerElement = document.querySelector(`[data-partner-id="${partnerId}"]`);
-        if (!partnerElement) {
-            console.error('Партнёр не найден:', partnerId);
-            return;
-        }
-
-        // Находим целевую колонку
-        const targetContainer = document.getElementById(targetContainerId);
-        if (!targetContainer) {
-            console.error('Целевая колонка не найдена:', targetContainerId);
-            return;
-        }
-
-        // Проверяем, не перемещаем ли мы в ту же колонку
-        if (partnerElement.parentElement === targetContainer) {
-            console.log('Партнёр уже в целевой колонке');
-            return;
-        }
-
-        // Определяем направление перемещения
-        const isMovingToProject = targetContainerId === 'projectPartnersContainer';
-
-        // Клонируем элемент с новыми стилями
-        const clonedElement = partnerElement.cloneNode(true);
-
-        // Очищаем классы выделения
-        clonedElement.classList.remove('selected', 'dragging');
-
-        // Меняем стили в зависимости от колонки
-        if (isMovingToProject) {
-            // Перемещаем в проект - зеленые стили
-            const icon = clonedElement.querySelector('.bi-building, .bi-handshake');
-            if (icon) {
-                icon.className = 'bi bi-handshake fs-4 text-success';
-            }
-
-            const badge = clonedElement.querySelector('.badge');
-            if (badge) {
-                badge.className = 'badge bg-success text-white';
-                badge.textContent = 'В проекте';
-            }
-
-            console.log(`Партнёр ${partnerId} перемещён в проект`);
-        } else {
-            // Перемещаем в доступные - синие стили
-            const icon = clonedElement.querySelector('.bi-building, .bi-handshake');
-            if (icon) {
-                icon.className = 'bi bi-building fs-4 text-info';
-            }
-
-            const badge = clonedElement.querySelector('.badge');
-            if (badge) {
-                badge.className = 'badge bg-info text-white';
-                badge.textContent = 'Доступен';
-            }
-
-            console.log(`Партнёр ${partnerId} перемещён в доступные`);
-        }
-
-        // Удаляем старый элемент
-        partnerElement.remove();
-
-        // Добавляем новый элемент в целевую колонку
-        targetContainer.appendChild(clonedElement);
-
-        // Реинициализируем события для нового элемента
-        initPartnerElementEvents(clonedElement);
-
-        // Обновляем UI
-        updatePartnersCounters();
-
-        // Обновляем сообщения о пустоте
-        updateEmptyMessages();
-
-        console.log('Партнёр успешно перемещён');
+    // Находим элемент партнёра
+    const partnerElement = document.querySelector(`[data-partner-id="${partnerId}"]`);
+    if (!partnerElement) {
+        console.error('Партнёр не найден:', partnerId);
+        return;
     }
+
+    // Сохраняем URL логотипа из старого элемента
+    const logoUrl = partnerElement.getAttribute('data-logo-url') || '';
+    console.log('Логотип партнера:', logoUrl);
+
+    // Находим целевую колонку
+    const targetContainer = document.getElementById(targetContainerId);
+    if (!targetContainer) {
+        console.error('Целевая колонка не найдена:', targetContainerId);
+        return;
+    }
+
+    // Проверяем, не перемещаем ли мы в ту же колонку
+    if (partnerElement.parentElement === targetContainer) {
+        console.log('Партнёр уже в целевой колонке');
+        return;
+    }
+
+    // Определяем направление перемещения
+    const isMovingToProject = targetContainerId === 'projectPartnersContainer';
+
+    // Клонируем элемент с новыми стилями
+    const clonedElement = partnerElement.cloneNode(true);
+
+    // ОЧЕНЬ ВАЖНО: Сохраняем URL логотипа в новом элементе
+    clonedElement.setAttribute('data-logo-url', logoUrl);
+
+    // Очищаем классы выделения
+    clonedElement.classList.remove('selected', 'dragging');
+
+    // Меняем стили в зависимости от колонки
+    if (isMovingToProject) {
+        // Перемещаем в проект - зеленые стили
+        const icon = clonedElement.querySelector('.bi-building, .bi-handshake');
+        if (icon) {
+            icon.className = 'bi bi-handshake fs-4 text-success';
+        }
+
+        const badge = clonedElement.querySelector('.badge');
+        if (badge) {
+            badge.className = 'badge bg-success text-white';
+            badge.textContent = 'В проекте';
+        }
+
+        console.log(`Партнёр ${partnerId} перемещён в проект`);
+    } else {
+        // Перемещаем в доступные - синие стили
+        const icon = clonedElement.querySelector('.bi-building, .bi-handshake');
+        if (icon) {
+            icon.className = 'bi bi-building fs-4 text-info';
+        }
+
+        const badge = clonedElement.querySelector('.badge');
+        if (badge) {
+            badge.className = 'badge bg-info text-white';
+            badge.textContent = 'Доступен';
+        }
+
+        console.log(`Партнёр ${partnerId} перемещён в доступные`);
+    }
+
+    // Удаляем старый элемент
+    partnerElement.remove();
+
+    // Добавляем новый элемент в целевую колонку
+    targetContainer.appendChild(clonedElement);
+
+    // Реинициализируем события для нового элемента
+    initPartnerElementEvents(clonedElement);
+
+    // Обновляем UI
+    updatePartnersCounters();
+
+    // Обновляем сообщения о пустоте
+    updateEmptyMessages();
+
+    // СРАЗУ ОБНОВЛЯЕМ ПРЕВЬЮ!
+    updatePartnersPreview();
+
+    console.log('Партнёр успешно перемещён, логотип:', logoUrl);
+}
 
     // Инициализация событий для элемента партнёра
     function initPartnerElementEvents(element) {
@@ -3450,6 +3461,8 @@ function updatePartnersPreview() {
             console.log('Добавляем партнёра:', partnerId);
             movePartnerToContainer(partnerId, 'projectPartnersContainer');
         });
+
+        setTimeout(updatePartnersPreview, 100);
     }
 
     function removeSelectedPartnersFromProject() {
