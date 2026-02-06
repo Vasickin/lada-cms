@@ -67,7 +67,28 @@
 
 <div th:replace="fragments/banner :: header-banner('Общественная организация Лада - Наши проекты и инициативы')"></div>
 
-<main class="container my-5 py-4">
+<!-- Хлебные крошки -->
+<div class="container my-3">
+    <nav class="py-2">
+        <div class="container">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a th:href="@{/}" class="text-decoration-none fw-bold">Главная</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a th:href="@{/projects}" class="text-decoration-none fw-bold">Проекты</a>
+                </li>
+                <!-- Только категория -->
+                <li class="breadcrumb-item fw-bold"
+                    th:if="${selectedCategory != null and selectedCategory != '' and selectedCategory != 'Все категории'}">
+                    <span th:text="${selectedCategory}">Категория</span>
+                </li>
+            </ol>
+        </div>
+    </nav>
+</div>
+
+<main class="container">
     <div class="main-background" id="mainBackground"></div>
         <div class="main-content">
             <div class="row mb-5">
