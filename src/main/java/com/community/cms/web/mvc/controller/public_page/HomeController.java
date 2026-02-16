@@ -289,12 +289,16 @@ public class HomeController {
             // ================== СТАТИСТИКА ПРОЕКТОВ ==================
 
             long totalProjectsCount = projectService.countAll();
-            long activeProjectsCount = projectService.countActive(); // Уже есть метод
-            long annualProjectsCount = projectService.countAnnual(); // Новый метод
-            long archivedProjectsCount = projectService.countArchived(); // Новый метод
+            long upcomingProjectsCount = projectService.countUpcoming();
+            long activeProjectsCount = projectService.countActive();
+            long completedProjectsCount = projectService.countCompleted();
+            long annualProjectsCount = projectService.countAnnual();
+            long archivedProjectsCount = projectService.countArchived();
 
             model.addAttribute("totalProjectsCount", totalProjectsCount);
+            model.addAttribute("upcomingProjectsCount", upcomingProjectsCount);
             model.addAttribute("activeProjectsCount", activeProjectsCount);
+            model.addAttribute("completedProjectsCount", completedProjectsCount);
             model.addAttribute("annualProjectsCount", annualProjectsCount);
             model.addAttribute("archivedProjectsCount", archivedProjectsCount);
 

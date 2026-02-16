@@ -451,6 +451,36 @@ public class ProjectService {
     }
 
     /**
+     * Подсчитывает количество ближайших проектов.
+     *
+     * @return количество ближайших проектов
+     */
+    @Transactional(readOnly = true)
+    public long countUpcoming() {
+        return countByStatus(ProjectStatusType.UPCOMING);
+    }
+
+    /**
+     * Подсчитывает количество активных проектов.
+     *
+     * @return количество активных проектов
+     */
+    @Transactional(readOnly = true)
+    public long countActive() {
+        return projectRepository.countByStatus(ProjectStatusType.ACTIVE);
+    }
+
+    /**
+     * Подсчитывает количество завершённых проектов.
+     *
+     * @return количество завершённых проектов
+     */
+    @Transactional(readOnly = true)
+    public long countCompleted() {
+        return countByStatus(ProjectStatusType.COMPLETED);
+    }
+
+    /**
      * Подсчитывает количество ежегодных проектов.
      *
      * @return количество ежегодных проектов
@@ -536,16 +566,6 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public long countByStatus(ProjectStatusType status) {
         return projectRepository.countByStatus(status);
-    }
-
-    /**
-     * Подсчитывает количество активных проектов.
-     *
-     * @return количество активных проектов
-     */
-    @Transactional(readOnly = true)
-    public long countActive() {
-        return projectRepository.countByStatus(ProjectStatusType.ACTIVE);
     }
 
     /**

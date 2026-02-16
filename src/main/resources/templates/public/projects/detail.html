@@ -450,11 +450,13 @@
                                         <div class="flex-grow-1">
                                             <small class="text-muted d-block">Статус</small>
                                             <span th:switch="${project.status}" class="fw-bold">
-                            <span th:case="'ACTIVE'" class="text-success">Активный</span>
-                            <span th:case="'ARCHIVED'" class="text-secondary">Архивный</span>
-                            <span th:case="'ANNUAL'" class="text-primary">Ежегодный</span>
-                            <span th:case="*" th:text="${project.status}" class="text-muted">Статус</span>
-                        </span>
+                                                <span th:case="'UPCOMING'" class="text-success">Ближайший</span>
+                                                <span th:case="'ACTIVE'" class="text-success">Активный</span>
+                                                <span th:case="'COMPLETED'" class="text-success">Завершённый</span>
+                                                <span th:case="'ARCHIVED'" class="text-secondary">Архивный</span>
+                                                <span th:case="'ANNUAL'" class="text-primary">Ежегодный</span>
+                                                <span th:case="*" th:text="${project.status}" class="text-muted">Статус</span>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
