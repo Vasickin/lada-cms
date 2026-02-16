@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -28,6 +29,7 @@ import jakarta.persistence.EntityManagerFactory;
 @EnableJpaRepositories(basePackages = "com.community.cms.domain.repository")
 @EntityScan(basePackages = "com.community.cms.domain.model")
 @EnableTransactionManagement  // Включает управление транзакциями
+@EnableScheduling
 public class JpaConfig {
     /**
      * // Конфигурация включается через аннотацию @EnableJpaAuditing

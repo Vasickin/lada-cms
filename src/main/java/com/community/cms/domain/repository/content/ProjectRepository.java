@@ -444,4 +444,108 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      */
     @Query("SELECT p FROM Project p WHERE p.eventDate < :date AND p.status <> 'ARCHIVED' ORDER BY p.eventDate DESC")
     List<Project> findPastEvents(@Param("date") LocalDate date);
+
+    /**
+     * Находит проекты со статусом UPCOMING, которые должны стать ACTIVE.
+     * <p>
+     * Условия выборки:
+     * <ul>
+     *     <li>Статус проекта = UPCOMING</li>
+     *     <li>И (дата начала не пустая И дата начала <= сегодня)
+     *         ИЛИ (дата начала пустая И дата события не пустая И дата события <= сегодня)</li>
+     * </ul>
+     * </p>
+     *
+     * @return список проектов для активации
+     */
+    @Query("SELECT p FROM Project p WHERE p.status = 'UPCOMING' AND " +
+            "((p.startDate IS NOT NULL AND p.startDate <= CURRENT_DATE) OR " +
+            "(p.startDate IS NULL AND p.eventDate IS NOT NULL AND p.eventDate <= CURRENT_DATE))")
+    List<Project> findUpcomingProjectsToActivate();
+
+    /**
+     * Находит проекты со статусом ACTIVE, которые должны стать COMPLETED.
+     * <p>
+     * Условия выборки:
+     * <ul>
+     *     <li>Статус проекта = ACTIVE</li>
+     *     <li>И (дата окончания не пустая И дата окончания < сегодня)
+     *         ИЛИ (дата окончания пустая И дата события не пустая И дата события < сегодня)</li>
+     * </ul>
+     * </p>
+     *
+     * @return список проектов для завершения
+     */
+    @Query("SELECT p FROM Project p WHERE p.status = 'ACTIVE' AND " +
+            "((p.endDate IS NOT NULL AND p.endDate < CURRENT_DATE) OR " +
+            "(p.endDate IS NULL AND p.eventDate IS NOT NULL AND p.eventDate < CURRENT_DATE))")
+    List<Project> findActiveProjectsToComplete();
+
+    /**
+     * Находит проекты с некорректным статусом UPCOMING (которые уже должны быть активны).
+     * <p>
+     * Используется для валидации и исправления возможных ошибок.
+     * </p>
+     *
+     * @return список проектов с некорректным статусом
+     */
+    @Query("SELECT p FROM Project p WHERE p.status = 'UPCOMING' AND " +
+            "p.startDate IS NOT NULL AND p.startDate < CURRENT_DATE")
+    List<Project> findInvalidUpcomingProjects();
+
+    /**
+     * Находит проекты, которые должны быть обновлены на текущую дату.
+     * <p>
+     * Объединяет оба условия для UPCOMING и ACTIVE в одном запросе.
+     * Может быть полезно для массовой обработки.
+     * </p>
+     *
+     * @return список проектов, требующих обновления статуса
+     */
+    @Query("SELECT p FROM Project p WHERE " +
+            "(p.status = 'UPCOMING' AND " +
+            "((p.startDate IS NOT NULL AND p.startDate <= CURRENT_DATE) OR " +
+            "(p.startDate IS NULL AND p.eventDate IS NOT NULL AND p.eventDate <= CURRENT_DATE))) " +
+            "OR " +
+            "(p.status = 'ACTIVE' AND " +
+            "((p.endDate IS NOT NULL AND p.endDate < CURRENT_DATE) OR " +
+            "(p.endDate IS NULL AND p.eventDate IS NOT NULL AND p.eventDate < CURRENT_DATE)))")
+    List<Project> findProjectsToUpdate();
+
+    /**
+     * Проверяет, есть ли активные проекты на указанную дату.
+     * Используется для календаря и статистики.
+     *
+     * @param date дата для проверки
+     * @return true если есть активные проекты
+     */
+    @Query("SELECT COUNT(p) > 0 FROM Project p WHERE " +
+            "p.status = 'ACTIVE' AND " +
+            "((p.startDate <= :date AND (p.endDate IS NULL OR p.endDate >= :date)) OR " +
+            "(p.startDate IS NULL AND p.eventDate = :date))")
+    boolean hasActiveProjectsOnDate(@Param("date") LocalDate date);
+
+    /**
+     * Находит все проекты, активные на указанную дату.
+     *
+     * @param date дата для проверки
+     * @return список активных проектов
+     */
+    @Query("SELECT p FROM Project p WHERE " +
+            "p.status = 'ACTIVE' AND " +
+            "((p.startDate <= :date AND (p.endDate IS NULL OR p.endDate >= :date)) OR " +
+            "(p.startDate IS NULL AND p.eventDate = :date))")
+    List<Project> findActiveProjectsOnDate(@Param("date") LocalDate date);
+
+    /**
+     * Находит проекты, которые завершатся в ближайшие N дней.
+     * Полезно для уведомлений.
+     *
+     * @param days количество дней
+     * @return список проектов, завершающихся скоро
+     */
+    @Query("SELECT p FROM Project p WHERE p.status = 'ACTIVE' AND " +
+            "p.endDate IS NOT NULL AND " +
+            "p.endDate BETWEEN CURRENT_DATE AND CURRENT_DATE + :days")
+    List<Project> findProjectsEndingSoon(@Param("days") int days);
 }

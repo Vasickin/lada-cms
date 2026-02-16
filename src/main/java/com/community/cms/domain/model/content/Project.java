@@ -985,4 +985,155 @@ public class Project {
                 return null;
         }
     }
+
+    /**
+     * Проверяет, участвует ли проект в автоматическом обновлении статуса.
+     * <p>
+     * Автоматически обновляются только статусы:
+     * <ul>
+     *     <li>{@link ProjectStatusType#UPCOMING} (Ближайшие)</li>
+     *     <li>{@link ProjectStatusType#ACTIVE} (Активные)</li>
+     * </ul>
+     * Статусы {@link ProjectStatusType#ANNUAL} (Ежегодные) и
+     * {@link ProjectStatusType#ARCHIVED} (Архивные) не участвуют в автообновлении.
+     * </p>
+     *
+     * @return true если статус проекта может быть обновлен автоматически
+     */
+    public boolean isEligibleForAutoUpdate() {
+        return this.status == ProjectStatusType.UPCOMING ||
+                this.status == ProjectStatusType.ACTIVE;
+    }
+
+    /**
+     * Рассчитывает новый статус проекта на основе текущей даты.
+     * <p>
+     * Логика расчета:
+     * <ul>
+     *     <li><b>UPCOMING → ACTIVE</b>:
+     *         <ul>
+     *             <li>Если указана дата начала и она не позже сегодняшнего дня</li>
+     *             <li>Или если дата начала не указана, но указана дата события и она не позже сегодняшнего дня</li>
+     *         </ul>
+     *     </li>
+     *     <li><b>ACTIVE → COMPLETED</b>:
+     *         <ul>
+     *             <li>Если указана дата окончания и она раньше сегодняшнего дня</li>
+     *             <li>Или если дата окончания не указана, но указана дата события и она раньше сегодняшнего дня</li>
+     *         </ul>
+     *     </li>
+     * </ul>
+     * Если проект не участвует в автообновлении или условия не выполнены,
+     * возвращается текущий статус.
+     * </p>
+     *
+     * @return рассчитанный статус проекта
+     */
+    public ProjectStatusType calculateStatusBasedOnDates() {
+        // Если проект не участвует в автообновлении - оставляем текущий статус
+        if (!isEligibleForAutoUpdate()) {
+            return this.status;
+        }
+
+        LocalDate today = LocalDate.now();
+
+        // Логика для UPCOMING → ACTIVE
+        if (this.status == ProjectStatusType.UPCOMING) {
+            // Случай 1: Есть дата начала и она наступила
+            if (startDate != null && !today.isBefore(startDate)) {
+                return ProjectStatusType.ACTIVE;
+            }
+            // Случай 2: Нет даты начала, но есть дата события и она наступила
+            if (startDate == null && eventDate != null && !today.isBefore(eventDate)) {
+                return ProjectStatusType.ACTIVE;
+            }
+        }
+
+        // Логика для ACTIVE → COMPLETED
+        if (this.status == ProjectStatusType.ACTIVE) {
+            // Случай 1: Есть дата окончания и она уже прошла
+            if (endDate != null && today.isAfter(endDate)) {
+                return ProjectStatusType.COMPLETED;
+            }
+            // Случай 2: Нет даты окончания, но есть дата события и она уже прошла
+            if (endDate == null && eventDate != null && today.isAfter(eventDate)) {
+                return ProjectStatusType.COMPLETED;
+            }
+        }
+
+        // Если ни одно условие не сработало - статус не меняется
+        return this.status;
+    }
+
+    /**
+     * Обновляет статус проекта если это необходимо на основе текущей даты.
+     * <p>
+     * Сравнивает текущий статус с рассчитанным через
+     * {@link #calculateStatusBasedOnDates()}. Если статусы отличаются,
+     * обновляет поле status и возвращает true.
+     * </p>
+     *
+     * @return true если статус был изменен, false если остался прежним
+     */
+    public boolean updateStatusIfNeeded() {
+        ProjectStatusType newStatus = calculateStatusBasedOnDates();
+        if (newStatus != this.status) {
+            this.status = newStatus;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Проверяет, является ли проект активным на текущую дату.
+     * <p>
+     * Проект считается активным если:
+     * <ul>
+     *     <li>Его статус ACTIVE</li>
+     *     <li>Или статус UPCOMING, но дата начала/события уже наступила</li>
+     * </ul>
+     * </p>
+     *
+     * @return true если проект активен на текущую дату
+     */
+    public boolean isActiveOnCurrentDate() {
+        if (this.status == ProjectStatusType.ACTIVE) {
+            return true;
+        }
+
+        if (this.status == ProjectStatusType.UPCOMING) {
+            LocalDate today = LocalDate.now();
+            if (startDate != null && !today.isBefore(startDate)) {
+                return true;
+            }
+            if (startDate == null && eventDate != null && !today.isBefore(eventDate)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Проверяет, завершен ли проект на текущую дату.
+     *
+     * @return true если проект завершен
+     */
+    public boolean isCompletedOnCurrentDate() {
+        if (this.status == ProjectStatusType.COMPLETED) {
+            return true;
+        }
+
+        if (this.status == ProjectStatusType.ACTIVE) {
+            LocalDate today = LocalDate.now();
+            if (endDate != null && today.isAfter(endDate)) {
+                return true;
+            }
+            if (endDate == null && eventDate != null && today.isAfter(eventDate)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

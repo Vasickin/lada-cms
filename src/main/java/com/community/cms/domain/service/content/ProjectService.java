@@ -5,7 +5,11 @@ import com.community.cms.domain.model.content.Project;
 import com.community.cms.domain.model.people.Partner;
 import com.community.cms.domain.model.people.TeamMember;
 import com.community.cms.domain.repository.content.ProjectRepository;
+import com.community.cms.web.mvc.form.content.ProjectForm;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -57,6 +61,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class ProjectService {
 
+    private static final Logger log = LoggerFactory.getLogger(ProjectService.class);
     private final ProjectRepository projectRepository;
 
     /**
@@ -683,5 +688,189 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public List<Project> findByEventDateBetween(LocalDate startDate, LocalDate endDate) {
         return projectRepository.findByEventDateBetween(startDate, endDate);
+    }
+    /**
+     * Автоматическое обновление статусов проектов на основе текущей даты.
+     * <p>
+     * Запускается по расписанию из шедулера. Обрабатывает:
+     * <ul>
+     *     <li>UPCOMING → ACTIVE (когда наступила дата начала или события)</li>
+     *     <li>ACTIVE → COMPLETED (когда прошла дата окончания или события)</li>
+     * </ul>
+     * </p>
+     */
+    @Transactional
+    public void updateProjectStatusesAutomatically() {
+        log.info("🚀 Запуск автоматического обновления статусов проектов");
+
+        // 1. UPCOMING → ACTIVE
+        List<Project> toActivate = projectRepository.findUpcomingProjectsToActivate();
+        for (Project project : toActivate) {
+            ProjectStatusType oldStatus = project.getStatus();
+            project.setStatus(ProjectStatusType.ACTIVE);
+            log.debug("Проект ID {}: статус изменен с {} на ACTIVE (даты: start={}, event={})",
+                    project.getId(), oldStatus, project.getStartDate(), project.getEventDate());
+        }
+
+        // 2. ACTIVE → COMPLETED
+        List<Project> toComplete = projectRepository.findActiveProjectsToComplete();
+        for (Project project : toComplete) {
+            ProjectStatusType oldStatus = project.getStatus();
+            project.setStatus(ProjectStatusType.COMPLETED);
+            log.debug("Проект ID {}: статус изменен с {} на COMPLETED (даты: end={}, event={})",
+                    project.getId(), oldStatus, project.getEndDate(), project.getEventDate());
+        }
+
+        // 3. Дополнительная проверка на всякий случай
+        fixInvalidUpcomingProjects();
+
+        log.info("✅ Автоматическое обновление завершено. Активно: {}, Завершено: {}",
+                toActivate.size(), toComplete.size());
+    }
+
+    /**
+     * Исправляет проекты с некорректным статусом UPCOMING.
+     * <p>
+     * Если проект имеет статус UPCOMING, но дата начала уже прошла,
+     * принудительно переводим его в ACTIVE.
+     * </p>
+     */
+    @Transactional
+    public void fixInvalidUpcomingProjects() {
+        List<Project> invalidProjects = projectRepository.findInvalidUpcomingProjects();
+
+        for (Project project : invalidProjects) {
+            log.warn("⚠️ Проект ID {} имеет статус UPCOMING, но дата начала {} уже прошла. Исправляем на ACTIVE",
+                    project.getId(), project.getStartDate());
+            project.setStatus(ProjectStatusType.ACTIVE);
+        }
+
+        if (!invalidProjects.isEmpty()) {
+            log.info("Исправлено {} проектов с некорректным статусом UPCOMING", invalidProjects.size());
+        }
+    }
+
+    /**
+     * Обновляет статус конкретного проекта на основе его дат.
+     *
+     * @param project проект для обновления
+     * @return true если статус был изменен
+     */
+    @Transactional
+    public boolean updateSingleProjectStatus(Project project) {
+        ProjectStatusType oldStatus = project.getStatus();
+        boolean updated = project.updateStatusIfNeeded();
+
+        if (updated) {
+            log.debug("Проект ID {}: статус обновлен с {} на {}",
+                    project.getId(), oldStatus, project.getStatus());
+        }
+
+        return updated;
+    }
+
+    /**
+     * Проверяет валидность выбранного статуса относительно дат проекта.
+     * <p>
+     * Используется при создании и редактировании проекта для предотвращения
+     * некорректных комбинаций статуса и дат.
+     * </p>
+     *
+     * @param form форма проекта с данными
+     * @throws IllegalArgumentException если комбинация статуса и дат некорректна
+     */
+    public void validateProjectDates(ProjectForm form) {
+        ProjectStatusType selectedStatus = form.getStatus();
+        LocalDate today = LocalDate.now();
+
+        // Проекты с ручным управлением пропускаем
+        if (selectedStatus == ProjectStatusType.ANNUAL ||
+                selectedStatus == ProjectStatusType.ARCHIVED) {
+            return;
+        }
+
+        // Проверка 1: Нельзя выбрать UPCOMING для проекта, который уже должен быть активен
+        if (selectedStatus == ProjectStatusType.UPCOMING) {
+            if (form.getStartDate() != null && !form.getStartDate().isAfter(today)) {
+                throw new IllegalArgumentException(
+                        "Нельзя выбрать статус 'Ближайшие' для проекта, " +
+                                "дата начала которого уже наступила или проходит сегодня"
+                );
+            }
+            if (form.getStartDate() == null &&
+                    form.getEventDate() != null &&
+                    !form.getEventDate().isAfter(today)) {
+                throw new IllegalArgumentException(
+                        "Нельзя выбрать статус 'Ближайшие' для проекта, " +
+                                "дата события которого уже наступила или проходит сегодня"
+                );
+            }
+        }
+
+        // Проверка 2: Нельзя выбрать ACTIVE для завершенного проекта
+        if (selectedStatus == ProjectStatusType.ACTIVE) {
+            if (form.getEndDate() != null && !form.getEndDate().isAfter(today)) {
+                throw new IllegalArgumentException(
+                        "Нельзя выбрать статус 'Активные' для проекта, " +
+                                "дата окончания которого уже прошла"
+                );
+            }
+            if (form.getEndDate() == null &&
+                    form.getEventDate() != null &&
+                    form.getEventDate().isBefore(today)) {
+                throw new IllegalArgumentException(
+                        "Нельзя выбрать статус 'Активные' для проекта, " +
+                                "дата события которого уже прошла"
+                );
+            }
+        }
+
+        // Проверка 3: Нельзя выбрать COMPLETED для проекта, который еще не начался
+        if (selectedStatus == ProjectStatusType.COMPLETED) {
+            if (form.getStartDate() != null && form.getStartDate().isAfter(today)) {
+                throw new IllegalArgumentException(
+                        "Нельзя выбрать статус 'Завершённые' для проекта, " +
+                                "который еще не начался"
+                );
+            }
+            if (form.getStartDate() == null &&
+                    form.getEventDate() != null &&
+                    form.getEventDate().isAfter(today)) {
+                throw new IllegalArgumentException(
+                        "Нельзя выбрать статус 'Завершённые' для проекта, " +
+                                "дата события которого еще не наступила"
+                );
+            }
+        }
+    }
+
+    /**
+     * Получает список проектов, которые завершатся в ближайшие N дней.
+     *
+     * @param days количество дней
+     * @return список проектов
+     */
+    public List<Project> getProjectsEndingSoon(int days) {
+        return projectRepository.findProjectsEndingSoon(days);
+    }
+
+    /**
+     * Проверяет, есть ли активные проекты на указанную дату.
+     *
+     * @param date дата для проверки
+     * @return true если есть активные проекты
+     */
+    public boolean hasActiveProjectsOnDate(LocalDate date) {
+        return projectRepository.hasActiveProjectsOnDate(date);
+    }
+
+    /**
+     * Получает все активные проекты на указанную дату.
+     *
+     * @param date дата для проверки
+     * @return список активных проектов
+     */
+    public List<Project> getActiveProjectsOnDate(LocalDate date) {
+        return projectRepository.findActiveProjectsOnDate(date);
     }
 }
