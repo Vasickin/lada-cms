@@ -1,5 +1,6 @@
 package com.community.cms.web.mvc.controller.public_page;
 
+import com.community.cms.domain.enums.ProjectStatusType;
 import com.community.cms.domain.model.content.PhotoGallery;
 import com.community.cms.domain.model.page.CustomPage;
 import com.community.cms.domain.enums.PageType;
@@ -10,7 +11,6 @@ import com.community.cms.web.mvc.dto.content.PhotoGalleryDTO;
 import com.community.cms.web.mvc.dto.people.TeamMemberDTO;
 import com.community.cms.web.mvc.mapper.people.TeamMemberMapper;
 import com.community.cms.domain.model.content.Project;
-import com.community.cms.domain.model.content.Project.ProjectStatus;
 import com.community.cms.domain.service.content.ProjectService;
 import com.community.cms.domain.service.content.PhotoGalleryService;
 import com.community.cms.domain.service.people.PartnerService;
@@ -121,7 +121,7 @@ public class HomeController {
             model.addAttribute("categoryStats", categoryStats);
 
             // Все статусы для фильтра
-            List<ProjectStatus> allStatuses = Arrays.asList(ProjectStatus.values());
+            List<ProjectStatusType> allStatuses = Arrays.asList(ProjectStatusType.values());
             model.addAttribute("statuses", allStatuses);
 
             // Все годы для фильтра (из событий проектов)
@@ -165,7 +165,7 @@ public class HomeController {
                 // Фильтр по статусу
                 if (status != null && !status.isEmpty()) {
                     try {
-                        ProjectStatus filterStatus = ProjectStatus.valueOf(status.toUpperCase());
+                        ProjectStatusType filterStatus = ProjectStatusType.valueOf(status.toUpperCase());
                         if (project.getStatus() != filterStatus) {
                             include = false;
                         }
@@ -313,7 +313,7 @@ public class HomeController {
             model.addAttribute("projects", new ArrayList<ProjectDTO>());
             model.addAttribute("carouselProjects", new ArrayList<ProjectDTO>());
             model.addAttribute("categories", new ArrayList<String>());
-            model.addAttribute("statuses", Arrays.asList(ProjectStatus.values()));
+            model.addAttribute("statuses", Arrays.asList(ProjectStatusType.values()));
             model.addAttribute("years", new ArrayList<Integer>());
             model.addAttribute("error", "Временные технические проблемы. Пожалуйста, попробуйте позже.");
             model.addAttribute("pageTitle", "Наши проекты");
@@ -409,7 +409,7 @@ public class HomeController {
             // Фильтруем по статусу если указан
             if (status != null && !status.isEmpty()) {
                 try {
-                    ProjectStatus filterStatus = ProjectStatus.valueOf(status.toUpperCase());
+                    ProjectStatusType filterStatus = ProjectStatusType.valueOf(status.toUpperCase());
                     projects = projects.stream()
                             .filter(p -> p.getStatus() == filterStatus)
                             .collect(Collectors.toList());

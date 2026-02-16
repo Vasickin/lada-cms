@@ -475,9 +475,11 @@
                                             <option th:each="status : ${statuses}"
                                                     th:value="${status}"
                                                     th:selected="${status == project.status}"
-                                                    th:text="${status.name() == 'ACTIVE' ? 'Активный' :
-                                                              status.name() == 'ANNUAL' ? 'Ежегодный' :
-                                                              'Архивный'}">
+                                                    th:text="${status.name() == 'UPCOMING' ? 'Ближайшие' :
+                                                               status.name() == 'ACTIVE' ? 'Активный' :
+                                                               status.name() == 'COMPLETED' ? 'Завершённые' :
+                                                               status.name() == 'ANNUAL' ? 'Ежегодный' :
+                                                               'Архивный'}">
                                                 Статус
                                             </option>
                                         </select>
@@ -488,7 +490,9 @@
                                             Текущий:
                                             <span th:if="${project.status != null}"
                                                   th:classappend="'badge badge-status-' + ${project.status.name().toLowerCase()}"
-                                                  th:text="${project.status.name() == 'ACTIVE' ? 'Активный' :
+                                                  th:text="${project.status.name() == 'UPCOMING' ? 'Ближайшие' :
+                                                           project.status.name() == 'ACTIVE' ? 'Активный' :
+                                                           project.status.name() == 'COMPLETED' ? 'Завершённые' :
                                                            project.status.name() == 'ANNUAL' ? 'Ежегодный' :
                                                            'Архивный'}">
                                                 Статус

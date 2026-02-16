@@ -1,5 +1,6 @@
 package com.community.cms.web.mvc.form.content;
 
+import com.community.cms.domain.enums.ProjectStatusType;
 import com.community.cms.domain.model.content.Project;
 import com.community.cms.validation.VideoUrl;
 import jakarta.validation.constraints.*;
@@ -96,7 +97,7 @@ public class ProjectForm {
      * Определяет видимость и поведение проекта на сайте.
      */
     @NotNull(message = "Статус проекта обязателен")
-    private Project.ProjectStatus status;
+    private ProjectStatusType status;
 
     /**
      * Порядок сортировки в списке проектов.
@@ -219,7 +220,7 @@ public class ProjectForm {
      */
     public ProjectForm() {
         // Устанавливаем значения по умолчанию
-        this.status = Project.ProjectStatus.ACTIVE;
+        this.status = ProjectStatusType.ACTIVE;
         this.sortOrder = 0;
         this.sectionsOrder = "description,photos,videos,team,participation,partners,related";
         this.showDescription = true;
@@ -345,11 +346,11 @@ public class ProjectForm {
         this.category = category;
     }
 
-    public Project.ProjectStatus getStatus() {
+    public ProjectStatusType getStatus() {
         return status;
     }
 
-    public void setStatus(Project.ProjectStatus status) {
+    public void setStatus(ProjectStatusType status) {
         this.status = status;
     }
 
@@ -528,12 +529,30 @@ public class ProjectForm {
     }
 
     /**
+     * Проверяет, является ли проект ближайшим.
+     *
+     * @return true если статус проекта UPCOMING
+     */
+    public boolean isUpcoming() {
+        return status == ProjectStatusType.UPCOMING;
+    }
+
+    /**
      * Проверяет, является ли проект активным.
      *
      * @return true если статус проекта ACTIVE
      */
     public boolean isActive() {
-        return status == Project.ProjectStatus.ACTIVE;
+        return status == ProjectStatusType.ACTIVE;
+    }
+
+    /**
+     * Проверяет, является ли проект завершённым.
+     *
+     * @return true если статус проекта COMPLETED
+     */
+    public boolean isCompleted() {
+        return status == ProjectStatusType.COMPLETED;
     }
 
     /**
@@ -542,7 +561,7 @@ public class ProjectForm {
      * @return true если статус проекта ARCHIVED
      */
     public boolean isArchived() {
-        return status == Project.ProjectStatus.ARCHIVED;
+        return status == ProjectStatusType.ARCHIVED;
     }
 
     /**
@@ -551,7 +570,7 @@ public class ProjectForm {
      * @return true если статус проекта ANNUAL
      */
     public boolean isAnnual() {
-        return status == Project.ProjectStatus.ANNUAL;
+        return status == ProjectStatusType.ANNUAL;
     }
 
     /**

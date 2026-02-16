@@ -514,9 +514,11 @@
                                             <option value="">Выберите статус...</option>
                                             <option th:each="status : ${statuses}"
                                                     th:value="${status}"
-                                                    th:text="${status.name() == 'ACTIVE' ? 'Активный' :
-                                                              status.name() == 'ANNUAL' ? 'Ежегодный' :
-                                                              'Архивный'}">
+                                                    th:text="${status.name() == 'UPCOMING' ? 'Ближайшие' :
+                                                               status.name() == 'ACTIVE' ? 'Активный' :
+                                                               status.name() == 'COMPLETED' ? 'Завершённые' :
+                                                               status.name() == 'ANNUAL' ? 'Ежегодный' :
+                                                               'Архивный'}">
                                                 Статус
                                             </option>
                                         </select>

@@ -1,7 +1,7 @@
 package com.community.cms.domain.service.content;
 
+import com.community.cms.domain.enums.ProjectStatusType;
 import com.community.cms.domain.model.content.Project;
-import com.community.cms.domain.model.content.Project.ProjectStatus;
 import com.community.cms.domain.model.people.Partner;
 import com.community.cms.domain.model.people.TeamMember;
 import com.community.cms.domain.repository.content.ProjectRepository;
@@ -128,7 +128,7 @@ public class ProjectService {
     @Transactional(readOnly = true)
     @Cacheable(value = "project-by-slug", key = "#slug", unless = "#result == null")
     public Optional<Project> findBySlugForPublic(String slug) {
-        return projectRepository.findBySlugAndStatus(slug, ProjectStatus.ACTIVE);
+        return projectRepository.findBySlugAndStatus(slug, ProjectStatusType.ACTIVE);
     }
 
     /**
@@ -233,7 +233,7 @@ public class ProjectService {
     @Transactional(readOnly = true)
     @Cacheable(value = "projects-list", key = "'active'")
     public List<Project> findAllActive() {
-        return projectRepository.findByStatus(ProjectStatus.ACTIVE);
+        return projectRepository.findByStatus(ProjectStatusType.ACTIVE);
     }
 
     /**
@@ -266,7 +266,7 @@ public class ProjectService {
      * @return список проектов с указанным статусом
      */
     @Transactional(readOnly = true)
-    public List<Project> findByStatus(ProjectStatus status) {
+    public List<Project> findByStatus(ProjectStatusType status) {
         return projectRepository.findByStatus(status);
     }
 
@@ -280,7 +280,7 @@ public class ProjectService {
     @Transactional(readOnly = true)
     @Cacheable(value = "projects-by-category", key = "#category")
     public List<Project> findActiveByCategory(String category) {
-        return projectRepository.findByCategoryAndStatus(category, ProjectStatus.ACTIVE);
+        return projectRepository.findByCategoryAndStatus(category, ProjectStatusType.ACTIVE);
     }
 
     // ================== ФИЛЬТРАЦИЯ И ПОИСК ==================
@@ -382,7 +382,7 @@ public class ProjectService {
      */
     @Transactional(readOnly = true)
     public Page<Project> findActive(Pageable pageable) {
-        return projectRepository.findByStatus(ProjectStatus.ACTIVE, pageable);
+        return projectRepository.findByStatus(ProjectStatusType.ACTIVE, pageable);
     }
 
     /**
@@ -393,7 +393,7 @@ public class ProjectService {
      * @return страница проектов с указанным статусом
      */
     @Transactional(readOnly = true)
-    public Page<Project> findByStatus(ProjectStatus status, Pageable pageable) {
+    public Page<Project> findByStatus(ProjectStatusType status, Pageable pageable) {
         return projectRepository.findByStatus(status, pageable);
     }
 
@@ -418,7 +418,7 @@ public class ProjectService {
      */
     @Transactional(readOnly = true)
     public Page<Project> findActiveByCategory(String category, Pageable pageable) {
-        return projectRepository.findByStatusAndCategory(ProjectStatus.ACTIVE, category, pageable);
+        return projectRepository.findByStatusAndCategory(ProjectStatusType.ACTIVE, category, pageable);
     }
 
     // ================== ПОЛУЧЕНИЕ УНИКАЛЬНЫХ КАТЕГОРИЙ ==================
@@ -457,7 +457,7 @@ public class ProjectService {
      */
     @Transactional(readOnly = true)
     public long countAnnual() {
-        return countByStatus(ProjectStatus.ANNUAL);
+        return countByStatus(ProjectStatusType.ANNUAL);
     }
 
     /**
@@ -467,7 +467,7 @@ public class ProjectService {
      */
     @Transactional(readOnly = true)
     public long countArchived() {
-        return countByStatus(ProjectStatus.ARCHIVED);
+        return countByStatus(ProjectStatusType.ARCHIVED);
     }
 
     /**
@@ -477,7 +477,7 @@ public class ProjectService {
      */
     @Transactional(readOnly = true)
     public long countNonArchived() {
-        return countByStatus(ProjectStatus.ACTIVE) + countByStatus(ProjectStatus.ANNUAL);
+        return countByStatus(ProjectStatusType.ACTIVE) + countByStatus(ProjectStatusType.ANNUAL);
     }
 
     /**
@@ -534,7 +534,7 @@ public class ProjectService {
      * @return количество проектов с указанным статусом
      */
     @Transactional(readOnly = true)
-    public long countByStatus(ProjectStatus status) {
+    public long countByStatus(ProjectStatusType status) {
         return projectRepository.countByStatus(status);
     }
 
@@ -545,7 +545,7 @@ public class ProjectService {
      */
     @Transactional(readOnly = true)
     public long countActive() {
-        return projectRepository.countByStatus(ProjectStatus.ACTIVE);
+        return projectRepository.countByStatus(ProjectStatusType.ACTIVE);
     }
 
     /**
@@ -574,7 +574,7 @@ public class ProjectService {
             @CacheEvict(value = {"projects-list", "projects-by-category"}, allEntries = true)
     })
     public Project activate(Project project) {
-        project.setStatus(ProjectStatus.ACTIVE);
+        project.setStatus(ProjectStatusType.ACTIVE);
         return projectRepository.save(project);
     }
 
@@ -591,7 +591,7 @@ public class ProjectService {
             @CacheEvict(value = {"projects-list", "projects-by-category"}, allEntries = true)
     })
     public Project archive(Project project) {
-        project.setStatus(ProjectStatus.ARCHIVED);
+        project.setStatus(ProjectStatusType.ARCHIVED);
         return projectRepository.save(project);
     }
 
@@ -608,7 +608,7 @@ public class ProjectService {
             @CacheEvict(value = {"projects-list", "projects-by-category"}, allEntries = true)
     })
     public Project markAsAnnual(Project project) {
-        project.setStatus(ProjectStatus.ANNUAL);
+        project.setStatus(ProjectStatusType.ANNUAL);
         return projectRepository.save(project);
     }
 

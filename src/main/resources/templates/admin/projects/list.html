@@ -147,8 +147,16 @@
                                 </label>
                                 <select name="status" class="form-select">
                                     <option value="">Все статусы</option>
+                                    <option value="UPCOMING"
+                                            th:selected="${selectedStatus == 'UPCOMING'}">
+                                        Активные
+                                    </option>
                                     <option value="ACTIVE"
                                             th:selected="${selectedStatus == 'ACTIVE'}">
+                                        Активные
+                                    </option>
+                                    <option value="COMPLETED"
+                                            th:selected="${selectedStatus == 'COMPLETED'}">
                                         Активные
                                     </option>
                                     <option value="ANNUAL"
@@ -209,7 +217,9 @@
                                 </span>
                                         <span th:if="${selectedStatus != null and selectedStatus != ''}" class="badge ms-2">
                                     <span th:switch="${selectedStatus}">
+                                        <span th:case="'UPCOMING'" class="badge bg-primary">Ближайшие</span>
                                         <span th:case="'ACTIVE'" class="badge bg-primary">Активные</span>
+                                        <span th:case="'COMPLETED'" class="badge bg-primary">Завершённые</span>
                                         <span th:case="'ANNUAL'" class="badge bg-success">Ежегодные</span>
                                         <span th:case="'ARCHIVED'" class="badge bg-danger">Архивные</span>
                                     </span>
@@ -292,12 +302,16 @@
                                     <!-- КОНЕЦ НОВОГО СТОЛБЦА -->
                                     <td>
                                         <!-- Статус с русскими названиями и цветами -->
-                                        <span th:classappend="'badge ' + (${#strings.toLowerCase(project.status.name()) == 'active'} ? 'bg-primary' :
+                                        <span th:classappend="'badge ' + (${#strings.toLowerCase(project.status.name()) == 'upcoming'} ? 'bg-primary' :
+                                                                        (${#strings.toLowerCase(project.status.name()) == 'active'} ? 'bg-primary' :
+                                                                        (${#strings.toLowerCase(project.status.name()) == 'completed'} ? 'bg-primary' :
                                                                       (${#strings.toLowerCase(project.status.name()) == 'archived'} ? 'bg-danger' :
-                                                                      (${#strings.toLowerCase(project.status.name()) == 'annual'} ? 'bg-success' : 'bg-secondary')))"
-                                              th:text="${#strings.toLowerCase(project.status.name()) == 'active'} ? 'Активный' :
-                                                       (${#strings.toLowerCase(project.status.name()) == 'archived'} ? 'Архивный' :
-                                                       (${#strings.toLowerCase(project.status.name()) == 'annual'} ? 'Ежегодный' : ${project.status}))">
+                                                                      (${#strings.toLowerCase(project.status.name()) == 'annual'} ? 'bg-success' : 'bg-secondary')))))"
+                                              th:text="${#strings.toLowerCase(project.status.name()) == 'upcoming'} ? 'Ближайшие' :
+                                                        (${#strings.toLowerCase(project.status.name()) == 'active'} ? 'Активный' :
+                                                        (${#strings.toLowerCase(project.status.name()) == 'Completed'} ? 'Завершённые' :
+                                                        (${#strings.toLowerCase(project.status.name()) == 'archived'} ? 'Архивный' :
+                                                        (${#strings.toLowerCase(project.status.name()) == 'annual'} ? 'Ежегодный' : ${project.status}))))">
                                             Статус
                                         </span>
                                     </td>

@@ -3,6 +3,7 @@ package com.community.cms.domain.model.content;
 import com.community.cms.domain.model.people.Partner;
 import com.community.cms.domain.model.people.TeamMember;
 import com.community.cms.validation.VideoUrl;
+import com.community.cms.domain.enums.ProjectStatusType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -43,31 +44,31 @@ import java.util.Set;
 @Table(name = "projects")
 public class Project {
 
-    /**
-     * Статусы проекта для управления жизненным циклом.
-     * Project statuses for lifecycle management.
-     */
-    public enum ProjectStatus {
-        ACTIVE("Активный", "Active"),
-        ARCHIVED("Архивный", "Archived"),
-        ANNUAL("Ежегодный", "Annual");
-
-        private final String nameRu;
-        private final String nameEn;
-
-        ProjectStatus(String nameRu, String nameEn) {
-            this.nameRu = nameRu;
-            this.nameEn = nameEn;
-        }
-
-        public String getNameRu() {
-            return nameRu;
-        }
-
-        public String getNameEn() {
-            return nameEn;
-        }
-    }
+//    /**
+//     * Статусы проекта для управления жизненным циклом.
+//     * Project statuses for lifecycle management.
+//     */
+//    public enum ProjectStatus {
+//        ACTIVE("Активный", "Active"),
+//        ARCHIVED("Архивный", "Archived"),
+//        ANNUAL("Ежегодный", "Annual");
+//
+//        private final String nameRu;
+//        private final String nameEn;
+//
+//        ProjectStatus(String nameRu, String nameEn) {
+//            this.nameRu = nameRu;
+//            this.nameEn = nameEn;
+//        }
+//
+//        public String getNameRu() {
+//            return nameRu;
+//        }
+//
+//        public String getNameEn() {
+//            return nameEn;
+//        }
+//    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -161,7 +162,7 @@ public class Project {
      */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ProjectStatus status = ProjectStatus.ACTIVE;
+    private ProjectStatusType status = ProjectStatusType.ACTIVE;
 
     // ================== ИСПРАВЛЕНИЕ: ДОБАВЛЕНО ПОЛЕ sortOrder ==================
     /**
@@ -307,7 +308,7 @@ public class Project {
         this.title = title;
         this.slug = slug;
         this.category = category;
-        this.status = ProjectStatus.ACTIVE;
+        this.status = ProjectStatusType.ACTIVE;
         this.sortOrder = 0; // ИСПРАВЛЕНИЕ: Установка значения по умолчанию
     }
 
@@ -413,11 +414,11 @@ public class Project {
         this.category = category;
     }
 
-    public ProjectStatus getStatus() {
+    public ProjectStatusType getStatus() {
         return status;
     }
 
-    public void setStatus(ProjectStatus status) {
+    public void setStatus(ProjectStatusType status) {
         this.status = status;
     }
 
@@ -658,7 +659,7 @@ public class Project {
      * @return true если проект активен, иначе false
      */
     public boolean isCurrentlyActive() {
-        if (status == ProjectStatus.ARCHIVED) {
+        if (status == ProjectStatusType.ARCHIVED) {
             return false;
         }
 
@@ -683,7 +684,7 @@ public class Project {
      * @return true если статус ANNUAL
      */
     public boolean isAnnual() {
-        return status == ProjectStatus.ANNUAL;
+        return status == ProjectStatusType.ANNUAL;
     }
 
     /**
@@ -692,7 +693,7 @@ public class Project {
      * @return true если статус ARCHIVED
      */
     public boolean isArchived() {
-        return status == ProjectStatus.ARCHIVED;
+        return status == ProjectStatusType.ARCHIVED;
     }
 
     /**
@@ -815,7 +816,7 @@ public class Project {
     @PreUpdate
     protected void validate() {
         if (status == null) {
-            status = ProjectStatus.ACTIVE;
+            status = ProjectStatusType.ACTIVE;
         }
         // ================== ИСПРАВЛЕНИЕ: Установка значения по умолчанию для sortOrder ==================
         if (sortOrder == null) {

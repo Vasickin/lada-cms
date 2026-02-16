@@ -1,7 +1,7 @@
 package com.community.cms.domain.repository.content;
 
+import com.community.cms.domain.enums.ProjectStatusType;
 import com.community.cms.domain.model.content.Project;
-import com.community.cms.domain.model.content.Project.ProjectStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -49,7 +49,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @param status статус проекта
      * @return Optional содержащий проект если найден и соответствует статусу
      */
-    Optional<Project> findBySlugAndStatus(String slug, ProjectStatus status);
+    Optional<Project> findBySlugAndStatus(String slug, ProjectStatusType status);
 
     /**
      * Проверяет существование проекта с указанным slug.
@@ -68,7 +68,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @param status статус для фильтрации
      * @return список проектов с указанным статусом
      */
-    List<Project> findByStatus(ProjectStatus status);
+    List<Project> findByStatus(ProjectStatusType status);
 
     /**
      * Находит все проекты с указанным статусом, отсортированные по дате создания.
@@ -76,7 +76,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @param status статус для фильтрации
      * @return список проектов с указанным статусом (сначала новые)
      */
-    List<Project> findByStatusOrderByCreatedAtDesc(ProjectStatus status);
+    List<Project> findByStatusOrderByCreatedAtDesc(ProjectStatusType status);
 
     /**
      * Находит все проекты с указанным статусом, отсортированные по порядку сортировки.
@@ -84,7 +84,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @param status статус для фильтрации
      * @return список проектов с указанным статусом (по sortOrder)
      */
-    List<Project> findByStatusOrderBySortOrderAsc(ProjectStatus status);
+    List<Project> findByStatusOrderBySortOrderAsc(ProjectStatusType status);
 
     // ================== ФИЛЬТРАЦИЯ ПО КАТЕГОРИИ ==================
 
@@ -103,7 +103,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @param status статус для фильтрации
      * @return список проектов соответствующих категории и статусу
      */
-    List<Project> findByCategoryAndStatus(String category, ProjectStatus status);
+    List<Project> findByCategoryAndStatus(String category, ProjectStatusType status);
 
     /**
      * Находит все проекты указанной категории, отсортированные по дате создания.
@@ -224,7 +224,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @param pageable объект пагинации
      * @return страница проектов с указанным статусом
      */
-    Page<Project> findByStatus(ProjectStatus status, Pageable pageable);
+    Page<Project> findByStatus(ProjectStatusType status, Pageable pageable);
 
     /**
      * Находит проекты указанной категории с пагинацией.
@@ -243,7 +243,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @param pageable объект пагинации
      * @return страница проектов соответствующих статусу и категории
      */
-    Page<Project> findByStatusAndCategory(ProjectStatus status, String category, Pageable pageable);
+    Page<Project> findByStatusAndCategory(ProjectStatusType status, String category, Pageable pageable);
 
     // ================== СОРТИРОВКА ==================
 
@@ -286,7 +286,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @param status статус для подсчета
      * @return количество проектов с указанным статусом
      */
-    long countByStatus(ProjectStatus status);
+    long countByStatus(ProjectStatusType status);
 
     /**
      * Подсчитывает количество проектов по категории.
@@ -303,7 +303,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @param category категория для подсчета
      * @return количество проектов соответствующих статусу и категории
      */
-    long countByStatusAndCategory(ProjectStatus status, String category);
+    long countByStatusAndCategory(ProjectStatusType status, String category);
 
     /**
      * Находит последние N проектов.

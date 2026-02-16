@@ -1,5 +1,6 @@
 package com.community.cms.web.mvc.controller.admin.content;
 
+import com.community.cms.domain.enums.ProjectStatusType;
 import com.community.cms.domain.model.content.PhotoGallery;
 import com.community.cms.web.mvc.dto.content.PhotoGalleryDTO;
 import com.community.cms.domain.model.media.MediaFile;
@@ -78,7 +79,7 @@ public class ProjectAdminController {
                 // ФИЛЬТРАЦИЯ ПО СТАТУСУ
                 if (status != null && !status.trim().isEmpty() && !filteredProjects.isEmpty()) {
                     try {
-                        Project.ProjectStatus projectStatus = Project.ProjectStatus.valueOf(status.toUpperCase());
+                        ProjectStatusType projectStatus = ProjectStatusType.valueOf(status.toUpperCase());
                         filteredProjects = filteredProjects.stream()
                                 .filter(p -> p.getStatus() == projectStatus)
                                 .collect(Collectors.toList());
@@ -122,7 +123,7 @@ public class ProjectAdminController {
                 // ФИЛЬТРАЦИЯ ПО СТАТУСУ
                 if (status != null && !status.trim().isEmpty()) {
                     try {
-                        Project.ProjectStatus projectStatus = Project.ProjectStatus.valueOf(status.toUpperCase());
+                        ProjectStatusType projectStatus = ProjectStatusType.valueOf(status.toUpperCase());
                         filteredProjects = filteredProjects.stream()
                                 .filter(p -> p.getStatus() == projectStatus)
                                 .collect(Collectors.toList());
@@ -168,7 +169,7 @@ public class ProjectAdminController {
         // ================== ПОДГОТОВКА ДАННЫХ ДЛЯ ШАБЛОНА ==================
         model.addAttribute("projectsPage", projectsPage);
         model.addAttribute("categories", projectService.findAllDistinctCategories());
-        model.addAttribute("statuses", Project.ProjectStatus.values());
+        model.addAttribute("statuses", ProjectStatusType.values());
 
         List<Integer> years = projectRepository.findAll().stream()
                 .filter(p -> p.getEventDate() != null)
@@ -192,7 +193,7 @@ public class ProjectAdminController {
         Project project = new Project();
         model.addAttribute("project", project);
         model.addAttribute("categories", projectService.findAllDistinctCategories());
-        model.addAttribute("statuses", Project.ProjectStatus.values());
+        model.addAttribute("statuses", ProjectStatusType.values());
 
         // Члены команды
         List<TeamMember> allTeamMembers = teamMemberService.findAllActiveOrderBySortOrder();
@@ -231,7 +232,7 @@ public class ProjectAdminController {
 
         // Восстанавливаем данные для формы
         model.addAttribute("categories", projectService.findAllDistinctCategories());
-        model.addAttribute("statuses", Project.ProjectStatus.values());
+        model.addAttribute("statuses", ProjectStatusType.values());
         model.addAttribute("allTeamMembers", teamMemberService.findAllActiveOrderBySortOrder());
         model.addAttribute("allPartners", partnerService.findActiveByNameContaining(""));
 
@@ -395,7 +396,7 @@ public class ProjectAdminController {
 
                     model.addAttribute("project", project);
                     model.addAttribute("categories", projectService.findAllDistinctCategories());
-                    model.addAttribute("statuses", Project.ProjectStatus.values());
+                    model.addAttribute("statuses", ProjectStatusType.values());
                     model.addAttribute("allTeamMembers", allTeamMembers);
                     model.addAttribute("projectTeamMembers", projectTeamMembers);
                     model.addAttribute("availableMembers", availableMembers);
@@ -442,7 +443,7 @@ public class ProjectAdminController {
 
         // Восстанавливаем данные для формы (на случай ошибки)
         model.addAttribute("categories", projectService.findAllDistinctCategories());
-        model.addAttribute("statuses", Project.ProjectStatus.values());
+        model.addAttribute("statuses", ProjectStatusType.values());
 
         // Получаем текущий проект для восстановления данных формы
         Project existingProjectForForm = projectService.findById(id).orElse(null);
