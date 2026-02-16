@@ -135,20 +135,14 @@ public class HomeController {
 
             // ================== КАРУСЕЛЬ СОБЫТИЙ ==================
 
-            // Получаем все активные проекты для карусели
-            List<Project> activeProjects = projectService.findAllActive();
+            // Получаем проекты с будущими событиями (максимум 10)
+            List<Project> upcomingEvents = projectService.findUpcomingEvents(10);
 
-            // Перемешиваем в случайном порядке
-            List<Project> shuffledProjects = new ArrayList<>(activeProjects);
-            Collections.shuffle(shuffledProjects);
-
-            // Берем максимум 10 проектов для карусели
-            List<Project> carouselProjects = shuffledProjects.stream()
-                    .limit(10)
-                    .collect(Collectors.toList());
+            // Перемешиваем для разнообразия отображения
+            Collections.shuffle(upcomingEvents);
 
             // Преобразуем в DTO для карусели
-            List<ProjectDTO> carouselDTOs = projectMapper.toPublicCarouselDTOList(carouselProjects);
+            List<ProjectDTO> carouselDTOs = projectMapper.toPublicCarouselDTOList(upcomingEvents);
             model.addAttribute("carouselProjects", carouselDTOs);
 
             // ================== ФИЛЬТРАЦИЯ И ПОИСК ПРОЕКТОВ ==================
@@ -250,25 +244,6 @@ public class HomeController {
 
             // Преобразуем в DTO для отображения
             List<ProjectDTO> projectDTOs = projectMapper.toPublicCardDTOList(pageContent);
-
-//            for (int i = 0; i < projectDTOs.size(); i++) {
-//                ProjectDTO projectDTO = projectDTOs.get(i);
-//                if (i < pageContent.size()) {
-//                    Project project = pageContent.get(i);
-//                    List<PhotoGalleryDTO> keyPhotos = projectMapper.loadKeyPhotosForProject(project);
-//                    projectDTO.setKeyPhotos(keyPhotos);
-//                }
-//            }
-//
-//            // ============ ЗАГРУЗКА КЛЮЧЕВЫХ ФОТО ДЛЯ КАЖДОГО ПРОЕКТА ============
-//            for (ProjectDTO projectDTO : projectDTOs) {
-//                // Получаем проект по ID для загрузки фото
-//                Optional<Project> projectOpt = projectService.findById(projectDTO.getId());
-//                if (projectOpt.isPresent()) {
-//                    List<PhotoGalleryDTO> keyPhotos = projectMapper.loadKeyPhotosForProject(projectOpt.get());
-//                    projectDTO.setKeyPhotos(keyPhotos);
-//                }
-//            }
 
             // ================== ДОБАВЛЕНИЕ ДАННЫХ В МОДЕЛЬ ==================
 

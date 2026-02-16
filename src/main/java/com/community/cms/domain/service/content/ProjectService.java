@@ -20,11 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -872,5 +868,32 @@ public class ProjectService {
      */
     public List<Project> getActiveProjectsOnDate(LocalDate date) {
         return projectRepository.findActiveProjectsOnDate(date);
+    }
+
+    /**
+     * Находит проекты с будущими датами событий для отображения в карусели.
+     * <p>
+     * Метод отбирает проекты, у которых:
+     * <ul>
+     *     <li>Заполнена дата события ({@code eventDate} не {@code null})</li>
+     *     <li>Дата события находится в будущем (позже сегодняшнего дня)</li>
+     * </ul>
+     * Результат сортируется по дате события (от ближайших к более поздним)
+     * и ограничивается указанным количеством.
+     * </p>
+     *
+     * @param limit максимальное количество проектов для возврата
+     * @return список проектов с будущими событиями, отсортированный по дате события
+     */
+    public List<Project> findUpcomingEvents(int limit) {
+        LocalDate today = LocalDate.now();
+
+        log.debug("Поиск ближайших событий (limit={})", limit);
+
+        return projectRepository.findAll().stream()
+                .filter(p -> p.getEventDate() != null && p.getEventDate().isAfter(today))
+                .sorted(Comparator.comparing(Project::getEventDate))
+                .limit(limit)
+                .collect(Collectors.toList());
     }
 }
