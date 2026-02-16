@@ -991,4 +991,30 @@ public class ProjectAdminController {
 
         return result;
     }
+
+    /**
+     * Предоставляет мапу соответствий между именами констант статусов
+     * и их отображаемыми названиями на русском языке.
+     * <p>
+     * Используется в шаблонах для единообразного отображения статусов
+     * в выпадающих списках, фильтрах и бейджах.
+     * </p>
+     *
+     * @return LinkedHashMap с парами "ИМЯ_КОНСТАНТЫ" -> "Русское название"
+     */
+    @ModelAttribute("statusLabels")
+    public Map<String, String> getStatusLabels() {
+        Map<String, String> labels = new LinkedHashMap<>();
+
+        // Порядок важен: будем использовать LinkedHashMap, чтобы сохранить
+        // логическую последовательность статусов
+        labels.put("UPCOMING", "Ближайшие");
+        labels.put("ACTIVE", "Активные");
+        labels.put("COMPLETED", "Завершённые");
+        labels.put("ANNUAL", "Ежегодные");
+        labels.put("ARCHIVED", "Архивные");
+
+        return labels;
+    }
+
 }

@@ -503,28 +503,27 @@
                                     </div>
 
 
+                                    <!-- СТАТУС ПРОЕКТА -->
                                     <div class="col-md-6">
                                         <label for="status" class="form-label">
-                                            Статус *
+                                            Статус <span class="text-danger">*</span>
                                         </label>
                                         <select th:field="*{status}"
                                                 class="form-select"
                                                 id="status"
                                                 required>
                                             <option value="">Выберите статус...</option>
-                                            <option th:each="status : ${statuses}"
-                                                    th:value="${status}"
-                                                    th:text="${status.name() == 'UPCOMING' ? 'Ближайшие' :
-                                                               status.name() == 'ACTIVE' ? 'Активный' :
-                                                               status.name() == 'COMPLETED' ? 'Завершённые' :
-                                                               status.name() == 'ANNUAL' ? 'Ежегодный' :
-                                                               'Архивный'}">
-                                                Статус
+                                            <option th:each="statusEntry : ${statusLabels}"
+                                                    th:value="${statusEntry.key}"
+                                                    th:text="${statusEntry.value}">
                                             </option>
                                         </select>
                                         <div class="invalid-feedback">
-                                            Выберите статус проекта
+                                            Пожалуйста, выберите статус проекта
                                         </div>
+                                        <small class="form-text text-muted">
+                                            Статус определяет, где и как будет отображаться проект
+                                        </small>
                                     </div>
                                 </div>
 
