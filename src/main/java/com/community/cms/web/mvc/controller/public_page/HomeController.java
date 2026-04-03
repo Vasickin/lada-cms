@@ -135,14 +135,14 @@ public class HomeController {
 
             // ================== КАРУСЕЛЬ СОБЫТИЙ ==================
 
-            // Получаем проекты с будущими событиями (максимум 10)
-            List<Project> upcomingEvents = projectService.findUpcomingEvents(10);
+// Получаем проекты для карусели (учитывая forceShowInCarousel)
+            List<Project> carouselProjects = projectService.findProjectsForCarousel(10);
 
-            // Перемешиваем для разнообразия отображения
-            Collections.shuffle(upcomingEvents);
+// Перемешиваем для разнообразия отображения
+            Collections.shuffle(carouselProjects);
 
-            // Преобразуем в DTO для карусели
-            List<ProjectDTO> carouselDTOs = projectMapper.toPublicCarouselDTOList(upcomingEvents);
+// Преобразуем в DTO для карусели
+            List<ProjectDTO> carouselDTOs = projectMapper.toPublicCarouselDTOList(carouselProjects);
             model.addAttribute("carouselProjects", carouselDTOs);
 
             // ================== ФИЛЬТРАЦИЯ И ПОИСК ПРОЕКТОВ ==================

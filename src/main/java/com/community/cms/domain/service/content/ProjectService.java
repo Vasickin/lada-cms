@@ -685,6 +685,27 @@ public class ProjectService {
     public List<Project> findByEventDateBetween(LocalDate startDate, LocalDate endDate) {
         return projectRepository.findByEventDateBetween(startDate, endDate);
     }
+
+    /**
+     * Находит проекты для отображения в карусели событий на публичной странице.
+     * <p>
+     * Использует репозиторий для получения проектов с учетом:
+     * <ul>
+     *     <li>Принудительного показа (forceShowInCarousel = true)</li>
+     *     <li>Будущих дат событий (eventDate > сегодня)</li>
+     * </ul>
+     * Результат ограничивается указанным лимитом.
+     * </p>
+     *
+     * @param limit максимальное количество проектов для карусели
+     * @return список проектов для отображения в карусели
+     */
+    @Transactional(readOnly = true)
+    public List<Project> findProjectsForCarousel(int limit) {
+        log.debug("Поиск проектов для карусели (limit={})", limit);
+        return projectRepository.findProjectsForCarousel(limit);
+    }
+
     /**
      * Автоматическое обновление статусов проектов на основе текущей даты.
      * <p>

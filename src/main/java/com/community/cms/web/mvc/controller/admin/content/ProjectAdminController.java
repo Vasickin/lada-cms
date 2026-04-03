@@ -195,6 +195,7 @@ public class ProjectAdminController {
         model.addAttribute("project", project);
         model.addAttribute("categories", projectService.findAllDistinctCategories());
         model.addAttribute("statuses", ProjectStatusType.values());
+        model.addAttribute("forceShowInCarousel", false);
 
         // Члены команды
         List<TeamMember> allTeamMembers = teamMemberService.findAllActiveOrderBySortOrder();
@@ -217,7 +218,8 @@ public class ProjectAdminController {
                                 @RequestParam(value = "selectedTeamMemberIds", required = false) String selectedTeamMemberIds,
                                 @RequestParam(value = "selectedPartnerIds", required = false) String selectedPartnerIds,
                                 @RequestParam(value = "selectedPhotoIds", required = false) String selectedPhotoIds,
-                                @RequestParam(value = "videoUrl", required = false) String videoUrl) {
+                                @RequestParam(value = "videoUrl", required = false) String videoUrl,
+                                @RequestParam(value = "forceShowInCarousel", required = false) String forceShowInCarouselParam) {
 
         // ===== ВАЛИДАЦИЯ ДАТ =====
         if (project.getStartDate() != null && project.getEndDate() != null &&
@@ -230,6 +232,14 @@ public class ProjectAdminController {
                         project.getEventDate().isAfter(project.getEndDate()))) {
             bindingResult.rejectValue("eventDate", "error.project", "Дата события должна быть в рамках проекта");
         }
+
+        // ===== ОБРАБОТКА ФЛАГА КАРУСЕЛИ =====
+        boolean forceShowInCarousel = "true".equals(forceShowInCarouselParam) || "on".equals(forceShowInCarouselParam);
+        project.setForceShowInCarousel(forceShowInCarousel);
+
+        // Логируем для отладки
+        System.out.println(">>> forceShowInCarousel raw param: [" + forceShowInCarouselParam + "]");
+        System.out.println(">>> forceShowInCarousel parsed: " + forceShowInCarousel);
 
         // ===== НОВАЯ ВАЛИДАЦИЯ СТАТУСА =====
         validateProjectStatus(project, bindingResult);
@@ -405,6 +415,7 @@ public class ProjectAdminController {
                     model.addAttribute("projectTeamMembers", projectTeamMembers);
                     model.addAttribute("availableMembers", availableMembers);
                     model.addAttribute("videoUrl", project.getVideoUrl());
+                    model.addAttribute("forceShowInCarousel", project.isForceShowInCarousel());
 
                     // Партнёры
                     model.addAttribute("allPartners", allPartners);
@@ -431,7 +442,8 @@ public class ProjectAdminController {
                                 @RequestParam(value = "selectedTeamMemberIds", required = false) String selectedTeamMemberIds,
                                 @RequestParam(value = "selectedPartnerIds", required = false) String selectedPartnerIds,
                                 @RequestParam(value = "selectedPhotoIds", required = false) String selectedPhotoIds,
-                                @RequestParam(value = "videoUrl", required = false) String videoUrl) {
+                                @RequestParam(value = "videoUrl", required = false) String videoUrl,
+                                @RequestParam(value = "forceShowInCarousel", required = false) String[] forceShowInCarouselParam) {
 
         // ===== ВАЛИДАЦИЯ ДАТ =====
         if (project.getStartDate() != null && project.getEndDate() != null &&
@@ -444,6 +456,14 @@ public class ProjectAdminController {
                         project.getEventDate().isAfter(project.getEndDate()))) {
             bindingResult.rejectValue("eventDate", "error.project", "Дата события должна быть в рамках проекта");
         }
+
+        // ===== ОБРАБОТКА ФЛАГА КАРУСЕЛИ =====
+        boolean forceShowInCarousel = forceShowInCarouselParam != null &&
+                Arrays.asList(forceShowInCarouselParam).contains("true");
+
+        // Логируем для отладки
+        System.out.println(">>> forceShowInCarousel raw param: " + Arrays.toString(forceShowInCarouselParam));
+        System.out.println(">>> forceShowInCarousel parsed: " + forceShowInCarousel);
 
         // ===== НОВАЯ ВАЛИДАЦИЯ СТАТУСА =====
         validateProjectStatus(project, bindingResult);
@@ -553,6 +573,7 @@ public class ProjectAdminController {
             existingProject.setShowParticipation(project.isShowParticipation());
             existingProject.setShowPartners(project.isShowPartners());
             existingProject.setShowRelated(project.isShowRelated());
+            existingProject.setForceShowInCarousel(forceShowInCarousel);
 
             // ===== ОБРАБОТКА ВИДЕО URL =====
             if (videoUrl != null) {

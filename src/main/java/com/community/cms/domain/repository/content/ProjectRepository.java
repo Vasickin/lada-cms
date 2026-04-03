@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Репозиторий для работы с сущностью Project в базе данных.
@@ -548,4 +549,36 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             "p.endDate IS NOT NULL AND " +
             "p.endDate BETWEEN CURRENT_DATE AND CURRENT_DATE + :days")
     List<Project> findProjectsEndingSoon(@Param("days") int days);
+
+    /**
+     * Находит проекты для отображения в карусели событий на публичной странице.
+     * <p>
+     * В карусель попадают проекты, которые:
+     * <ul>
+     *     <li>Имеют принудительное включение (forceShowInCarousel = true) ИЛИ</li>
+     *     <li>Имеют дату события в будущем (eventDate > CURRENT_DATE)</li>
+     * </ul>
+     * Результат сортируется по дате события (от ближайших к более поздним),
+     * при этом проекты с forceShowInCarousel = true идут в начале списка.
+     * </p>
+     *
+     * @return список проектов для карусели, отсортированный по приоритету и дате
+     */
+    @Query("SELECT p FROM Project p WHERE " +
+            "p.forceShowInCarousel = true OR " +
+            "(p.eventDate IS NOT NULL AND p.eventDate > CURRENT_DATE) " +
+            "ORDER BY p.forceShowInCarousel DESC, p.eventDate ASC")
+    List<Project> findProjectsForCarousel();
+
+    /**
+     * Находит проекты для отображения в карусели с ограничением по количеству.
+     *
+     * @param limit максимальное количество проектов
+     * @return список проектов для карусели (не больше limit)
+     */
+    default List<Project> findProjectsForCarousel(int limit) {
+        return findProjectsForCarousel().stream()
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
 }

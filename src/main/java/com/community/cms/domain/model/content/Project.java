@@ -236,6 +236,22 @@ public class Project {
     @Column(name = "sections_order")
     private String sectionsOrder = "description,photos,videos,team,participation,partners,related";
 
+    /**
+     * Флаг принудительного отображения проекта в карусели событий на публичной странице.
+     * <p>
+     * Логика работы:
+     * <ul>
+     *     <li><b>Автоматическое управление:</b> при создании проекта с будущей датой
+     *         флаг устанавливается в true, при наступлении даты - в false</li>
+     *     <li><b>Ручное управление:</b> администратор может принудительно включить/отключить
+     *         показ проекта в карусели независимо от даты события</li>
+     *     <li><b>Приоритет:</b> ручное управление имеет высший приоритет над автоматическим</li>
+     * </ul>
+     * </p>
+     */
+    @Column(name = "force_show_in_carousel", nullable = false)
+    private boolean forceShowInCarousel = false;
+
     // ================== SEO МЕТА-ДАННЫЕ ==================
 
     /**
@@ -550,6 +566,14 @@ public class Project {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean isForceShowInCarousel() {
+        return forceShowInCarousel;
+    }
+
+    public void setForceShowInCarousel(boolean forceShowInCarousel) {
+        this.forceShowInCarousel = forceShowInCarousel;
     }
 
 

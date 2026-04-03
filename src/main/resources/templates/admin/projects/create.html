@@ -1387,8 +1387,35 @@
                                                 Похожие проекты
                                             </label>
                                         </div>
+
+                                        <!-- Переключатель для принудительного показа в карусели -->
+                                        <div class="form-check form-switch mb-2">
+                                            <input type="hidden" name="forceShowInCarousel" value="false"/>
+                                            <input type="checkbox"
+                                                   class="form-check-input"
+                                                   id="forceShowInCarousel"
+                                                   name="forceShowInCarousel"
+                                                   value="true"
+                                                   th:checked="${project != null ? project.forceShowInCarousel : false}">
+                                            <label class="form-check-label" for="forceShowInCarousel">
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                Принудительно показывать в карусели событий
+                                            </label>
+                                            <small class="form-text text-muted d-block mt-1">
+                                                Включите, чтобы проект показывался в карусели даже после окончания даты события
+                                            </small>
+                                        </div>
                                     </div>
                                 </div>
+
+                                <div class="alert alert-info mt-3 mb-0 small">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <strong>Обратите внимание:</strong>
+                                    Проекты с будущими датами событий попадают в карусель автоматически.
+                                    Этот переключатель позволяет принудительно показывать проект в карусели
+                                    даже после окончания события или скрыть его, если он вам не нужен.
+                                </div>
+
                                 <small class="form-text text-muted">
                                     Отметьте какие секции показывать на публичной странице проекта
                                 </small>
