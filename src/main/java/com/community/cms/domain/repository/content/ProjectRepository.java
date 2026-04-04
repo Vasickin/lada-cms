@@ -565,9 +565,13 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @return список проектов для карусели, отсортированный по приоритету и дате
      */
     @Query("SELECT p FROM Project p WHERE " +
-            "p.forceShowInCarousel = true OR " +
-            "(p.eventDate IS NOT NULL AND p.eventDate > CURRENT_DATE) " +
-            "ORDER BY p.forceShowInCarousel DESC, p.eventDate ASC")
+            "p.forceShowInCarousel = true OR " +  // Ручное включение — всегда
+            "(p.eventDate IS NOT NULL AND p.eventDate >= CURRENT_DATE) OR " +  // eventDate сегодня или позже
+            "(p.startDate IS NOT NULL AND p.endDate IS NOT NULL AND " +
+            "   p.startDate <= CURRENT_DATE AND p.endDate >= CURRENT_DATE) OR " +  // проект активен
+            "(p.endDate IS NOT NULL AND p.endDate >= CURRENT_DATE) " +  // проект ещё не закончился
+            "ORDER BY p.forceShowInCarousel DESC, " +
+            "CASE WHEN p.eventDate IS NOT NULL AND p.eventDate >= CURRENT_DATE THEN p.eventDate ELSE p.endDate END ASC")
     List<Project> findProjectsForCarousel();
 
     /**

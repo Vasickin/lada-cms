@@ -548,18 +548,6 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="endDate" class="form-label">
-                                            Дата окончания
-                                        </label>
-                                        <input type="date"
-                                               th:field="*{endDate}"
-                                               class="form-control"
-                                               id="endDate">
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('endDate')}">
-                                            <span th:errors="*{endDate}">Ошибка даты окончания</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
                                         <label for="eventDate" class="form-label">
                                             Дата события
                                         </label>
@@ -569,6 +557,18 @@
                                                id="eventDate">
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('eventDate')}">
                                             <span th:errors="*{eventDate}">Ошибка даты события</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="endDate" class="form-label">
+                                            Дата окончания
+                                        </label>
+                                        <input type="date"
+                                               th:field="*{endDate}"
+                                               class="form-control"
+                                               id="endDate">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('endDate')}">
+                                            <span th:errors="*{endDate}">Ошибка даты окончания</span>
                                         </div>
                                     </div>
                                 </div>

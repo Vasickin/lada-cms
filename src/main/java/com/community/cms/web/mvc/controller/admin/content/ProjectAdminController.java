@@ -219,7 +219,7 @@ public class ProjectAdminController {
                                 @RequestParam(value = "selectedPartnerIds", required = false) String selectedPartnerIds,
                                 @RequestParam(value = "selectedPhotoIds", required = false) String selectedPhotoIds,
                                 @RequestParam(value = "videoUrl", required = false) String videoUrl,
-                                @RequestParam(value = "forceShowInCarousel", required = false) String forceShowInCarouselParam) {
+                                @RequestParam(value = "forceShowInCarousel", required = false) String[] forceShowInCarouselParam) {
 
         // ===== ВАЛИДАЦИЯ ДАТ =====
         if (project.getStartDate() != null && project.getEndDate() != null &&
@@ -234,11 +234,11 @@ public class ProjectAdminController {
         }
 
         // ===== ОБРАБОТКА ФЛАГА КАРУСЕЛИ =====
-        boolean forceShowInCarousel = "true".equals(forceShowInCarouselParam) || "on".equals(forceShowInCarouselParam);
+        boolean forceShowInCarousel = forceShowInCarouselParam != null &&
+                Arrays.asList(forceShowInCarouselParam).contains("true");
         project.setForceShowInCarousel(forceShowInCarousel);
 
-        // Логируем для отладки
-        System.out.println(">>> forceShowInCarousel raw param: [" + forceShowInCarouselParam + "]");
+        System.out.println(">>> forceShowInCarousel raw param: " + Arrays.toString(forceShowInCarouselParam));
         System.out.println(">>> forceShowInCarousel parsed: " + forceShowInCarousel);
 
         // ===== НОВАЯ ВАЛИДАЦИЯ СТАТУСА =====

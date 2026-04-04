@@ -524,22 +524,6 @@
                                         </small>
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="endDate" class="form-label">
-                                            Дата окончания
-                                        </label>
-                                        <input type="date"
-                                               name="endDate"
-                                               th:value="${project.endDate != null} ? ${#temporals.format(project.endDate, 'yyyy-MM-dd')} : ''"
-                                               class="form-control"
-                                               id="endDate">
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('endDate')}">
-                                            <span th:errors="*{endDate}">Ошибка даты окончания</span>
-                                        </div>
-                                        <small class="form-text text-muted" th:if="${project.endDate != null}">
-                                            Текущая: <span th:text="${#temporals.format(project.endDate, 'dd.MM.yyyy')}"></span>
-                                        </small>
-                                    </div>
-                                    <div class="col-md-4">
                                         <label for="eventDate" class="form-label">
                                             Дата события
                                         </label>
@@ -553,6 +537,22 @@
                                         </div>
                                         <small class="form-text text-muted" th:if="${project.eventDate != null}">
                                             Текущая: <span th:text="${#temporals.format(project.eventDate, 'dd.MM.yyyy')}"></span>
+                                        </small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="endDate" class="form-label">
+                                            Дата окончания
+                                        </label>
+                                        <input type="date"
+                                               name="endDate"
+                                               th:value="${project.endDate != null} ? ${#temporals.format(project.endDate, 'yyyy-MM-dd')} : ''"
+                                               class="form-control"
+                                               id="endDate">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('endDate')}">
+                                            <span th:errors="*{endDate}">Ошибка даты окончания</span>
+                                        </div>
+                                        <small class="form-text text-muted" th:if="${project.endDate != null}">
+                                            Текущая: <span th:text="${#temporals.format(project.endDate, 'dd.MM.yyyy')}"></span>
                                         </small>
                                     </div>
                                 </div>
