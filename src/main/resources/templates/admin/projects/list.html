@@ -251,7 +251,7 @@
                                     <th>Категория</th>
                                     <th>Участники</th>
                                     <th>Статус</th>
-                                    <th>Видео</th>
+                                    <th>Карусель</th>
                                     <th>Дата события</th>
                                     <th>Создан</th>
                                     <th>Действия</th>
@@ -300,38 +300,17 @@
                                             Статус
                                         </span>
                                     </td>
-                                    <!-- КОЛОНКА: ВИДЕО -->
+                                    <!-- КОЛОНКА: КАРУСЕЛЬ -->
                                     <td>
-                                        <!-- Есть видео - СИНИЙ -->
-                                        <div th:if="${project.videoUrl != null}">
-                                            <span class="badge bg-primary me-1"
-                                                  title="Есть видео"
-                                                  data-bs-toggle="tooltip">
-                                            <i class="bi bi-play-btn"></i>
-                                        </span>
-                                            <a th:href="${project.videoUrl}"
-                                               class="btn btn-sm btn-link p-0 me-1"
-                                               target="_blank"
-                                               title="Открыть видео"
-                                               data-bs-toggle="tooltip">
-                                                <i class="bi bi-box-arrow-up-right"></i>
-                                            </a>
-                                            <button type="button"
-                                                    class="btn btn-sm btn-outline-secondary p-0"
-                                                    onclick="copyVideoUrl('[[${project.videoUrl}]]')"
-                                                    title="Копировать ссылку"
-                                                    data-bs-toggle="tooltip">
-                                                <i class="bi bi-clipboard"></i>
-                                            </button>
+                                        <div th:if="${project.forceShowInCarousel or (project.eventDate != null and project.eventDate.isAfter(#temporals.createToday()))}">
+        <span class="badge bg-primary" th:title="'Проект показывается в карусели'">
+            <i class="bi bi-star-fill me-1"></i> Вкл
+        </span>
                                         </div>
-
-                                        <!-- Нет видео - КРАСНЫЙ -->
-                                        <div th:if="${project.videoUrl == null}">
-                                            <span class="badge bg-danger"
-                                                  title="Нет видео"
-                                                  data-bs-toggle="tooltip">
-                                                <i class="bi bi-play-btn"></i>
-                                            </span>
+                                        <div th:unless="${project.forceShowInCarousel or (project.eventDate != null and project.eventDate.isAfter(#temporals.createToday()))}">
+        <span class="badge bg-danger" th:title="'Проект не показывается в карусели'">
+            <i class="bi bi-star me-1"></i> Выкл
+        </span>
                                         </div>
                                     </td>
                                     <td th:text="${project.eventDate != null} ? ${#temporals.format(project.eventDate, 'dd.MM.yyyy')} : '—'">
