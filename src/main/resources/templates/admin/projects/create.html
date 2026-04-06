@@ -460,46 +460,20 @@
                                 <div class="row mb-3">
                                     <!-- == Категория == -->
                                     <div class="col-md-6">
-                                        <label for="category" class="form-label">
-                                            Категория *
-                                        </label>
-
-                                        <!-- Выпадающий список с существующими категориями -->
-                                        <select th:field="*{category}"
-                                        class="form-select"
-                                        id="category"
-                                        required>
-                                        <option value="">Выберите категорию...</option>
-                                        <option th:each="cat : ${categories}"
-                                                th:value="${cat}"
-                                                th:text="${cat}">
-                                            Категория
-                                        </option>
-                                        <!-- Опция для создания новой категории -->
-                                        <option value="__NEW__">➕ Добавить новую категорию...</option>
-                                        </select>
-
-                                        <!-- Поле для ввода новой категории (изначально скрыто) -->
-                                        <div id="newCategoryField" class="mt-2" style="display: none;">
-                                            <label for="newCategoryName" class="form-label">
-                                                Название новой категории *
-                                            </label>
-                                            <input type="text"
-                                                   class="form-control"
-                                                   id="newCategoryName"
-                                                   placeholder="Введите название новой категории"
-                                                   maxlength="100">
-                                            <small class="form-text text-muted">
-                                                Эта категория будет сохранена и доступна для других проектов
-                                            </small>
-                                            <div class="invalid-feedback">
-                                                Введите название новой категории
-                                            </div>
+                                        <label for="category" class="form-label">Категория *</label>
+                                        <div class="input-group">
+                                            <select th:field="*{category}" class="form-select" id="category" required>
+                                                <option value="">Выберите категорию...</option>
+                                                <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
+                                            </select>
+                                            <button type="button" class="btn btn-outline-primary" id="createCategoryBtn" title="Создать новую категорию">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
                                         </div>
-
-                                        <div class="invalid-feedback" id="categoryError">
-                                            Выберите категорию проекта
-                                        </div>
+                                        <small class="form-text text-muted">
+                                            Выберите существующую категорию или нажмите <kbd>+</kbd> для создания новой
+                                        </small>
+                                        <div class="invalid-feedback">Выберите категорию проекта</div>
                                     </div>
 
 
@@ -1180,7 +1154,6 @@
                                                                 <li>Вставьте ссылку на видео с YouTube, Vimeo или Rutube</li>
                                                                 <li>Нажмите "Превью" для проверки</li>
                                                                 <li>Видео будет отображаться на странице проекта</li>
-                                                                <li>Для управления несколькими видео используйте <a href="#" onclick="alert('Используйте раздел \\'Управление видео\\' ниже'); return false;" class="alert-link">полную систему видео</a></li>
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -1595,92 +1568,92 @@
     })()
 </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const categorySelect = document.getElementById('category');
-        const newCategoryField = document.getElementById('newCategoryField');
-        const newCategoryInput = document.getElementById('newCategoryName');
-        const categoryError = document.getElementById('categoryError');
+<!--<script>-->
+<!--    document.addEventListener('DOMContentLoaded', function() {-->
+<!--        const categorySelect = document.getElementById('category');-->
+<!--        const newCategoryField = document.getElementById('newCategoryField');-->
+<!--        const newCategoryInput = document.getElementById('newCategoryName');-->
+<!--        const categoryError = document.getElementById('categoryError');-->
 
-        // Создаем скрытое поле для отправки новой категории
-        let hiddenInput = document.getElementById('newCategoryHidden');
-        if (!hiddenInput) {
-            hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.id = 'newCategoryHidden';
-            hiddenInput.name = 'newCategoryName';
-            categorySelect.parentNode.appendChild(hiddenInput);
-        }
+<!--        // Создаем скрытое поле для отправки новой категории-->
+<!--        let hiddenInput = document.getElementById('newCategoryHidden');-->
+<!--        if (!hiddenInput) {-->
+<!--            hiddenInput = document.createElement('input');-->
+<!--            hiddenInput.type = 'hidden';-->
+<!--            hiddenInput.id = 'newCategoryHidden';-->
+<!--            hiddenInput.name = 'newCategoryName';-->
+<!--            categorySelect.parentNode.appendChild(hiddenInput);-->
+<!--        }-->
 
-        // Обработчик изменения выбора категории
-        categorySelect.addEventListener('change', function() {
-            if (this.value === '__NEW__') {
-                // Показываем поле для новой категории
-                newCategoryField.style.display = 'block';
-                newCategoryInput.required = true;
-                categorySelect.required = false;
-                categorySelect.classList.add('border-primary');
+<!--        // Обработчик изменения выбора категории-->
+<!--        categorySelect.addEventListener('change', function() {-->
+<!--            if (this.value === '__NEW__') {-->
+<!--                // Показываем поле для новой категории-->
+<!--                newCategoryField.style.display = 'block';-->
+<!--                newCategoryInput.required = true;-->
+<!--                categorySelect.required = false;-->
+<!--                categorySelect.classList.add('border-primary');-->
 
-                // Очищаем значение в селекте для валидации Thymeleaf
-                categorySelect.setAttribute('data-original-value', this.value);
-                this.value = '';
-            } else {
-                // Скрываем поле для новой категории
-                newCategoryField.style.display = 'none';
-                newCategoryInput.required = false;
-                categorySelect.required = true;
-                categorySelect.classList.remove('border-primary');
-                newCategoryInput.value = '';
-                hiddenInput.value = '';
-            }
-        });
+<!--                // Очищаем значение в селекте для валидации Thymeleaf-->
+<!--                categorySelect.setAttribute('data-original-value', this.value);-->
+<!--                this.value = '';-->
+<!--            } else {-->
+<!--                // Скрываем поле для новой категории-->
+<!--                newCategoryField.style.display = 'none';-->
+<!--                newCategoryInput.required = false;-->
+<!--                categorySelect.required = true;-->
+<!--                categorySelect.classList.remove('border-primary');-->
+<!--                newCategoryInput.value = '';-->
+<!--                hiddenInput.value = '';-->
+<!--            }-->
+<!--        });-->
 
-        // Обработчик ввода текста в поле новой категории
-        newCategoryInput.addEventListener('input', function() {
-            hiddenInput.value = this.value.trim();
+<!--        // Обработчик ввода текста в поле новой категории-->
+<!--        newCategoryInput.addEventListener('input', function() {-->
+<!--            hiddenInput.value = this.value.trim();-->
 
-            if (this.value.trim().length > 0) {
-                this.classList.remove('is-invalid');
-                this.classList.add('border-success');
-                categoryError.style.display = 'none';
-            } else {
-                this.classList.remove('border-success');
-            }
-        });
+<!--            if (this.value.trim().length > 0) {-->
+<!--                this.classList.remove('is-invalid');-->
+<!--                this.classList.add('border-success');-->
+<!--                categoryError.style.display = 'none';-->
+<!--            } else {-->
+<!--                this.classList.remove('border-success');-->
+<!--            }-->
+<!--        });-->
 
-        // Валидация при отправке формы
-        const form = document.querySelector('.needs-validation');
-        form.addEventListener('submit', function(event) {
-            let isValid = true;
+<!--        // Валидация при отправке формы-->
+<!--        const form = document.querySelector('.needs-validation');-->
+<!--        form.addEventListener('submit', function(event) {-->
+<!--            let isValid = true;-->
 
-            // Восстанавливаем значение __NEW__ перед отправкой
-            if (categorySelect.getAttribute('data-original-value') === '__NEW__') {
-                categorySelect.value = '__NEW__';
-            }
+<!--            // Восстанавливаем значение __NEW__ перед отправкой-->
+<!--            if (categorySelect.getAttribute('data-original-value') === '__NEW__') {-->
+<!--                categorySelect.value = '__NEW__';-->
+<!--            }-->
 
-            // Проверяем выбранную категорию
-            if (categorySelect.value === '__NEW__') {
-                // Проверяем поле новой категории
-                if (!newCategoryInput.value.trim()) {
-                    newCategoryInput.classList.add('is-invalid');
-                    categoryError.textContent = 'Введите название новой категории';
-                    categoryError.style.display = 'block';
-                    isValid = false;
-                }
-            } else if (!categorySelect.value) {
-                // Проверяем обычный выбор категории
-                categorySelect.classList.add('is-invalid');
-                categoryError.style.display = 'block';
-                isValid = false;
-            }
+<!--            // Проверяем выбранную категорию-->
+<!--            if (categorySelect.value === '__NEW__') {-->
+<!--                // Проверяем поле новой категории-->
+<!--                if (!newCategoryInput.value.trim()) {-->
+<!--                    newCategoryInput.classList.add('is-invalid');-->
+<!--                    categoryError.textContent = 'Введите название новой категории';-->
+<!--                    categoryError.style.display = 'block';-->
+<!--                    isValid = false;-->
+<!--                }-->
+<!--            } else if (!categorySelect.value) {-->
+<!--                // Проверяем обычный выбор категории-->
+<!--                categorySelect.classList.add('is-invalid');-->
+<!--                categoryError.style.display = 'block';-->
+<!--                isValid = false;-->
+<!--            }-->
 
-            if (!isValid) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-        });
-    });
-</script>
+<!--            if (!isValid) {-->
+<!--                event.preventDefault();-->
+<!--                event.stopPropagation();-->
+<!--            }-->
+<!--        });-->
+<!--    });-->
+<!--</script>-->
 
 <!-- Скрипт для автогенерации slug -->
 <script>
@@ -4078,6 +4051,64 @@ function updatePartnersPreview() {
             }
         }, 5000);
     }
+</script>
+
+<script>
+    // === СОЗДАНИЕ НОВОЙ КАТЕГОРИИ ПРИ СОЗДАНИИ ===
+    document.addEventListener('DOMContentLoaded', function() {
+        const createBtn = document.getElementById('createCategoryBtn');
+        const categorySelect = document.getElementById('category');
+
+        if (createBtn && categorySelect) {
+            createBtn.addEventListener('click', function() {
+                const newCategory = prompt('Введите название новой категории:');
+
+                if (newCategory && newCategory.trim()) {
+                    const trimmedName = newCategory.trim();
+
+                    // Проверяем, нет ли уже такой категории
+                    let exists = false;
+                    for (let i = 0; i < categorySelect.options.length; i++) {
+                        if (categorySelect.options[i].value === trimmedName) {
+                            exists = true;
+                            break;
+                        }
+                    }
+
+                    if (exists) {
+                        alert('Категория "' + trimmedName + '" уже существует!');
+                        categorySelect.value = trimmedName;
+                    } else {
+                        // Добавляем новую опцию в select
+                        const newOption = document.createElement('option');
+                        newOption.value = trimmedName;
+                        newOption.textContent = trimmedName;
+                        categorySelect.appendChild(newOption);
+
+                        // Выбираем новую категорию
+                        categorySelect.value = trimmedName;
+
+                        // Показываем уведомление
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert alert-success alert-dismissible fade show mt-2';
+                        alertDiv.innerHTML = `
+                            <i class="bi bi-check-circle me-1"></i>
+                            Категория "${trimmedName}" создана и выбрана!
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        categorySelect.parentNode.insertBefore(alertDiv, categorySelect.nextSibling);
+
+                        setTimeout(() => {
+                            if (alertDiv.parentNode) {
+                                const bsAlert = bootstrap.Alert.getOrCreateInstance(alertDiv);
+                                if (bsAlert) bsAlert.close();
+                            }
+                        }, 3000);
+                    }
+                }
+            });
+        }
+    });
 </script>
 </body>
 </html>
