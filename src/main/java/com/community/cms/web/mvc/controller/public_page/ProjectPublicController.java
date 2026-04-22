@@ -225,15 +225,7 @@ public class ProjectPublicController {
         String category = currentProject.getCategory();
         Long excludeId = currentProject.getId();
 
-        // Временная реализация - будет заменена на Этапе 7
-        List<Project> allProjects = projectService.findAll();
-
-        return allProjects.stream()
-                .filter(p -> category.equals(p.getCategory()))
-                .filter(p -> !p.getId().equals(excludeId))
-                .sorted(Comparator.comparing(Project::getEventDate,
-                        Comparator.nullsLast(Comparator.reverseOrder())))
-                .limit(3)
-                .collect(Collectors.toList());
+        // Используем метод, который НЕ исключает архивные проекты
+        return projectService.findSimilarProjectsAllStatuses(category, excludeId, 30);
     }
 }

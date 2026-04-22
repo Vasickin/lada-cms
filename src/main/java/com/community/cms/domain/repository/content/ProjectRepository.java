@@ -398,10 +398,17 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
                                       Pageable pageable);
 
     /**
-     * Похожие проекты для публичной части (все статусы)
+     * Находит похожие проекты по категории (включая архивные).
+     * Использует нативный запрос PostgreSQL для корректной сортировки с NULLS LAST.
+     *
+     * @param category категория для поиска
+     * @param excludeId ID проекта для исключения
+     * @param pageable параметры пагинации с лимитом
+     * @return страница похожих проектов
      */
-    @Query("SELECT p FROM Project p WHERE p.category = :category AND p.id <> :excludeId " +
-            "ORDER BY p.createdAt DESC")
+    @Query(value = "SELECT * FROM projects p WHERE p.category = :category AND p.id != :excludeId " +
+            "ORDER BY p.event_date DESC NULLS LAST, p.created_at DESC",
+            nativeQuery = true)
     Page<Project> findSimilarProjectsAllStatuses(@Param("category") String category,
                                                  @Param("excludeId") Long excludeId,
                                                  Pageable pageable);
