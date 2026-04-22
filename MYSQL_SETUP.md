@@ -28,18 +28,18 @@ FLUSH PRIVILEGES;
 EXIT;
 ```
 ## Зайти в базу данных:
-```jshelllanguage
+```bash
 mysql -u lada_user -p lada_cms
 ```
  ## Пароль:
-```shell
+```bash
 LadaCMS2025
 ```
 
 ## Проверь MySQL:
 ### 1. Просмотр списка всех таблиц в базе данных
 #### sql
-```shell
+```sql
 SHOW TABLES;
 ```
 
