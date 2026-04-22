@@ -5,9 +5,9 @@ import com.community.cms.domain.model.content.Project;
 import com.community.cms.domain.model.people.Partner;
 import com.community.cms.domain.model.people.TeamMember;
 import com.community.cms.domain.repository.content.ProjectRepository;
+import com.community.cms.domain.repository.content.specifications.ProjectSpecifications;
 import com.community.cms.web.mvc.form.content.ProjectForm;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,9 +43,9 @@ import java.util.stream.Collectors;
  *
  * <p>Кэширование:
  * <ul>
- *   <li>projects-list: кэширует списки проектов</li>
- *   <li>project-by-id: кэширует отдельные проекты по ID</li>
- *   <li>project-by-slug: кэширует проекты по slug для публичного доступа</li>
+ *   <li>Projects-list: кэширует списки проектов</li>
+ *   <li>Project-by-id: кэширует отдельные проекты по ID</li>
+ *   <li>Project-by-slug: кэширует проекты по slug для публичного доступа</li>
  * </ul>
  *
  * @author Community CMS
@@ -916,5 +917,67 @@ public class ProjectService {
                 .sorted(Comparator.comparing(Project::getEventDate))
                 .limit(limit)
                 .collect(Collectors.toList());
+    }
+
+    // ================== МЕТОД ДЛЯ ФИЛЬТРАЦИИ ПРОЕКТОВ ЧЕРЕЗ БД ==================
+
+    /**
+     * Находит проекты с применением фильтров на уровне базы данных.
+     * <p>
+     * Все фильтры применяются через JPA Specifications, что позволяет
+     * выполнять фильтрацию на стороне PostgreSQL без загрузки всех
+     * данных в память приложения.
+     * </p>
+     *
+     * @param status статус для фильтрации (может быть null)
+     * @param category категория для фильтрации (может быть null)
+     * @param year год события для фильтрации (может быть null)
+     * @param date точная дата события для фильтрации (может быть null)
+     * @param search поисковый запрос по названию и описанию (может быть null)
+     * @param pageable параметры пагинации и сортировки
+     * @return страница проектов, соответствующих фильтрам
+     */
+    @Transactional(readOnly = true)
+    public Page<Project> findFilteredProjects(
+            ProjectStatusType status,
+            String category,
+            Integer year,
+            LocalDate date,
+            String search,
+            Pageable pageable) {
+
+        log.debug("Поиск проектов с фильтрами: status={}, category={}, year={}, date={}, search={}",
+                status, category, year, date, search);
+
+        // Начинаем с пустой спецификации (вернёт все проекты)
+        Specification<Project> spec = Specification.where(null);
+
+        // Добавляем фильтр по статусу, если указан
+        if (status != null) {
+            spec = spec.and(ProjectSpecifications.hasStatus(status));
+        }
+
+        // Добавляем фильтр по категории, если указана
+        if (category != null && !category.trim().isEmpty()) {
+            spec = spec.and(ProjectSpecifications.hasCategory(category));
+        }
+
+        // Добавляем фильтр по году, если указан
+        if (year != null) {
+            spec = spec.and(ProjectSpecifications.hasYear(year));
+        }
+
+        // Добавляем фильтр по дате, если указана
+        if (date != null) {
+            spec = spec.and(ProjectSpecifications.hasDate(date));
+        }
+
+        // Добавляем поиск по тексту, если указан
+        if (search != null && !search.trim().isEmpty()) {
+            spec = spec.and(ProjectSpecifications.searchByTerm(search.trim()));
+        }
+
+        // Выполняем запрос с пагинацией
+        return projectRepository.findAll(spec, pageable);
     }
 }
