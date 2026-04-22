@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 /**
  * Публичный контроллер для работы с проектами.
@@ -202,11 +203,37 @@ public class ProjectPublicController {
         model.addAttribute("project", projectDTO);
 
         // Похожие проекты (по категории, исключая текущий)
-        // TODO: Будет реализовано на Этапе 6-7
-        model.addAttribute("similarProjects", new ArrayList<>());
+        List<Project> similarProjects = findSimilarProjects(project);
+        List<ProjectDTO> similarProjectDTOs = projectMapper.toPublicCardDTOList(similarProjects);
+        model.addAttribute("similarProjects", similarProjectDTOs);
 
-        log.info("Детальная страница проекта: id={}, title={}", project.getId(), project.getTitle());
+        log.info("Детальная страница проекта: id={}, title={}, похожих проектов: {}",
+                project.getId(), project.getTitle(), similarProjects.size());
 
         return "public/projects/detail";
+    }
+
+    /**
+     * Вспомогательный метод для поиска похожих проектов.
+     * Временно реализован через фильтрацию в памяти.
+     * Будет заменён на запрос к БД на Этапе 7.
+     *
+     * @param currentProject текущий проект
+     * @return список похожих проектов (до 3)
+     */
+    private List<Project> findSimilarProjects(Project currentProject) {
+        String category = currentProject.getCategory();
+        Long excludeId = currentProject.getId();
+
+        // Временная реализация - будет заменена на Этапе 7
+        List<Project> allProjects = projectService.findAll();
+
+        return allProjects.stream()
+                .filter(p -> category.equals(p.getCategory()))
+                .filter(p -> !p.getId().equals(excludeId))
+                .sorted(Comparator.comparing(Project::getEventDate,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .limit(3)
+                .collect(Collectors.toList());
     }
 }
