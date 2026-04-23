@@ -72,31 +72,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
      */
     List<Project> findByStatus(ProjectStatusType status);
 
-    /**
-     * Находит все проекты с указанным статусом, отсортированные по дате создания.
-     *
-     * @param status статус для фильтрации
-     * @return список проектов с указанным статусом (сначала новые)
-     */
-    List<Project> findByStatusOrderByCreatedAtDesc(ProjectStatusType status);
-
-    /**
-     * Находит все проекты с указанным статусом, отсортированные по порядку сортировки.
-     *
-     * @param status статус для фильтрации
-     * @return список проектов с указанным статусом (по sortOrder)
-     */
-    List<Project> findByStatusOrderBySortOrderAsc(ProjectStatusType status);
-
     // ================== ФИЛЬТРАЦИЯ ПО КАТЕГОРИИ ==================
-
-    /**
-     * Находит все проекты указанной категории.
-     *
-     * @param category категория для фильтрации
-     * @return список проектов указанной категории
-     */
-    List<Project> findByCategory(String category);
 
     /**
      * Находит все проекты указанной категории и статуса.
@@ -106,14 +82,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
      * @return список проектов соответствующих категории и статусу
      */
     List<Project> findByCategoryAndStatus(String category, ProjectStatusType status);
-
-    /**
-     * Находит все проекты указанной категории, отсортированные по дате создания.
-     *
-     * @param category категория для фильтрации
-     * @return список проектов указанной категории (сначала новые)
-     */
-    List<Project> findByCategoryOrderByCreatedAtDesc(String category);
 
     /**
      * Находит все уникальные категории проектов.
@@ -126,22 +94,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
     List<String> findAllDistinctCategories();
 
     // ================== ФИЛЬТРАЦИЯ ПО ДАТАМ ==================
-
-    /**
-     * Находит проекты, начавшиеся после указанной даты.
-     *
-     * @param date дата для фильтрации
-     * @return список проектов начавшихся после указанной даты
-     */
-    List<Project> findByStartDateAfter(LocalDate date);
-
-    /**
-     * Находит проекты, закончившиеся до указанной даты.
-     *
-     * @param date дата для фильтрации
-     * @return список проектов закончившихся до указанной даты
-     */
-    List<Project> findByEndDateBefore(LocalDate date);
 
     /**
      * Находит проекты, которые активны в указанный период.
@@ -157,14 +109,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
             "(p.startDate IS NULL OR p.startDate <= :date) AND " +
             "(p.endDate IS NULL OR p.endDate >= :date)")
     List<Project> findActiveOnDate(@Param("date") LocalDate date);
-
-    /**
-     * Находит проекты с событием в указанную дату.
-     *
-     * @param date дата события
-     * @return список проектов с событием в указанную дату
-     */
-    List<Project> findByEventDate(LocalDate date);
 
     /**
      * Находит проекты с событием в указанный период.
@@ -187,16 +131,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
     List<Project> findByTitleContainingIgnoreCase(String title);
 
     /**
-     * Находит проекты по части описания (без учета регистра).
-     *
-     * @param description фрагмент описания для поиска
-     * @return список найденных проектов
-     */
-    @Query("SELECT p FROM Project p WHERE LOWER(p.shortDescription) LIKE LOWER(CONCAT('%', :description, '%')) " +
-            "OR LOWER(p.fullDescription) LIKE LOWER(CONCAT('%', :description, '%'))")
-    List<Project> findByDescriptionContaining(@Param("description") String description);
-
-    /**
      * Находит проекты по части названия или описания (без учета регистра).
      * Комплексный поиск для пользовательского интерфейса.
      *
@@ -217,6 +151,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
      * @param pageable объект пагинации
      * @return страница проектов
      */
+    @SuppressWarnings("NullableProblems")
     Page<Project> findAll(Pageable pageable);
 
     /**
@@ -247,38 +182,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
      */
     Page<Project> findByStatusAndCategory(ProjectStatusType status, String category, Pageable pageable);
 
-    // ================== СОРТИРОВКА ==================
-
-    /**
-     * Находит все проекты, отсортированные по дате создания (новые сначала).
-     *
-     * @return список проектов отсортированных по дате создания
-     */
-    List<Project> findAllByOrderByCreatedAtDesc();
-
-    /**
-     * Находит все проекты, отсортированные по дате события (ближайшие сначала).
-     *
-     * @return список проектов отсортированных по дате события
-     */
-    @Query("SELECT p FROM Project p WHERE p.eventDate IS NOT NULL ORDER BY p.eventDate ASC")
-    List<Project> findAllByOrderByEventDateAsc();
-
-    /**
-     * Находит все проекты, отсортированные по названию (A-Z).
-     *
-     * @return список проектов отсортированных по названию
-     */
-    List<Project> findAllByOrderByTitleAsc();
-
-    /**
-     * Находит все проекты, отсортированные по порядку сортировки.
-     * Используется для ручной сортировки в админке.
-     *
-     * @return список проектов отсортированных по sortOrder
-     */
-    @Query("SELECT p FROM Project p ORDER BY p.sortOrder ASC, p.createdAt DESC")
-    List<Project> findAllByOrderBySortOrderAsc();
 
     // ================== СТАТИСТИКА И СВОДНЫЕ ДАННЫЕ ==================
 
@@ -297,15 +200,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
      * @return количество проектов указанной категории
      */
     long countByCategory(String category);
-
-    /**
-     * Подсчитывает количество проектов по статусу и категории.
-     *
-     * @param status статус для подсчета
-     * @param category категория для подсчета
-     * @return количество проектов соответствующих статусу и категории
-     */
-    long countByStatusAndCategory(ProjectStatusType status, String category);
 
     /**
      * Находит последние N проектов.
