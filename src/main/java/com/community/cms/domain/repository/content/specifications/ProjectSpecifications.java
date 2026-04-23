@@ -91,17 +91,6 @@ public class ProjectSpecifications {
     }
 
     /**
-     * Поиск по названию и описанию.
-     * НЕ ИСПОЛЬЗУЕТСЯ в текущей реализации - поиск выполняется через нативный запрос.
-     *
-     * @param searchTerm поисковый запрос
-     * @return null (спецификация не применяется)
-     */
-    public static Specification<Project> searchByTerm(String searchTerm) {
-        return null;
-    }
-
-    /**
      * Комбинирует несколько спецификаций через AND.
      * Все переданные спецификации должны быть выполнены.
      *
