@@ -44,31 +44,6 @@ import java.util.Set;
 @Table(name = "projects")
 public class Project {
 
-//    /**
-//     * Статусы проекта для управления жизненным циклом.
-//     * Project statuses for lifecycle management.
-//     */
-//    public enum ProjectStatus {
-//        ACTIVE("Активный", "Active"),
-//        ARCHIVED("Архивный", "Archived"),
-//        ANNUAL("Ежегодный", "Annual");
-//
-//        private final String nameRu;
-//        private final String nameEn;
-//
-//        ProjectStatus(String nameRu, String nameEn) {
-//            this.nameRu = nameRu;
-//            this.nameEn = nameEn;
-//        }
-//
-//        public String getNameRu() {
-//            return nameRu;
-//        }
-//
-//        public String getNameEn() {
-//            return nameEn;
-//        }
-//    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -623,54 +598,6 @@ public class Project {
         return keyPhotoIds != null && !keyPhotoIds.isEmpty();
     }
 
-    /**
-     * Получает количество ключевых фотографий.
-     *
-     * @return количество ключевых фотографий (0-5)
-     */
-    public int getKeyPhotosCount() {
-        return keyPhotoIds != null ? keyPhotoIds.size() : 0;
-    }
-
-    /**
-     * Добавляет ID фотографии к списку ключевых.
-     * Проверяет что не превышен лимит в 5 фото.
-     *
-     * @param photoId ID фотографии из галереи
-     * @return true если фото было добавлено, false если лимит превышен
-     */
-    public boolean addKeyPhotoId(Long photoId) {
-        if (keyPhotoIds == null) {
-            keyPhotoIds = new ArrayList<>();
-        }
-        if (keyPhotoIds.size() >= 10) {
-            return false; // Превышен лимит
-        }
-        if (photoId != null && !keyPhotoIds.contains(photoId)) {
-            return keyPhotoIds.add(photoId);
-        }
-        return false;
-    }
-
-    /**
-     * Удаляет ID фотографии из списка ключевых.
-     *
-     * @param photoId ID фотографии для удаления
-     * @return true если фото было удалено
-     */
-    public boolean removeKeyPhotoId(Long photoId) {
-        return keyPhotoIds != null && keyPhotoIds.remove(photoId);
-    }
-
-    /**
-     * Очищает все ключевые фотографии.
-     */
-    public void clearKeyPhotos() {
-        if (keyPhotoIds != null) {
-            keyPhotoIds.clear();
-        }
-    }
-
 
     // ================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ==================
 
@@ -695,11 +622,7 @@ public class Project {
         }
 
         // Если есть endDate, проверяем что проект еще не закончился
-        if (endDate != null && now.isAfter(endDate)) {
-            return false;
-        }
-
-        return true;
+        return endDate == null || !now.isAfter(endDate);
     }
 
     /**
@@ -893,39 +816,6 @@ public class Project {
         this.partners = partners;
     }
 
-    /**
-     * Добавляет партнера к проекту.
-     *
-     * @param partner партнер для добавления
-     */
-    public void addPartner(Partner partner) {
-        this.partners.add(partner);
-        partner.getProjects().add(this);
-    }
-
-    /**
-     * Удаляет партнера из проекта.
-     *
-     * @param partner партнер для удаления
-     * @return true если партнер был удален, false если не найден
-     */
-    public boolean removePartner(Partner partner) {
-        boolean removed = this.partners.remove(partner);
-        if (removed) {
-            partner.getProjects().remove(this);
-        }
-        return removed;
-    }
-
-    /**
-     * Получает количество партнеров проекта.
-     *
-     * @return количество партнеров
-     */
-    public int getPartnersCount() {
-        return partners != null ? partners.size() : 0;
-    }
-
     // В Project.java добавляем новые методы:
 
     /**
@@ -943,47 +833,64 @@ public class Project {
         String platform = getVideoPlatform();
 
         try {
-            switch (platform) {
-                case "youtube":
-                    // Паттерны из админки: extractYouTubeId()
-                    if (url.contains("youtube.com/watch?v=")) {
-                        return url.substring(url.indexOf("v=") + 2).split("&")[0];
-                    } else if (url.contains("youtu.be/")) {
-                        return url.substring(url.indexOf("youtu.be/") + 9).split("[?&]")[0];
-                    } else if (url.contains("youtube.com/embed/")) {
-                        return url.substring(url.indexOf("embed/") + 6).split("[?&]")[0];
-                    } else if (url.contains("youtube.com/v/")) {
-                        return url.substring(url.indexOf("v/") + 2).split("[?&]")[0];
-                    }
-                    break;
-
-                case "vimeo":
-                    // Паттерн из админки: extractVimeoId()
-                    String vimeoId = url.replaceAll(".*vimeo\\.com/(\\d+).*", "$1");
-                    if (!vimeoId.equals(url) && vimeoId.matches("\\d+")) {
-                        return vimeoId;
-                    }
-                    break;
-
-                case "rutube":
-                    // Паттерны из админки: extractRutubeId()
-                    if (url.contains("rutube.ru/video/")) {
-                        String idPart = url.substring(url.indexOf("video/") + 6);
-                        return idPart.split("/")[0].split("\\?")[0];
-                    } else if (url.contains("rutube.ru/play/embed/")) {
-                        String idPart = url.substring(url.indexOf("embed/") + 6);
-                        return idPart.split("/")[0].split("\\?")[0];
-                    } else if (url.contains("rutube.ru/shorts/")) {
-                        String idPart = url.substring(url.indexOf("shorts/") + 7);
-                        return idPart.split("/")[0].split("\\?")[0];
-                    }
-                    break;
-            }
+            return switch (platform) {
+                case "youtube" -> extractYouTubeId(url);
+                case "vimeo" -> extractVimeoId(url);
+                case "rutube" -> extractRutubeId(url);
+                default -> null;
+            };
         } catch (Exception e) {
             System.err.println("Ошибка при извлечении ID видео: " + e.getMessage());
+            return null;
         }
+    }
 
+    /**
+     * Извлекает ID видео из YouTube URL.
+     */
+    private String extractYouTubeId(String url) {
+        if (url.contains("youtube.com/watch?v=")) {
+            return url.substring(url.indexOf("v=") + 2).split("&")[0];
+        } else if (url.contains("youtu.be/")) {
+            return url.substring(url.indexOf("youtu.be/") + 9).split("[?&]")[0];
+        } else if (url.contains("youtube.com/embed/")) {
+            return extractAfterKeyword(url, "embed/").split("[?&]")[0];
+        } else if (url.contains("youtube.com/v/")) {
+            return extractAfterKeyword(url, "v/").split("[?&]")[0];
+        }
         return null;
+    }
+
+    /**
+     * Извлекает ID видео из Vimeo URL.
+     */
+    private String extractVimeoId(String url) {
+        String vimeoId = url.replaceAll(".*vimeo\\.com/(\\d+).*", "$1");
+        if (!vimeoId.equals(url) && vimeoId.matches("\\d+")) {
+            return vimeoId;
+        }
+        return null;
+    }
+
+    /**
+     * Извлекает ID видео из Rutube URL.
+     */
+    private String extractRutubeId(String url) {
+        if (url.contains("rutube.ru/video/")) {
+            return extractAfterKeyword(url, "video/").split("/")[0].split("\\?")[0];
+        } else if (url.contains("rutube.ru/play/embed/")) {
+            return extractAfterKeyword(url, "embed/").split("/")[0].split("\\?")[0];
+        } else if (url.contains("rutube.ru/shorts/")) {
+            return extractAfterKeyword(url, "shorts/").split("/")[0].split("\\?")[0];
+        }
+        return null;
+    }
+
+    /**
+     * Вспомогательный метод для извлечения подстроки после ключевого слова.
+     */
+    private String extractAfterKeyword(String text, String keyword) {
+        return text.substring(text.indexOf(keyword) + keyword.length());
     }
 
     /**
@@ -998,16 +905,12 @@ public class Project {
             return null;
         }
 
-        switch (platform) {
-            case "youtube":
-                return "https://www.youtube.com/embed/" + videoId;
-            case "vimeo":
-                return "https://player.vimeo.com/video/" + videoId;
-            case "rutube":
-                return "https://rutube.ru/play/embed/" + videoId;
-            default:
-                return null;
-        }
+        return switch (platform) {
+            case "youtube" -> "https://www.youtube.com/embed/" + videoId;
+            case "vimeo" -> "https://player.vimeo.com/video/" + videoId;
+            case "rutube" -> "https://rutube.ru/play/embed/" + videoId;
+            default -> null;
+        };
     }
 
     /**
@@ -1130,9 +1033,7 @@ public class Project {
             if (startDate != null && !today.isBefore(startDate)) {
                 return true;
             }
-            if (startDate == null && eventDate != null && !today.isBefore(eventDate)) {
-                return true;
-            }
+            return startDate == null && eventDate != null && !today.isBefore(eventDate);
         }
 
         return false;
@@ -1153,9 +1054,7 @@ public class Project {
             if (endDate != null && today.isAfter(endDate)) {
                 return true;
             }
-            if (endDate == null && eventDate != null && today.isAfter(eventDate)) {
-                return true;
-            }
+            return endDate == null && eventDate != null && today.isAfter(eventDate);
         }
 
         return false;
