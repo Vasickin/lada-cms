@@ -170,7 +170,7 @@ public class ProjectForm {
 
     /**
      * Порядок отображения секций.
-     * Хранится в формате "description,photos,videos,team"
+     * Хранится в формате "description, photos, videos, team"
      */
     @Size(max = 255, message = "Порядок секций не должен превышать 255 символов")
     private String sectionsOrder = "description,photos,videos,team,participation,partners,related";

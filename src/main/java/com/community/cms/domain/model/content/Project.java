@@ -44,31 +44,6 @@ import java.util.Set;
 @Table(name = "projects")
 public class Project {
 
-//    /**
-//     * Статусы проекта для управления жизненным циклом.
-//     * Project statuses for lifecycle management.
-//     */
-//    public enum ProjectStatus {
-//        ACTIVE("Активный", "Active"),
-//        ARCHIVED("Архивный", "Archived"),
-//        ANNUAL("Ежегодный", "Annual");
-//
-//        private final String nameRu;
-//        private final String nameEn;
-//
-//        ProjectStatus(String nameRu, String nameEn) {
-//            this.nameRu = nameRu;
-//            this.nameEn = nameEn;
-//        }
-//
-//        public String getNameRu() {
-//            return nameRu;
-//        }
-//
-//        public String getNameEn() {
-//            return nameEn;
-//        }
-//    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

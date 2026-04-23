@@ -614,7 +614,7 @@ public class ProjectAdminController {
             }
 
 
-            // ===== ОБРАБОТКА ОБНОВЛЕНИЯ ПАРТНЁРОВ  =====
+            // ===== ОБРАБОТКА ОБНОВЛЕНИЯ ПАРТНЁРОВ =====
             if (selectedPartnerIds != null) {
                 // 1. Получаем текущих партнёров проекта
                 List<Partner> currentPartners = partnerService.findByProject(existingProject);

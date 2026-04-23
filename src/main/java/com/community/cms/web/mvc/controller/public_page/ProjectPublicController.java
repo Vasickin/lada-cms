@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.Comparator;
 
 /**
  * Публичный контроллер для работы с проектами.
