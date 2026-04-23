@@ -593,4 +593,35 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
                 .limit(limit)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Находит все уникальные года событий проектов.
+     * Используется для фильтра в публичной части.
+     *
+     * @return список уникальных годов событий, отсортированных по убыванию
+     */
+    @Query("SELECT DISTINCT YEAR(p.eventDate) FROM Project p WHERE p.eventDate IS NOT NULL ORDER BY YEAR(p.eventDate) DESC")
+    List<Integer> findAllDistinctEventYears();
+
+
+    /**
+     * Поиск проектов по названию и описанию с использованием ILIKE.
+     * Использует нативный запрос PostgreSQL для регистронезависимого поиска.
+     *
+     * @param searchTerm поисковый запрос
+     * @param pageable параметры пагинации
+     * @return страница найденных проектов
+     */
+    @Query(value = "SELECT * FROM projects p WHERE " +
+            "p.title ILIKE CONCAT('%', :searchTerm, '%') OR " +
+            "p.short_description ILIKE CONCAT('%', :searchTerm, '%') OR " +
+            "p.full_description ILIKE CONCAT('%', :searchTerm, '%') " +
+            "ORDER BY p.event_date DESC NULLS LAST, p.created_at DESC",
+            countQuery = "SELECT COUNT(*) FROM projects p WHERE " +
+                    "p.title ILIKE CONCAT('%', :searchTerm, '%') OR " +
+                    "p.short_description ILIKE CONCAT('%', :searchTerm, '%') OR " +
+                    "p.full_description ILIKE CONCAT('%', :searchTerm, '%')",
+            nativeQuery = true)
+    Page<Project> searchByTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
+
 }

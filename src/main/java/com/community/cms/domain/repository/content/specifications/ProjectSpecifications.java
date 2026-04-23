@@ -52,7 +52,7 @@ public class ProjectSpecifications {
 
     /**
      * Фильтрация по году даты события.
-     * Использует функцию EXTRACT для получения года из даты.
+     * Использует функцию date_part для получения года из даты в PostgreSQL.
      *
      * @param year год для фильтрации (может быть null)
      * @return спецификация для фильтрации по году
@@ -62,12 +62,15 @@ public class ProjectSpecifications {
             if (year == null) {
                 return null;
             }
-            // Используем функцию EXTRACT для получения года из eventDate
+
+            // Используем date_part('year', event_date) для PostgreSQL
             Expression<Integer> yearExpression = criteriaBuilder.function(
-                    "YEAR",
+                    "date_part",
                     Integer.class,
+                    criteriaBuilder.literal("year"),
                     root.get("eventDate")
             );
+
             return criteriaBuilder.equal(yearExpression, year);
         };
     }
@@ -88,41 +91,14 @@ public class ProjectSpecifications {
     }
 
     /**
-     * Поиск по названию, краткому и полному описанию.
-     * Использует ILIKE для регистронезависимого поиска в PostgreSQL.
+     * Поиск по названию и описанию.
+     * НЕ ИСПОЛЬЗУЕТСЯ в текущей реализации - поиск выполняется через нативный запрос.
      *
-     * @param searchTerm поисковый запрос (может быть null или пустой)
-     * @return спецификация для поиска по текстовым полям
+     * @param searchTerm поисковый запрос
+     * @return null (спецификация не применяется)
      */
     public static Specification<Project> searchByTerm(String searchTerm) {
-        return (root, query, criteriaBuilder) -> {
-            if (searchTerm == null || searchTerm.trim().isEmpty()) {
-                return null;
-            }
-
-            String searchPattern = "%" + searchTerm.toLowerCase() + "%";
-
-            // Поиск по названию (ILIKE)
-            Predicate titlePredicate = criteriaBuilder.like(
-                    criteriaBuilder.lower(root.get("title")),
-                    searchPattern
-            );
-
-            // Поиск по краткому описанию (ILIKE)
-            Predicate shortDescPredicate = criteriaBuilder.like(
-                    criteriaBuilder.lower(root.get("shortDescription")),
-                    searchPattern
-            );
-
-            // Поиск по полному описанию (ILIKE)
-            Predicate fullDescPredicate = criteriaBuilder.like(
-                    criteriaBuilder.lower(root.get("fullDescription")),
-                    searchPattern
-            );
-
-            // Объединяем через OR
-            return criteriaBuilder.or(titlePredicate, shortDescPredicate, fullDescPredicate);
-        };
+        return null;
     }
 
     /**

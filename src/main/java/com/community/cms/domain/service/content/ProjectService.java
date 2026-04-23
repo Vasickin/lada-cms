@@ -15,6 +15,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -949,35 +950,47 @@ public class ProjectService {
         log.debug("Поиск проектов с фильтрами: status={}, category={}, year={}, date={}, search={}",
                 status, category, year, date, search);
 
-        // Начинаем с пустой спецификации (вернёт все проекты)
+        // Если есть поисковый запрос - используем нативный запрос БЕЗ сортировки из Pageable
+        if (search != null && !search.trim().isEmpty()) {
+            // Создаём Pageable БЕЗ сортировки, так как сортировка уже в запросе
+            Pageable pageableWithoutSort = PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize()
+            );
+            return projectRepository.searchByTerm(search.trim(), pageableWithoutSort);
+        }
+
+        // Иначе строим спецификацию с обычной сортировкой
         Specification<Project> spec = Specification.where(null);
 
-        // Добавляем фильтр по статусу, если указан
         if (status != null) {
             spec = spec.and(ProjectSpecifications.hasStatus(status));
         }
 
-        // Добавляем фильтр по категории, если указана
         if (category != null && !category.trim().isEmpty()) {
             spec = spec.and(ProjectSpecifications.hasCategory(category));
         }
 
-        // Добавляем фильтр по году, если указан
         if (year != null) {
             spec = spec.and(ProjectSpecifications.hasYear(year));
         }
 
-        // Добавляем фильтр по дате, если указана
         if (date != null) {
             spec = spec.and(ProjectSpecifications.hasDate(date));
         }
 
-        // Добавляем поиск по тексту, если указан
-        if (search != null && !search.trim().isEmpty()) {
-            spec = spec.and(ProjectSpecifications.searchByTerm(search.trim()));
-        }
-
-        // Выполняем запрос с пагинацией
         return projectRepository.findAll(spec, pageable);
     }
+
+    /**
+     * Находит все уникальные года событий проектов.
+     * Используется для выпадающего списка в фильтрах.
+     *
+     * @return список уникальных годов событий, отсортированных по убыванию
+     */
+    @Transactional(readOnly = true)
+    public List<Integer> findAllDistinctEventYears() {
+        return projectRepository.findAllDistinctEventYears();
+    }
+
 }

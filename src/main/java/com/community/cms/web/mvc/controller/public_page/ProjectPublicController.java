@@ -123,13 +123,8 @@ public class ProjectPublicController {
         List<String> categories = projectService.findAllDistinctCategories();
         model.addAttribute("categories", categories);
 
-        // Годы для выпадающего списка
-        List<Integer> years = projectsPage.getContent().stream()
-                .filter(p -> p.getEventDate() != null)
-                .map(p -> p.getEventDate().getYear())
-                .distinct()
-                .sorted(Comparator.reverseOrder())
-                .collect(Collectors.toList());
+        // Годы для выпадающего списка (все года из БД)
+        List<Integer> years = projectService.findAllDistinctEventYears();
         model.addAttribute("years", years);
 
         // ===== ДАННЫЕ ДЛЯ ПАГИНАЦИИ =====
