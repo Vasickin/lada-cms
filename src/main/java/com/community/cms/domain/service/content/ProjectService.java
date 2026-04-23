@@ -5,9 +5,9 @@ import com.community.cms.domain.model.content.Project;
 import com.community.cms.domain.model.people.Partner;
 import com.community.cms.domain.model.people.TeamMember;
 import com.community.cms.domain.repository.content.ProjectRepository;
+import com.community.cms.domain.repository.content.specifications.ProjectSpecifications;
 import com.community.cms.web.mvc.form.content.ProjectForm;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,9 +44,9 @@ import java.util.stream.Collectors;
  *
  * <p>Кэширование:
  * <ul>
- *   <li>projects-list: кэширует списки проектов</li>
- *   <li>project-by-id: кэширует отдельные проекты по ID</li>
- *   <li>project-by-slug: кэширует проекты по slug для публичного доступа</li>
+ *   <li>Projects-list: кэширует списки проектов</li>
+ *   <li>Project-by-id: кэширует отдельные проекты по ID</li>
+ *   <li>Project-by-slug: кэширует проекты по slug для публичного доступа</li>
  * </ul>
  *
  * @author Community CMS
@@ -917,4 +919,78 @@ public class ProjectService {
                 .limit(limit)
                 .collect(Collectors.toList());
     }
+
+    // ================== МЕТОД ДЛЯ ФИЛЬТРАЦИИ ПРОЕКТОВ ЧЕРЕЗ БД ==================
+
+    /**
+     * Находит проекты с применением фильтров на уровне базы данных.
+     * <p>
+     * Все фильтры применяются через JPA Specifications, что позволяет
+     * выполнять фильтрацию на стороне PostgreSQL без загрузки всех
+     * данных в память приложения.
+     * </p>
+     *
+     * @param status статус для фильтрации (может быть null)
+     * @param category категория для фильтрации (может быть null)
+     * @param year год события для фильтрации (может быть null)
+     * @param date точная дата события для фильтрации (может быть null)
+     * @param search поисковый запрос по названию и описанию (может быть null)
+     * @param pageable параметры пагинации и сортировки
+     * @return страница проектов, соответствующих фильтрам
+     */
+    @Transactional(readOnly = true)
+    public Page<Project> findFilteredProjects(
+            ProjectStatusType status,
+            String category,
+            Integer year,
+            LocalDate date,
+            String search,
+            Pageable pageable) {
+
+        log.debug("Поиск проектов с фильтрами: status={}, category={}, year={}, date={}, search={}",
+                status, category, year, date, search);
+
+        // Если есть поисковый запрос - используем нативный запрос БЕЗ сортировки из Pageable
+        if (search != null && !search.trim().isEmpty()) {
+            // Создаём Pageable БЕЗ сортировки, так как сортировка уже в запросе
+            Pageable pageableWithoutSort = PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize()
+            );
+            return projectRepository.searchByTerm(search.trim(), pageableWithoutSort);
+        }
+
+        // Иначе строим спецификацию с обычной сортировкой
+        Specification<Project> spec = Specification.where(null);
+
+        if (status != null) {
+            spec = spec.and(ProjectSpecifications.hasStatus(status));
+        }
+
+        if (category != null && !category.trim().isEmpty()) {
+            spec = spec.and(ProjectSpecifications.hasCategory(category));
+        }
+
+        if (year != null) {
+            spec = spec.and(ProjectSpecifications.hasYear(year));
+        }
+
+        if (date != null) {
+            spec = spec.and(ProjectSpecifications.hasDate(date));
+        }
+
+        return projectRepository.findAll(spec, pageable);
+    }
+
+    /**
+     * Находит все уникальные года событий проектов.
+     * Используется для выпадающего списка в фильтрах.
+     *
+     * @return список уникальных годов событий, отсортированных по убыванию
+     */
+    @Transactional(readOnly = true)
+    public List<Integer> findAllDistinctEventYears() {
+        return projectRepository.findAllDistinctEventYears();
+    }
+
 }

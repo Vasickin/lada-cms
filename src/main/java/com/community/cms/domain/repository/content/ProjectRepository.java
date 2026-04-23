@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
  * @see org.springframework.data.jpa.repository.JpaRepository
  */
 @Repository
-public interface ProjectRepository extends JpaRepository<Project, Long> {
+public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
 
     // ================== ОСНОВНЫЕ МЕТОДЫ ПОИСКА ==================
 
@@ -71,31 +72,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      */
     List<Project> findByStatus(ProjectStatusType status);
 
-    /**
-     * Находит все проекты с указанным статусом, отсортированные по дате создания.
-     *
-     * @param status статус для фильтрации
-     * @return список проектов с указанным статусом (сначала новые)
-     */
-    List<Project> findByStatusOrderByCreatedAtDesc(ProjectStatusType status);
-
-    /**
-     * Находит все проекты с указанным статусом, отсортированные по порядку сортировки.
-     *
-     * @param status статус для фильтрации
-     * @return список проектов с указанным статусом (по sortOrder)
-     */
-    List<Project> findByStatusOrderBySortOrderAsc(ProjectStatusType status);
-
     // ================== ФИЛЬТРАЦИЯ ПО КАТЕГОРИИ ==================
-
-    /**
-     * Находит все проекты указанной категории.
-     *
-     * @param category категория для фильтрации
-     * @return список проектов указанной категории
-     */
-    List<Project> findByCategory(String category);
 
     /**
      * Находит все проекты указанной категории и статуса.
@@ -105,14 +82,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @return список проектов соответствующих категории и статусу
      */
     List<Project> findByCategoryAndStatus(String category, ProjectStatusType status);
-
-    /**
-     * Находит все проекты указанной категории, отсортированные по дате создания.
-     *
-     * @param category категория для фильтрации
-     * @return список проектов указанной категории (сначала новые)
-     */
-    List<Project> findByCategoryOrderByCreatedAtDesc(String category);
 
     /**
      * Находит все уникальные категории проектов.
@@ -125,22 +94,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<String> findAllDistinctCategories();
 
     // ================== ФИЛЬТРАЦИЯ ПО ДАТАМ ==================
-
-    /**
-     * Находит проекты, начавшиеся после указанной даты.
-     *
-     * @param date дата для фильтрации
-     * @return список проектов начавшихся после указанной даты
-     */
-    List<Project> findByStartDateAfter(LocalDate date);
-
-    /**
-     * Находит проекты, закончившиеся до указанной даты.
-     *
-     * @param date дата для фильтрации
-     * @return список проектов закончившихся до указанной даты
-     */
-    List<Project> findByEndDateBefore(LocalDate date);
 
     /**
      * Находит проекты, которые активны в указанный период.
@@ -156,14 +109,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             "(p.startDate IS NULL OR p.startDate <= :date) AND " +
             "(p.endDate IS NULL OR p.endDate >= :date)")
     List<Project> findActiveOnDate(@Param("date") LocalDate date);
-
-    /**
-     * Находит проекты с событием в указанную дату.
-     *
-     * @param date дата события
-     * @return список проектов с событием в указанную дату
-     */
-    List<Project> findByEventDate(LocalDate date);
 
     /**
      * Находит проекты с событием в указанный период.
@@ -186,16 +131,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByTitleContainingIgnoreCase(String title);
 
     /**
-     * Находит проекты по части описания (без учета регистра).
-     *
-     * @param description фрагмент описания для поиска
-     * @return список найденных проектов
-     */
-    @Query("SELECT p FROM Project p WHERE LOWER(p.shortDescription) LIKE LOWER(CONCAT('%', :description, '%')) " +
-            "OR LOWER(p.fullDescription) LIKE LOWER(CONCAT('%', :description, '%'))")
-    List<Project> findByDescriptionContaining(@Param("description") String description);
-
-    /**
      * Находит проекты по части названия или описания (без учета регистра).
      * Комплексный поиск для пользовательского интерфейса.
      *
@@ -216,6 +151,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @param pageable объект пагинации
      * @return страница проектов
      */
+    @SuppressWarnings("NullableProblems")
     Page<Project> findAll(Pageable pageable);
 
     /**
@@ -246,38 +182,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      */
     Page<Project> findByStatusAndCategory(ProjectStatusType status, String category, Pageable pageable);
 
-    // ================== СОРТИРОВКА ==================
-
-    /**
-     * Находит все проекты, отсортированные по дате создания (новые сначала).
-     *
-     * @return список проектов отсортированных по дате создания
-     */
-    List<Project> findAllByOrderByCreatedAtDesc();
-
-    /**
-     * Находит все проекты, отсортированные по дате события (ближайшие сначала).
-     *
-     * @return список проектов отсортированных по дате события
-     */
-    @Query("SELECT p FROM Project p WHERE p.eventDate IS NOT NULL ORDER BY p.eventDate ASC")
-    List<Project> findAllByOrderByEventDateAsc();
-
-    /**
-     * Находит все проекты, отсортированные по названию (A-Z).
-     *
-     * @return список проектов отсортированных по названию
-     */
-    List<Project> findAllByOrderByTitleAsc();
-
-    /**
-     * Находит все проекты, отсортированные по порядку сортировки.
-     * Используется для ручной сортировки в админке.
-     *
-     * @return список проектов отсортированных по sortOrder
-     */
-    @Query("SELECT p FROM Project p ORDER BY p.sortOrder ASC, p.createdAt DESC")
-    List<Project> findAllByOrderBySortOrderAsc();
 
     // ================== СТАТИСТИКА И СВОДНЫЕ ДАННЫЕ ==================
 
@@ -296,15 +200,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
      * @return количество проектов указанной категории
      */
     long countByCategory(String category);
-
-    /**
-     * Подсчитывает количество проектов по статусу и категории.
-     *
-     * @param status статус для подсчета
-     * @param category категория для подсчета
-     * @return количество проектов соответствующих статусу и категории
-     */
-    long countByStatusAndCategory(ProjectStatusType status, String category);
 
     /**
      * Находит последние N проектов.
@@ -397,10 +292,17 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                                       Pageable pageable);
 
     /**
-     * Похожие проекты для публичной части (все статусы)
+     * Находит похожие проекты по категории (включая архивные).
+     * Использует нативный запрос PostgreSQL для корректной сортировки с NULLS LAST.
+     *
+     * @param category категория для поиска
+     * @param excludeId ID проекта для исключения
+     * @param pageable параметры пагинации с лимитом
+     * @return страница похожих проектов
      */
-    @Query("SELECT p FROM Project p WHERE p.category = :category AND p.id <> :excludeId " +
-            "ORDER BY p.createdAt DESC")
+    @Query(value = "SELECT * FROM projects p WHERE p.category = :category AND p.id != :excludeId " +
+            "ORDER BY p.event_date DESC NULLS LAST, p.created_at DESC",
+            nativeQuery = true)
     Page<Project> findSimilarProjectsAllStatuses(@Param("category") String category,
                                                  @Param("excludeId") Long excludeId,
                                                  Pageable pageable);
@@ -585,4 +487,35 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                 .limit(limit)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Находит все уникальные года событий проектов.
+     * Используется для фильтра в публичной части.
+     *
+     * @return список уникальных годов событий, отсортированных по убыванию
+     */
+    @Query("SELECT DISTINCT YEAR(p.eventDate) FROM Project p WHERE p.eventDate IS NOT NULL ORDER BY YEAR(p.eventDate) DESC")
+    List<Integer> findAllDistinctEventYears();
+
+
+    /**
+     * Поиск проектов по названию и описанию с использованием ILIKE.
+     * Использует нативный запрос PostgreSQL для регистронезависимого поиска.
+     *
+     * @param searchTerm поисковый запрос
+     * @param pageable параметры пагинации
+     * @return страница найденных проектов
+     */
+    @Query(value = "SELECT * FROM projects p WHERE " +
+            "p.title ILIKE CONCAT('%', :searchTerm, '%') OR " +
+            "p.short_description ILIKE CONCAT('%', :searchTerm, '%') OR " +
+            "p.full_description ILIKE CONCAT('%', :searchTerm, '%') " +
+            "ORDER BY p.event_date DESC NULLS LAST, p.created_at DESC",
+            countQuery = "SELECT COUNT(*) FROM projects p WHERE " +
+                    "p.title ILIKE CONCAT('%', :searchTerm, '%') OR " +
+                    "p.short_description ILIKE CONCAT('%', :searchTerm, '%') OR " +
+                    "p.full_description ILIKE CONCAT('%', :searchTerm, '%')",
+            nativeQuery = true)
+    Page<Project> searchByTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
+
 }
