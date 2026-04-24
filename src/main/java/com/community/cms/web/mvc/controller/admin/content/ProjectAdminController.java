@@ -16,11 +16,10 @@ import jakarta.annotation.Nonnull;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,6 +37,8 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/admin/projects")
 public class ProjectAdminController {
+
+    private static final Logger log = LoggerFactory.getLogger(ProjectAdminController.class);
 
     private final ProjectService projectService;
     private final TeamMemberService teamMemberService;
@@ -61,7 +62,7 @@ public class ProjectAdminController {
     // ================== СПИСОК ПРОЕКТОВ ==================
     @GetMapping
     public String listProjects(Model model,
-                               @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+                               @PageableDefault(size = 20) Pageable pageable,
                                @RequestParam(required = false) String status,
                                @RequestParam(required = false) String category,
                                @RequestParam(required = false) String search,
@@ -69,115 +70,35 @@ public class ProjectAdminController {
 
         Page<Project> projectsPage;
 
-        try {
-            // ================== СПЕЦИАЛЬНАЯ ОБРАБОТКА ПОИСКА ==================
-            if (search != null && !search.trim().isEmpty()) {
-                List<Project> searchResults = projectRepository.findByTitleContainingIgnoreCase(search.trim());
-
-                // Дополнительная фильтрация поисковых результатов
-                List<Project> filteredProjects = new ArrayList<>(searchResults);
-
-                // ФИЛЬТРАЦИЯ ПО СТАТУСУ
-                if (status != null && !status.trim().isEmpty() && !filteredProjects.isEmpty()) {
-                    try {
-                        ProjectStatusType projectStatus = ProjectStatusType.valueOf(status.toUpperCase());
-                        filteredProjects = filteredProjects.stream()
-                                .filter(p -> p.getStatus() == projectStatus)
-                                .collect(Collectors.toList());
-                    } catch (IllegalArgumentException e) {
-                        System.err.println("Некорректный статус: " + status);
-                    }
-                }
-
-                // ФИЛЬТРАЦИЯ ПО КАТЕГОРИИ
-                if (category != null && !category.trim().isEmpty() && !category.equals("Все категории") && !filteredProjects.isEmpty()) {
-                    filteredProjects = filteredProjects.stream()
-                            .filter(p -> category.equals(p.getCategory()))
-                            .collect(Collectors.toList());
-                }
-
-                // ФИЛЬТРАЦИЯ ПО ГОДУ СОБЫТИЯ
-                if (year != null && !filteredProjects.isEmpty()) {
-                    filteredProjects = filteredProjects.stream()
-                            .filter(p -> p.getEventDate() != null && p.getEventDate().getYear() == year)
-                            .collect(Collectors.toList());
-                }
-
-                // ПАГИНАЦИЯ
-                filteredProjects.sort(Comparator.comparing(Project::getCreatedAt).reversed());
-                int start = (int) pageable.getOffset();
-                int totalItems = filteredProjects.size();
-                if (start > totalItems) start = 0;
-                int end = Math.min((start + pageable.getPageSize()), totalItems);
-
-                List<Project> pageContent = (start >= totalItems || filteredProjects.isEmpty())
-                        ? Collections.emptyList()
-                        : filteredProjects.subList(start, end);
-
-                projectsPage = new PageImpl<>(pageContent, pageable, totalItems);
-
-            } else {
-                // ================== БЕЗ ПОИСКА ==================
-                List<Project> allProjects = projectRepository.findAll();
-                List<Project> filteredProjects = new ArrayList<>(allProjects);
-
-                // ФИЛЬТРАЦИЯ ПО СТАТУСУ
-                if (status != null && !status.trim().isEmpty()) {
-                    try {
-                        ProjectStatusType projectStatus = ProjectStatusType.valueOf(status.toUpperCase());
-                        filteredProjects = filteredProjects.stream()
-                                .filter(p -> p.getStatus() == projectStatus)
-                                .collect(Collectors.toList());
-                    } catch (IllegalArgumentException e) {
-                        System.err.println("Некорректный статус: " + status);
-                    }
-                }
-
-                // ФИЛЬТРАЦИЯ ПО КАТЕГОРИИ
-                if (category != null && !category.trim().isEmpty() && !category.equals("Все категории")) {
-                    filteredProjects = filteredProjects.stream()
-                            .filter(p -> category.equals(p.getCategory()))
-                            .collect(Collectors.toList());
-                }
-
-                // ФИЛЬТРАЦИЯ ПО ГОДУ СОБЫТИЯ
-                if (year != null) {
-                    filteredProjects = filteredProjects.stream()
-                            .filter(p -> p.getEventDate() != null && p.getEventDate().getYear() == year)
-                            .collect(Collectors.toList());
-                }
-
-                // ПАГИНАЦИЯ
-                filteredProjects.sort(Comparator.comparing(Project::getCreatedAt).reversed());
-                int start = (int) pageable.getOffset();
-                int totalItems = filteredProjects.size();
-                if (start > totalItems) start = 0;
-                int end = Math.min((start + pageable.getPageSize()), totalItems);
-
-                List<Project> pageContent = (start >= totalItems || filteredProjects.isEmpty())
-                        ? Collections.emptyList()
-                        : filteredProjects.subList(start, end);
-
-                projectsPage = new PageImpl<>(pageContent, pageable, totalItems);
+        // ===== ПРЕОБРАЗОВАНИЕ СТАТУСА В ENUM =====
+        ProjectStatusType statusEnum = null;
+        if (status != null && !status.trim().isEmpty()) {
+            try {
+                statusEnum = ProjectStatusType.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Некорректный статус: {}", status);
             }
-
-        } catch (Exception e) {
-            System.err.println("ОШИБКА при фильтрации проектов: " + e.getMessage());
-            projectsPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
-            model.addAttribute("errorMessage", "Ошибка при поиске: " + e.getMessage());
         }
 
-        // ================== ПОДГОТОВКА ДАННЫХ ДЛЯ ШАБЛОНА ==================
+        // ===== ПАГИНАЦИЯ БЕЗ СОРТИРОВКИ (сортировка в БД через Pageable по умолчанию) =====
+        Pageable customPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        // ===== ФИЛЬТРАЦИЯ ЧЕРЕЗ БД =====
+        projectsPage = projectService.findFilteredProjects(
+                statusEnum, category, year, null, search, customPageable
+        );
+
+        // ===== ПОДГОТОВКА ДАННЫХ ДЛЯ ШАБЛОНА =====
         model.addAttribute("projectsPage", projectsPage);
         model.addAttribute("categories", projectService.findAllDistinctCategories());
         model.addAttribute("statuses", ProjectStatusType.values());
 
-        List<Integer> years = projectRepository.findAll().stream()
-                .filter(p -> p.getEventDate() != null)
-                .map(p -> p.getEventDate().getYear())
-                .distinct()
-                .sorted(Comparator.reverseOrder())
-                .collect(Collectors.toList());
+        // Годы из БД (отдельный запрос)
+        List<Integer> years = projectService.findAllDistinctEventYears();
         model.addAttribute("years", years);
 
         model.addAttribute("selectedStatus", status);
