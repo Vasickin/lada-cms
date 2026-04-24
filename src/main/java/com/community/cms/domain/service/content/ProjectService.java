@@ -950,17 +950,28 @@ public class ProjectService {
         log.debug("Поиск проектов с фильтрами: status={}, category={}, year={}, date={}, search={}",
                 status, category, year, date, search);
 
-        // Если есть поисковый запрос - используем нативный запрос БЕЗ сортировки из Pageable
+        // Создаём Pageable БЕЗ сортировки (сортировка уже в SQL-запросах)
+        Pageable pageableWithoutSort = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize()
+        );
+
+        // Если есть поисковый запрос - используем нативный запрос с ILIKE и сортировкой
         if (search != null && !search.trim().isEmpty()) {
-            // Создаём Pageable БЕЗ сортировки, так как сортировка уже в запросе
-            Pageable pageableWithoutSort = PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize()
-            );
             return projectRepository.searchByTerm(search.trim(), pageableWithoutSort);
         }
 
-        // Иначе строим спецификацию с обычной сортировкой
+        // Если фильтры не указаны - возвращаем все проекты с правильной сортировкой
+        boolean noFilters = (status == null)
+                && (category == null || category.trim().isEmpty())
+                && (year == null)
+                && (date == null);
+
+        if (noFilters) {
+            return projectRepository.findAllWithSorting(pageableWithoutSort);
+        }
+
+        // Иначе строим спецификацию с фильтрами
         Specification<Project> spec = Specification.where(null);
 
         if (status != null) {
@@ -979,7 +990,7 @@ public class ProjectService {
             spec = spec.and(ProjectSpecifications.hasDate(date));
         }
 
-        return projectRepository.findAll(spec, pageable);
+        return projectRepository.findAll(spec, pageableWithoutSort);
     }
 
     /**
