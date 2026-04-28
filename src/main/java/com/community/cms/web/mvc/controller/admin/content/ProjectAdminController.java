@@ -2,6 +2,7 @@ package com.community.cms.web.mvc.controller.admin.content;
 
 import com.community.cms.domain.enums.ProjectStatusType;
 import com.community.cms.domain.model.content.PhotoGallery;
+import com.community.cms.validation.ProjectValidator;
 import com.community.cms.web.mvc.dto.content.PhotoGalleryDTO;
 import com.community.cms.domain.model.media.MediaFile;
 import com.community.cms.domain.model.content.Project;
@@ -44,6 +45,7 @@ public class ProjectAdminController {
     private final TeamMemberService teamMemberService;
     private final PartnerService partnerService;
     private final ProjectRepository projectRepository;
+    private final ProjectValidator projectValidator;
 
     @Autowired
     private PhotoGalleryService photoGalleryService;
@@ -52,11 +54,13 @@ public class ProjectAdminController {
     public ProjectAdminController(ProjectService projectService,
                                   TeamMemberService teamMemberService,
                                   PartnerService partnerService,
-                                  ProjectRepository projectRepository) {
+                                  ProjectRepository projectRepository,
+                                  ProjectValidator projectValidator) {
         this.projectService = projectService;
         this.teamMemberService = teamMemberService;
         this.partnerService = partnerService;
         this.projectRepository = projectRepository;
+        this.projectValidator = projectValidator;
     }
 
     // ================== СПИСОК ПРОЕКТОВ ==================
@@ -163,7 +167,8 @@ public class ProjectAdminController {
         System.out.println(">>> forceShowInCarousel parsed: " + forceShowInCarousel);
 
         // ===== НОВАЯ ВАЛИДАЦИЯ СТАТУСА =====
-        validateProjectStatus(project, bindingResult);
+        projectValidator.validateProjectStatus(project, bindingResult);
+        projectValidator.validateDates(project, bindingResult);
 
         // Восстанавливаем данные для формы
         model.addAttribute("categories", projectService.findAllDistinctCategories());
@@ -387,7 +392,8 @@ public class ProjectAdminController {
         System.out.println(">>> forceShowInCarousel parsed: " + forceShowInCarousel);
 
         // ===== НОВАЯ ВАЛИДАЦИЯ СТАТУСА =====
-        validateProjectStatus(project, bindingResult);
+        projectValidator.validateProjectStatus(project, bindingResult);
+        projectValidator.validateDates(project, bindingResult);
 
         // Восстанавливаем данные для формы (на случай ошибки)
         model.addAttribute("categories", projectService.findAllDistinctCategories());
@@ -966,76 +972,76 @@ public class ProjectAdminController {
         return labels;
     }
 
-    /**
-     * Проверяет корректность выбранного статуса относительно дат проекта.
-     *
-     * @param project проект для проверки
-     * @param bindingResult объект для регистрации ошибок
-     * @return true если есть ошибки валидации
-     */
-    private boolean validateProjectStatus(Project project, BindingResult bindingResult) {
-        ProjectStatusType status = project.getStatus();
-        LocalDate today = LocalDate.now();
-
-        // Пропускаем статусы, которые не участвуют в автообновлении
-        if (status == ProjectStatusType.ANNUAL || status == ProjectStatusType.ARCHIVED) {
-            return false;
-        }
-
-        // Получаем даты проекта
-        LocalDate startDate = project.getStartDate();
-        LocalDate endDate = project.getEndDate();
-        LocalDate eventDate = project.getEventDate();
-
-        // Валидация для статуса UPCOMING (Ближайшие)
-        if (status == ProjectStatusType.UPCOMING) {
-            // Если есть дата начала и она уже прошла или сегодня
-            if (startDate != null && !startDate.isAfter(today)) {
-                bindingResult.rejectValue("status", "error.project",
-                        "Нельзя выбрать статус 'Ближайшие' для проекта, дата начала которого уже наступила или проходит сегодня");
-                return true;
-            }
-            // Если нет даты начала, но есть дата события и она уже прошла или сегодня
-            if (startDate == null && eventDate != null && !eventDate.isAfter(today)) {
-                bindingResult.rejectValue("status", "error.project",
-                        "Нельзя выбрать статус 'Ближайшие' для проекта, дата события которого уже наступила или проходит сегодня");
-                return true;
-            }
-        }
-
-        // Валидация для статуса ACTIVE (Активные)
-        if (status == ProjectStatusType.ACTIVE) {
-            // Если есть дата окончания и она уже прошла
-            if (endDate != null && endDate.isBefore(today)) {
-                bindingResult.rejectValue("status", "error.project",
-                        "Нельзя выбрать статус 'Активные' для проекта, дата окончания которого уже прошла");
-                return true;
-            }
-            // Если нет даты окончания, но есть дата события и она уже прошла
-            if (endDate == null && eventDate != null && eventDate.isBefore(today)) {
-                bindingResult.rejectValue("status", "error.project",
-                        "Нельзя выбрать статус 'Активные' для проекта, дата события которого уже прошла");
-                return true;
-            }
-        }
-
-        // Валидация для статуса COMPLETED (Завершённые)
-        if (status == ProjectStatusType.COMPLETED) {
-            // Если есть дата начала и она еще не наступила
-            if (startDate != null && startDate.isAfter(today)) {
-                bindingResult.rejectValue("status", "error.project",
-                        "Нельзя выбрать статус 'Завершённые' для проекта, который еще не начался");
-                return true;
-            }
-            // Если нет даты начала, но есть дата события и она еще не наступила
-            if (startDate == null && eventDate != null && eventDate.isAfter(today)) {
-                bindingResult.rejectValue("status", "error.project",
-                        "Нельзя выбрать статус 'Завершённые' для проекта, дата события которого еще не наступила");
-                return true;
-            }
-        }
-
-        return false;
-    }
+//    /**
+//     * Проверяет корректность выбранного статуса относительно дат проекта.
+//     *
+//     * @param project проект для проверки
+//     * @param bindingResult объект для регистрации ошибок
+//     * @return true если есть ошибки валидации
+//     */
+//    private boolean validateProjectStatus(Project project, BindingResult bindingResult) {
+//        ProjectStatusType status = project.getStatus();
+//        LocalDate today = LocalDate.now();
+//
+//        // Пропускаем статусы, которые не участвуют в автообновлении
+//        if (status == ProjectStatusType.ANNUAL || status == ProjectStatusType.ARCHIVED) {
+//            return false;
+//        }
+//
+//        // Получаем даты проекта
+//        LocalDate startDate = project.getStartDate();
+//        LocalDate endDate = project.getEndDate();
+//        LocalDate eventDate = project.getEventDate();
+//
+//        // Валидация для статуса UPCOMING (Ближайшие)
+//        if (status == ProjectStatusType.UPCOMING) {
+//            // Если есть дата начала и она уже прошла или сегодня
+//            if (startDate != null && !startDate.isAfter(today)) {
+//                bindingResult.rejectValue("status", "error.project",
+//                        "Нельзя выбрать статус 'Ближайшие' для проекта, дата начала которого уже наступила или проходит сегодня");
+//                return true;
+//            }
+//            // Если нет даты начала, но есть дата события и она уже прошла или сегодня
+//            if (startDate == null && eventDate != null && !eventDate.isAfter(today)) {
+//                bindingResult.rejectValue("status", "error.project",
+//                        "Нельзя выбрать статус 'Ближайшие' для проекта, дата события которого уже наступила или проходит сегодня");
+//                return true;
+//            }
+//        }
+//
+//        // Валидация для статуса ACTIVE (Активные)
+//        if (status == ProjectStatusType.ACTIVE) {
+//            // Если есть дата окончания и она уже прошла
+//            if (endDate != null && endDate.isBefore(today)) {
+//                bindingResult.rejectValue("status", "error.project",
+//                        "Нельзя выбрать статус 'Активные' для проекта, дата окончания которого уже прошла");
+//                return true;
+//            }
+//            // Если нет даты окончания, но есть дата события и она уже прошла
+//            if (endDate == null && eventDate != null && eventDate.isBefore(today)) {
+//                bindingResult.rejectValue("status", "error.project",
+//                        "Нельзя выбрать статус 'Активные' для проекта, дата события которого уже прошла");
+//                return true;
+//            }
+//        }
+//
+//        // Валидация для статуса COMPLETED (Завершённые)
+//        if (status == ProjectStatusType.COMPLETED) {
+//            // Если есть дата начала и она еще не наступила
+//            if (startDate != null && startDate.isAfter(today)) {
+//                bindingResult.rejectValue("status", "error.project",
+//                        "Нельзя выбрать статус 'Завершённые' для проекта, который еще не начался");
+//                return true;
+//            }
+//            // Если нет даты начала, но есть дата события и она еще не наступила
+//            if (startDate == null && eventDate != null && eventDate.isAfter(today)) {
+//                bindingResult.rejectValue("status", "error.project",
+//                        "Нельзя выбрать статус 'Завершённые' для проекта, дата события которого еще не наступила");
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 
 }
