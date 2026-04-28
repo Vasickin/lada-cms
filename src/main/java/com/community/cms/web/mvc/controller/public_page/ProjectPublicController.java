@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -94,15 +93,10 @@ public class ProjectPublicController {
             }
         }
 
-        // ===== НАСТРОЙКА СОРТИРОВКИ (eventDate DESC NULLS LAST, createdAt DESC) =====
-        Sort sort = Sort.by(
-                Sort.Order.desc("eventDate").nullsLast(),
-                Sort.Order.desc("createdAt")
-        );
+        // ===== ПАГИНАЦИЯ БЕЗ СОРТИРОВКИ (сортировка будет в SQL-запросах) =====
         Pageable customPageable = PageRequest.of(
                 pageable.getPageNumber(),
-                pageable.getPageSize(),
-                sort
+                pageable.getPageSize()
         );
 
         // ===== ПОЛУЧЕНИЕ ОТФИЛЬТРОВАННЫХ ПРОЕКТОВ ЧЕРЕЗ БД =====

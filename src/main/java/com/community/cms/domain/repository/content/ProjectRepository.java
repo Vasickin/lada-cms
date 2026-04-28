@@ -518,4 +518,14 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
             nativeQuery = true)
     Page<Project> searchByTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
 
+
+    /**
+     * Находит все проекты с правильной сортировкой (NULLS LAST).
+     * Используется когда нет фильтров и поиска.
+     */
+    @Query(value = "SELECT * FROM projects p ORDER BY p.event_date DESC NULLS LAST, p.created_at DESC",
+            countQuery = "SELECT COUNT(*) FROM projects",
+            nativeQuery = true)
+    Page<Project> findAllWithSorting(Pageable pageable);
+
 }
