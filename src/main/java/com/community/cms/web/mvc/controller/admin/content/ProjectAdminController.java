@@ -8,7 +8,6 @@ import com.community.cms.domain.model.media.MediaFile;
 import com.community.cms.domain.model.content.Project;
 import com.community.cms.domain.model.people.TeamMember;
 import com.community.cms.domain.model.people.Partner;
-import com.community.cms.domain.repository.content.ProjectRepository;
 import com.community.cms.domain.service.content.PhotoGalleryService;
 import com.community.cms.domain.service.content.ProjectService;
 import com.community.cms.domain.service.people.TeamMemberService;
@@ -28,7 +27,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,7 +42,6 @@ public class ProjectAdminController {
     private final ProjectService projectService;
     private final TeamMemberService teamMemberService;
     private final PartnerService partnerService;
-    private final ProjectRepository projectRepository;
     private final ProjectValidator projectValidator;
 
     @Autowired
@@ -54,12 +51,10 @@ public class ProjectAdminController {
     public ProjectAdminController(ProjectService projectService,
                                   TeamMemberService teamMemberService,
                                   PartnerService partnerService,
-                                  ProjectRepository projectRepository,
                                   ProjectValidator projectValidator) {
         this.projectService = projectService;
         this.teamMemberService = teamMemberService;
         this.partnerService = partnerService;
-        this.projectRepository = projectRepository;
         this.projectValidator = projectValidator;
     }
 
@@ -133,6 +128,7 @@ public class ProjectAdminController {
         return "admin/projects/create";
     }
 
+
     @PostMapping("/create")
     @Transactional
     public String createProject(@Valid @ModelAttribute("project") Project project,
@@ -146,61 +142,18 @@ public class ProjectAdminController {
                                 @RequestParam(value = "videoUrl", required = false) String videoUrl,
                                 @RequestParam(value = "forceShowInCarousel", required = false) String[] forceShowInCarouselParam) {
 
-        // ===== ВАЛИДАЦИЯ ДАТ =====
-        if (project.getStartDate() != null && project.getEndDate() != null &&
-                project.getStartDate().isAfter(project.getEndDate())) {
-            bindingResult.rejectValue("startDate", "error.project", "Дата начала не может быть позже даты окончания");
-        }
+        // Обработка флага карусели
+        project.setForceShowInCarousel(parseForceShowInCarousel(forceShowInCarouselParam));
 
-        if (project.getEventDate() != null && project.getStartDate() != null && project.getEndDate() != null &&
-                (project.getEventDate().isBefore(project.getStartDate()) ||
-                        project.getEventDate().isAfter(project.getEndDate()))) {
-            bindingResult.rejectValue("eventDate", "error.project", "Дата события должна быть в рамках проекта");
-        }
-
-        // ===== ОБРАБОТКА ФЛАГА КАРУСЕЛИ =====
-        boolean forceShowInCarousel = forceShowInCarouselParam != null &&
-                Arrays.asList(forceShowInCarouselParam).contains("true");
-        project.setForceShowInCarousel(forceShowInCarousel);
-
-        System.out.println(">>> forceShowInCarousel raw param: " + Arrays.toString(forceShowInCarouselParam));
-        System.out.println(">>> forceShowInCarousel parsed: " + forceShowInCarousel);
-
-        // ===== НОВАЯ ВАЛИДАЦИЯ СТАТУСА =====
+        // Валидация
         projectValidator.validateProjectStatus(project, bindingResult);
         projectValidator.validateDates(project, bindingResult);
 
-        // Восстанавливаем данные для формы
-        model.addAttribute("categories", projectService.findAllDistinctCategories());
-        model.addAttribute("statuses", ProjectStatusType.values());
-        model.addAttribute("allTeamMembers", teamMemberService.findAllActiveOrderBySortOrder());
-        model.addAttribute("allPartners", partnerService.findActiveByNameContaining(""));
+        // Данные для формы
+        prepareFormData(model);
 
-        // ===== ОБРАБОТКА КАТЕГОРИИ =====
-        if ("__NEW__".equals(project.getCategory())) {
-            if (newCategoryName == null || newCategoryName.trim().isEmpty()) {
-                bindingResult.rejectValue("category", "error.project", "Введите название новой категории");
-                return "admin/projects/create";
-            } else {
-                String cleanedCategory = newCategoryName.trim();
-                project.setCategory(cleanedCategory);
-
-                // Проверка уникальности
-                List<String> allCategories = projectRepository.findAllDistinctCategories();
-                for (String cat : allCategories) {
-                    if (cat != null && cleanedCategory != null) {
-                        String normalizedExisting = cat.trim().toLowerCase().replaceAll("\\s+", " ");
-                        String normalizedNew = cleanedCategory.trim().toLowerCase().replaceAll("\\s+", " ");
-                        if (normalizedExisting.equals(normalizedNew)) {
-                            bindingResult.rejectValue("category", "error.project",
-                                    "Категория \"" + cat + "\" уже существует");
-                            return "admin/projects/create";
-                        }
-                    }
-                }
-            }
-        } else if (project.getCategory() == null || project.getCategory().trim().isEmpty()) {
-            bindingResult.rejectValue("category", "error.project", "Выберите категорию проекта");
+        // Обработка категории
+        if (processCategory(project, newCategoryName, bindingResult, "create")) {
             return "admin/projects/create";
         }
 
@@ -214,103 +167,25 @@ public class ProjectAdminController {
             return "admin/projects/create";
         }
 
-        // ===== ОБРАБОТКА ВИДЕО URL =====
-        if (videoUrl != null && !videoUrl.trim().isEmpty()) {
-            project.setVideoUrl(videoUrl.trim());
-        }
-
         try {
-            // Инициализация коллекций
-            if (project.getTeamMembers() == null) project.setTeamMembers(new HashSet<>());
-            if (project.getPartners() == null) project.setPartners(new HashSet<>());
-
-            // Сохранение проекта
+            processVideoUrl(project, videoUrl);
             Project savedProject = projectService.save(project);
+            processTeamMembers(savedProject, selectedTeamMemberIds);
+            processPartners(savedProject, selectedPartnerIds);
+            processPhotos(savedProject, selectedPhotoIds);
+            projectService.save(savedProject);
 
-            // ===== ОБРАБОТКА КОМАНДЫ =====
-            if (selectedTeamMemberIds != null && !selectedTeamMemberIds.trim().isEmpty()) {
-                String[] ids = selectedTeamMemberIds.split(",");
-                for (String idStr : ids) {
-                    try {
-                        Long memberId = Long.parseLong(idStr.trim());
-                        teamMemberService.findById(memberId).ifPresent(member -> {
-                            if (member.getProjects() == null) member.setProjects(new HashSet<>());
-                            member.getProjects().add(savedProject);
-                            savedProject.getTeamMembers().add(member);
-                            teamMemberService.save(member);
-                        });
-                    } catch (NumberFormatException ignored) {}
-                }
-                projectService.save(savedProject);
-            }
-
-
-            // ===== ОБРАБОТКА ПАРТНЁРОВ =====
-            if (selectedPartnerIds != null && !selectedPartnerIds.trim().isEmpty()) {
-                String[] ids = selectedPartnerIds.split(",");
-                for (String idStr : ids) {
-                    try {
-                        Long partnerId = Long.parseLong(idStr.trim());
-                        partnerService.findById(partnerId).ifPresent(partner -> {
-                            // Инициализируем коллекцию если null
-                            if (partner.getProjects() == null) {
-                                partner.setProjects(new HashSet<>());
-                            }
-                            // Добавляем проект к партнёру
-                            partner.getProjects().add(savedProject);
-                            // Добавляем партнёра к проекту
-                            savedProject.getPartners().add(partner);
-                            // Сохраняем партнёра
-                            partnerService.save(partner);
-                        });
-                    } catch (NumberFormatException ignored) {}
-                }
-                // СОХРАНЯЕМ проект после добавления партнёров!
-                projectService.save(savedProject);
-            }
-
-            // ===== ОБРАБОТКА ФОТО =====
-            if (selectedPhotoIds != null && !selectedPhotoIds.trim().isEmpty()) {
-                try {
-                    List<Long> photoIds = Arrays.stream(selectedPhotoIds.split(","))
-                            .map(String::trim)
-                            .filter(s -> !s.isEmpty())
-                            .map(Long::parseLong)
-                            .limit(10)
-                            .collect(Collectors.toList());
-                    savedProject.setKeyPhotoIds(photoIds);
-                    projectService.save(savedProject);
-                } catch (Exception ignored) {}
-            }
-
-            // Формирование сообщения об успехе
-            String successMessage = getSuccessMessage(selectedTeamMemberIds, selectedPartnerIds, selectedPhotoIds);
-
+            String successMessage = buildSuccessMessage(selectedTeamMemberIds, selectedPartnerIds, selectedPhotoIds);
             redirectAttributes.addFlashAttribute("successMessage", successMessage);
             return "redirect:/admin/projects";
 
         } catch (Exception e) {
-            System.err.println("ERROR: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Ошибка при создании проекта: {}", e.getMessage(), e);
             bindingResult.reject("error.project", "Ошибка при создании проекта: " + e.getMessage());
             return "admin/projects/create";
         }
     }
 
-    @Nonnull
-    private static String getSuccessMessage(String selectedTeamMemberIds, String selectedPartnerIds, String selectedPhotoIds) {
-        String successMessage = "Проект успешно создан";
-        if (selectedTeamMemberIds != null && !selectedTeamMemberIds.trim().isEmpty()) {
-            successMessage += " с командой из " + selectedTeamMemberIds.split(",").length + " человек";
-        }
-        if (selectedPartnerIds != null && !selectedPartnerIds.trim().isEmpty()) {
-            successMessage += ", партнерами: " + selectedPartnerIds.split(",").length;
-        }
-        if (selectedPhotoIds != null && !selectedPhotoIds.trim().isEmpty()) {
-            successMessage += " и " + selectedPhotoIds.split(",").length + " фото";
-        }
-        return successMessage;
-    }
 
     // ================== РЕДАКТИРОВАНИЕ ПРОЕКТА ==================
     @GetMapping("/edit/{id}")
@@ -371,94 +246,19 @@ public class ProjectAdminController {
                                 @RequestParam(value = "videoUrl", required = false) String videoUrl,
                                 @RequestParam(value = "forceShowInCarousel", required = false) String[] forceShowInCarouselParam) {
 
-        // ===== ВАЛИДАЦИЯ ДАТ =====
-        if (project.getStartDate() != null && project.getEndDate() != null &&
-                project.getStartDate().isAfter(project.getEndDate())) {
-            bindingResult.rejectValue("startDate", "error.project", "Дата начала не может быть позже даты окончания");
-        }
+        // Обработка флага карусели
+        boolean forceShowInCarousel = parseForceShowInCarousel(forceShowInCarouselParam);
 
-        if (project.getEventDate() != null && project.getStartDate() != null && project.getEndDate() != null &&
-                (project.getEventDate().isBefore(project.getStartDate()) ||
-                        project.getEventDate().isAfter(project.getEndDate()))) {
-            bindingResult.rejectValue("eventDate", "error.project", "Дата события должна быть в рамках проекта");
-        }
-
-        // ===== ОБРАБОТКА ФЛАГА КАРУСЕЛИ =====
-        boolean forceShowInCarousel = forceShowInCarouselParam != null &&
-                Arrays.asList(forceShowInCarouselParam).contains("true");
-
-        // Логируем для отладки
-        System.out.println(">>> forceShowInCarousel raw param: " + Arrays.toString(forceShowInCarouselParam));
-        System.out.println(">>> forceShowInCarousel parsed: " + forceShowInCarousel);
-
-        // ===== НОВАЯ ВАЛИДАЦИЯ СТАТУСА =====
+        // Валидация
         projectValidator.validateProjectStatus(project, bindingResult);
         projectValidator.validateDates(project, bindingResult);
 
-        // Восстанавливаем данные для формы (на случай ошибки)
-        model.addAttribute("categories", projectService.findAllDistinctCategories());
-        model.addAttribute("statuses", ProjectStatusType.values());
+        // Данные для формы
+        prepareFormData(model);
+        model.addAttribute("videoUrl", videoUrl);
 
-        // Получаем текущий проект для восстановления данных формы
-        Project existingProjectForForm = projectService.findById(id).orElse(null);
-        if (existingProjectForForm != null) {
-            // Команда
-            List<TeamMember> projectTeamMembers = teamMemberService.findByProject(existingProjectForForm);
-            List<TeamMember> allTeamMembers = teamMemberService.findAllActiveOrderBySortOrder();
-            List<TeamMember> availableMembers = allTeamMembers.stream()
-                    .filter(member -> !projectTeamMembers.contains(member))
-                    .collect(Collectors.toList());
-
-            model.addAttribute("allTeamMembers", allTeamMembers);
-            model.addAttribute("projectTeamMembers", projectTeamMembers);
-            model.addAttribute("availableMembers", availableMembers);
-
-            // Партнёры
-            List<Partner> projectPartners = partnerService.findByProject(existingProjectForForm);
-            List<Partner> allPartners = partnerService.findByNameContaining("");
-            List<Partner> availablePartners = allPartners.stream()
-                    .filter(partner -> !projectPartners.contains(partner))
-                    .collect(Collectors.toList());
-
-            model.addAttribute("allPartners", allPartners);
-            model.addAttribute("projectPartners", projectPartners);
-            model.addAttribute("availablePartners", availablePartners);
-            List<Partner> partnersInProject = partnerService.findByProject(existingProjectForForm);
-            model.addAttribute("projectPartnersCount", partnersInProject.size());
-
-            // Видео URL
-            model.addAttribute("videoUrl", existingProjectForForm.getVideoUrl());
-        } else {
-            // Если проект не найден, показываем пустые списки
-            model.addAttribute("allTeamMembers", teamMemberService.findAllActiveOrderBySortOrder());
-            model.addAttribute("allPartners", partnerService.findByNameContaining(""));
-        }
-
-        // ===== ОБРАБОТКА КАТЕГОРИИ =====
-        if ("__NEW__".equals(project.getCategory())) {
-            if (newCategoryName == null || newCategoryName.trim().isEmpty()) {
-                bindingResult.rejectValue("category", "error.project", "Введите название новой категории");
-                return "admin/projects/edit";
-            } else {
-                String cleanedCategory = newCategoryName.trim();
-                project.setCategory(cleanedCategory);
-
-                // Проверка уникальности
-                List<String> allCategories = projectService.findAllDistinctCategories();
-                for (String cat : allCategories) {
-                    if (cat != null && cleanedCategory != null) {
-                        String normalizedExisting = cat.trim().toLowerCase().replaceAll("\\s+", " ");
-                        String normalizedNew = cleanedCategory.trim().toLowerCase().replaceAll("\\s+", " ");
-                        if (normalizedExisting.equals(normalizedNew)) {
-                            bindingResult.rejectValue("category", "error.project",
-                                    "Категория \"" + cat + "\" уже существует");
-                            return "admin/projects/edit";
-                        }
-                    }
-                }
-            }
-        } else if (project.getCategory() == null || project.getCategory().trim().isEmpty()) {
-            bindingResult.rejectValue("category", "error.project", "Выберите категорию проекта");
+        // Обработка категории
+        if (processCategory(project, newCategoryName, bindingResult, "edit")) {
             return "admin/projects/edit";
         }
 
@@ -469,143 +269,32 @@ public class ProjectAdminController {
         // Проверка уникальности slug
         projectService.findBySlug(project.getSlug())
                 .filter(p -> !p.getId().equals(id))
-                .ifPresent(p -> {
-                    bindingResult.rejectValue("slug", "error.project", "Проект с таким URL уже существует");
-                });
+                .ifPresent(p -> bindingResult.rejectValue("slug", "error.project", "Проект с таким URL уже существует"));
 
         if (bindingResult.hasErrors()) {
             return "admin/projects/edit";
         }
 
         try {
-            // Получаем существующий проект из БД
             Project existingProject = projectService.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Проект не найден"));
 
-            // Обновляем основные поля проекта
-            existingProject.setTitle(project.getTitle());
-            existingProject.setSlug(project.getSlug());
-            existingProject.setCategory(project.getCategory());
-            existingProject.setStatus(project.getStatus());
-            existingProject.setShortDescription(project.getShortDescription());
-            existingProject.setFullDescription(project.getFullDescription());
-            existingProject.setStartDate(project.getStartDate());
-            existingProject.setEndDate(project.getEndDate());
-            existingProject.setEventDate(project.getEventDate());
-            existingProject.setLocation(project.getLocation());
-            existingProject.setShowDescription(project.isShowDescription());
-            existingProject.setShowPhotos(project.isShowPhotos());
-            existingProject.setShowVideos(project.isShowVideos());
-            existingProject.setShowTeam(project.isShowTeam());
-            existingProject.setShowParticipation(project.isShowParticipation());
-            existingProject.setShowPartners(project.isShowPartners());
-            existingProject.setShowRelated(project.isShowRelated());
-            existingProject.setForceShowInCarousel(forceShowInCarousel);
+            // Обновление основных полей
+            updateProjectFields(existingProject, project, forceShowInCarousel);
+            processVideoUrl(existingProject, videoUrl);
 
-            // ===== ОБРАБОТКА ВИДЕО URL =====
-            if (videoUrl != null) {
-                existingProject.setVideoUrl(videoUrl.trim().isEmpty() ? null : videoUrl.trim());
-            }
+            // Обновление связей
+            updateTeamMembers(existingProject, selectedTeamMemberIds);
+            updatePartners(existingProject, selectedPartnerIds);
+            processPhotos(existingProject, selectedPhotoIds);
 
-            // ===== ОБРАБОТКА ОБНОВЛЕНИЯ КОМАНДЫ =====
-                        if (selectedTeamMemberIds != null) {
-                // 1. Удаляем всех текущих членов из проекта
-                List<TeamMember> currentMembers = teamMemberService.findByProject(existingProject);
-                for (TeamMember member : currentMembers) {
-                    if (member.getProjects() != null) {
-                        member.getProjects().remove(existingProject);
-                        teamMemberService.save(member);
-                    }
-                }
-                existingProject.getTeamMembers().clear();
-
-                // 2. Добавляем новых членов (если есть)
-                if (!selectedTeamMemberIds.trim().isEmpty()) {
-                    String[] ids = selectedTeamMemberIds.split(",");
-                    for (String idStr : ids) {
-                        try {
-                            Long memberId = Long.parseLong(idStr.trim());
-                            teamMemberService.findById(memberId).ifPresent(member -> {
-                                if (member.getProjects() == null) {
-                                    member.setProjects(new HashSet<>());
-                                }
-                                if (!member.getProjects().contains(existingProject)) {
-                                    member.getProjects().add(existingProject);
-                                }
-                                existingProject.getTeamMembers().add(member);
-                                teamMemberService.save(member);
-                            });
-                        } catch (NumberFormatException ignored) {}
-                    }
-                }
-            }
-
-
-            // ===== ОБРАБОТКА ОБНОВЛЕНИЯ ПАРТНЁРОВ =====
-            if (selectedPartnerIds != null) {
-                // 1. Получаем текущих партнёров проекта
-                List<Partner> currentPartners = partnerService.findByProject(existingProject);
-
-                // 2. Удаляем проект у текущих партнёров
-                for (Partner partner : currentPartners) {
-                    partner.getProjects().remove(existingProject);
-                    partnerService.save(partner);
-                }
-
-                // 3. ОЧИЩАЕМ коллекцию у проекта
-                existingProject.getPartners().clear();
-
-                // 4. Сохраняем проект С ПУСТОЙ коллекцией
-                projectService.save(existingProject);
-
-                // 5. Добавляем новых партнёров (если есть)
-                if (!selectedPartnerIds.trim().isEmpty()) {
-                    String[] ids = selectedPartnerIds.split(",");
-                    for (String idStr : ids) {
-                        try {
-                            Long partnerId = Long.parseLong(idStr.trim());
-                            partnerService.findById(partnerId).ifPresent(partner -> {
-                                // Инициализируем коллекцию если null
-                                if (partner.getProjects() == null) {
-                                    partner.setProjects(new HashSet<>());
-                                }
-                                // Добавляем проект к партнёру
-                                partner.getProjects().add(existingProject);
-                                // Добавляем партнёра к проекту
-                                existingProject.getPartners().add(partner);
-                                // Сохраняем партнёра
-                                partnerService.save(partner);
-                            });
-                        } catch (NumberFormatException ignored) {}
-                    }
-                    // Сохраняем проект с новыми партнёрами
-                    projectService.save(existingProject);
-                }
-            }
-
-            // ===== ОБРАБОТКА ФОТО =====
-            if (selectedPhotoIds != null) {
-                try {
-                    List<Long> photoIds = Arrays.stream(selectedPhotoIds.split(","))
-                            .map(String::trim)
-                            .filter(s -> !s.isEmpty())
-                            .map(Long::parseLong)
-                            .limit(10)
-                            .collect(Collectors.toList());
-                    existingProject.setKeyPhotoIds(photoIds);
-                } catch (Exception ignored) {}
-            }
-
-            // Сохраняем проект
             projectService.save(existingProject);
 
             redirectAttributes.addFlashAttribute("successMessage", "Проект успешно обновлен");
             return "redirect:/admin/projects";
 
         } catch (Exception e) {
-            System.err.println("ERROR saving project: " + e.getMessage());
-            e.printStackTrace();
-
+            log.error("Ошибка при обновлении проекта: {}", e.getMessage(), e);
             bindingResult.reject("error.project", "Ошибка при обновлении проекта: " + e.getMessage());
             return "admin/projects/edit";
         }
@@ -828,16 +517,7 @@ public class ProjectAdminController {
 
                 List<MediaFile> photos = gallery.getImages();
                 for (MediaFile photo : photos) {
-                    Map<String, Object> photoMap = new HashMap<>();
-                    photoMap.put("id", photo.getId()); // ← ВАЖНО: id, а не photoId!
-                    photoMap.put("fileName", photo.getFileName());
-                    photoMap.put("webPath", photo.getWebPath());
-                    photoMap.put("thumbnailPath", photo.getWebPath());
-                    photoMap.put("galleryId", gallery.getId());
-                    photoMap.put("galleryTitle", gallery.getTitle());
-                    photoMap.put("galleryYear", gallery.getYear());
-                    photoMap.put("isPrimary", photo.getIsPrimary());
-                    result.add(photoMap);
+                    result.add(getStringObjectMap(photo, gallery));
                 }
             }
         } catch (Exception e) {
@@ -972,76 +652,229 @@ public class ProjectAdminController {
         return labels;
     }
 
-//    /**
-//     * Проверяет корректность выбранного статуса относительно дат проекта.
-//     *
-//     * @param project проект для проверки
-//     * @param bindingResult объект для регистрации ошибок
-//     * @return true если есть ошибки валидации
-//     */
-//    private boolean validateProjectStatus(Project project, BindingResult bindingResult) {
-//        ProjectStatusType status = project.getStatus();
-//        LocalDate today = LocalDate.now();
-//
-//        // Пропускаем статусы, которые не участвуют в автообновлении
-//        if (status == ProjectStatusType.ANNUAL || status == ProjectStatusType.ARCHIVED) {
-//            return false;
-//        }
-//
-//        // Получаем даты проекта
-//        LocalDate startDate = project.getStartDate();
-//        LocalDate endDate = project.getEndDate();
-//        LocalDate eventDate = project.getEventDate();
-//
-//        // Валидация для статуса UPCOMING (Ближайшие)
-//        if (status == ProjectStatusType.UPCOMING) {
-//            // Если есть дата начала и она уже прошла или сегодня
-//            if (startDate != null && !startDate.isAfter(today)) {
-//                bindingResult.rejectValue("status", "error.project",
-//                        "Нельзя выбрать статус 'Ближайшие' для проекта, дата начала которого уже наступила или проходит сегодня");
-//                return true;
-//            }
-//            // Если нет даты начала, но есть дата события и она уже прошла или сегодня
-//            if (startDate == null && eventDate != null && !eventDate.isAfter(today)) {
-//                bindingResult.rejectValue("status", "error.project",
-//                        "Нельзя выбрать статус 'Ближайшие' для проекта, дата события которого уже наступила или проходит сегодня");
-//                return true;
-//            }
-//        }
-//
-//        // Валидация для статуса ACTIVE (Активные)
-//        if (status == ProjectStatusType.ACTIVE) {
-//            // Если есть дата окончания и она уже прошла
-//            if (endDate != null && endDate.isBefore(today)) {
-//                bindingResult.rejectValue("status", "error.project",
-//                        "Нельзя выбрать статус 'Активные' для проекта, дата окончания которого уже прошла");
-//                return true;
-//            }
-//            // Если нет даты окончания, но есть дата события и она уже прошла
-//            if (endDate == null && eventDate != null && eventDate.isBefore(today)) {
-//                bindingResult.rejectValue("status", "error.project",
-//                        "Нельзя выбрать статус 'Активные' для проекта, дата события которого уже прошла");
-//                return true;
-//            }
-//        }
-//
-//        // Валидация для статуса COMPLETED (Завершённые)
-//        if (status == ProjectStatusType.COMPLETED) {
-//            // Если есть дата начала и она еще не наступила
-//            if (startDate != null && startDate.isAfter(today)) {
-//                bindingResult.rejectValue("status", "error.project",
-//                        "Нельзя выбрать статус 'Завершённые' для проекта, который еще не начался");
-//                return true;
-//            }
-//            // Если нет даты начала, но есть дата события и она еще не наступила
-//            if (startDate == null && eventDate != null && eventDate.isAfter(today)) {
-//                bindingResult.rejectValue("status", "error.project",
-//                        "Нельзя выбрать статус 'Завершённые' для проекта, дата события которого еще не наступила");
-//                return true;
-//            }
-//        }
-//
-//        return false;
-//    }
+    // ================== ПРИВАТНЫЕ МЕТОДЫ-ПОМОЩНИКИ ==================
+
+    private boolean parseForceShowInCarousel(String[] param) {
+        boolean result = param != null && Arrays.asList(param).contains("true");
+        log.debug("forceShowInCarousel: {}", result);
+        return result;
+    }
+
+    private boolean processCategory(Project project, String newCategoryName,
+                                    BindingResult bindingResult, String viewName) {
+        if ("__NEW__".equals(project.getCategory())) {
+            if (newCategoryName == null || newCategoryName.trim().isEmpty()) {
+                bindingResult.rejectValue("category", "error.project", "Введите название новой категории");
+                return true;
+            }
+            String cleanedCategory = newCategoryName.trim();
+            project.setCategory(cleanedCategory);
+
+            List<String> allCategories = projectService.findAllDistinctCategories();
+            for (String cat : allCategories) {
+                if (cat != null) {
+                    String normalizedExisting = cat.trim().toLowerCase().replaceAll("\\s+", " ");
+                    String normalizedNew = cleanedCategory.toLowerCase().replaceAll("\\s+", " ");
+                    if (normalizedExisting.equals(normalizedNew)) {
+                        bindingResult.rejectValue("category", "error.project",
+                                "Категория \"" + cat + "\" уже существует");
+                        return true;
+                    }
+                }
+            }
+        } else if (project.getCategory() == null || project.getCategory().trim().isEmpty()) {
+            bindingResult.rejectValue("category", "error.project", "Выберите категорию проекта");
+            return true;
+        }
+        return false;
+    }
+
+    private void processVideoUrl(Project project, String videoUrl) {
+        if (videoUrl != null && !videoUrl.trim().isEmpty()) {
+            project.setVideoUrl(videoUrl.trim());
+        }
+    }
+
+    private void processTeamMembers(Project project, String selectedTeamMemberIds) {
+        if (selectedTeamMemberIds == null || selectedTeamMemberIds.trim().isEmpty()) {
+            return;
+        }
+        if (project.getTeamMembers() == null) {
+            project.setTeamMembers(new HashSet<>());
+        }
+        String[] ids = selectedTeamMemberIds.split(",");
+        for (String idStr : ids) {
+            try {
+                Long memberId = Long.parseLong(idStr.trim());
+                teamMemberService.findById(memberId).ifPresent(member -> {
+                    if (member.getProjects() == null) {
+                        member.setProjects(new HashSet<>());
+                    }
+                    member.getProjects().add(project);
+                    project.getTeamMembers().add(member);
+                    teamMemberService.save(member);
+                });
+            } catch (NumberFormatException e) {
+                logInvalidId("члена команды", idStr);
+            }
+        }
+        projectService.save(project);
+    }
+
+    private void processPartners(Project project, String selectedPartnerIds) {
+        if (selectedPartnerIds == null || selectedPartnerIds.trim().isEmpty()) {
+            return;
+        }
+        if (project.getPartners() == null) {
+            project.setPartners(new HashSet<>());
+        }
+        String[] ids = selectedPartnerIds.split(",");
+        for (String idStr : ids) {
+            try {
+                Long partnerId = Long.parseLong(idStr.trim());
+                partnerService.findById(partnerId).ifPresent(partner -> {
+                    if (partner.getProjects() == null) {
+                        partner.setProjects(new HashSet<>());
+                    }
+                    partner.getProjects().add(project);
+                    project.getPartners().add(partner);
+                    partnerService.save(partner);
+                });
+            } catch (NumberFormatException e) {
+                logInvalidId("партнёра", idStr);
+            }
+        }
+        projectService.save(project);
+    }
+
+    private void processPhotos(Project project, String selectedPhotoIds) {
+        if (selectedPhotoIds == null || selectedPhotoIds.trim().isEmpty()) {
+            return;
+        }
+        try {
+            List<Long> photoIds = Arrays.stream(selectedPhotoIds.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .map(Long::parseLong)
+                    .limit(10)
+                    .collect(Collectors.toList());
+            project.setKeyPhotoIds(photoIds);
+        } catch (Exception e) {
+            log.warn("Ошибка при обработке фото: {}", e.getMessage());
+        }
+    }
+
+    private void prepareFormData(Model model) {
+        model.addAttribute("categories", projectService.findAllDistinctCategories());
+        model.addAttribute("statuses", ProjectStatusType.values());
+        model.addAttribute("allTeamMembers", teamMemberService.findAllActiveOrderBySortOrder());
+        model.addAttribute("allPartners", partnerService.findActiveByNameContaining(""));
+    }
+
+    private String buildSuccessMessage(String teamIds, String partnerIds, String photoIds) {
+        String msg = "Проект успешно создан";
+        if (teamIds != null && !teamIds.trim().isEmpty()) {
+            msg += " с командой из " + teamIds.split(",").length + " человек";
+        }
+        if (partnerIds != null && !partnerIds.trim().isEmpty()) {
+            msg += ", партнерами: " + partnerIds.split(",").length;
+        }
+        if (photoIds != null && !photoIds.trim().isEmpty()) {
+            msg += " и " + photoIds.split(",").length + " фото";
+        }
+        return msg;
+    }
+
+    private void updateProjectFields(Project existing, Project source, boolean forceShowInCarousel) {
+        existing.setTitle(source.getTitle());
+        existing.setSlug(source.getSlug());
+        existing.setCategory(source.getCategory());
+        existing.setStatus(source.getStatus());
+        existing.setShortDescription(source.getShortDescription());
+        existing.setFullDescription(source.getFullDescription());
+        existing.setStartDate(source.getStartDate());
+        existing.setEndDate(source.getEndDate());
+        existing.setEventDate(source.getEventDate());
+        existing.setLocation(source.getLocation());
+        existing.setShowDescription(source.isShowDescription());
+        existing.setShowPhotos(source.isShowPhotos());
+        existing.setShowVideos(source.isShowVideos());
+        existing.setShowTeam(source.isShowTeam());
+        existing.setShowParticipation(source.isShowParticipation());
+        existing.setShowPartners(source.isShowPartners());
+        existing.setShowRelated(source.isShowRelated());
+        existing.setForceShowInCarousel(forceShowInCarousel);
+    }
+
+    private void updateTeamMembers(Project project, String selectedTeamMemberIds) {
+        if (selectedTeamMemberIds == null) {
+            return;
+        }
+        List<TeamMember> currentMembers = teamMemberService.findByProject(project);
+        for (TeamMember member : currentMembers) {
+            if (member.getProjects() != null) {
+                member.getProjects().remove(project);
+                teamMemberService.save(member);
+            }
+        }
+        project.getTeamMembers().clear();
+
+        if (!selectedTeamMemberIds.trim().isEmpty()) {
+            String[] ids = selectedTeamMemberIds.split(",");
+            for (String idStr : ids) {
+                try {
+                    Long memberId = Long.parseLong(idStr.trim());
+                    teamMemberService.findById(memberId).ifPresent(member -> {
+                        if (member.getProjects() == null) {
+                            member.setProjects(new HashSet<>());
+                        }
+                        member.getProjects().add(project);
+                        project.getTeamMembers().add(member);
+                        teamMemberService.save(member);
+                    });
+                } catch (NumberFormatException e) {
+                    log.warn("Некорректный ID члена команды: {}", idStr);
+                }
+            }
+        }
+    }
+
+    private void updatePartners(Project project, String selectedPartnerIds) {
+        if (selectedPartnerIds == null) {
+            return;
+        }
+        List<Partner> currentPartners = partnerService.findByProject(project);
+        for (Partner partner : currentPartners) {
+            partner.getProjects().remove(project);
+            partnerService.save(partner);
+        }
+        project.getPartners().clear();
+        projectService.save(project);
+
+        if (!selectedPartnerIds.trim().isEmpty()) {
+            String[] ids = selectedPartnerIds.split(",");
+            for (String idStr : ids) {
+                try {
+                    Long partnerId = Long.parseLong(idStr.trim());
+                    partnerService.findById(partnerId).ifPresent(partner -> {
+                        if (partner.getProjects() == null) {
+                            partner.setProjects(new HashSet<>());
+                        }
+                        partner.getProjects().add(project);
+                        project.getPartners().add(partner);
+                        partnerService.save(partner);
+                    });
+                } catch (NumberFormatException e) {
+                    log.warn("Некорректный ID партнёра: {}", idStr);
+                }
+            }
+            projectService.save(project);
+        }
+    }
+
+    private void logInvalidId(String entityType, String idStr) {
+        log.warn("Некорректный ID {}: {}", entityType, idStr);
+    }
+
 
 }
