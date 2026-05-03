@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{fragments/layout}">
 <head>
@@ -114,11 +114,13 @@
                             <span class="input-group-text bg-white border-end-0">
                                 <i class="bi bi-search text-muted"></i>
                             </span>
-                                    <input type="text"
-                                           name="search"
-                                           class="form-control border-start-0 ps-0"
-                                           placeholder="Введите название..."
-                                           th:value="${selectedSearch}">
+                                    <label>
+                                        <input type="text"
+                                               name="search"
+                                               class="form-control border-start-0 ps-0"
+                                               placeholder="Введите название..."
+                                               th:value="${selectedSearch}">
+                                    </label>
                                 </div>
                                 <div class="form-text small text-muted">
                                     Поиск по названию проекта
@@ -130,14 +132,16 @@
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-tags me-1"></i>Категория
                                 </label>
-                                <select name="category" class="form-select">
-                                    <option value="">Все категории</option>
-                                    <option th:each="cat : ${categories}"
-                                            th:value="${cat}"
-                                            th:text="${cat}"
-                                            th:selected="${selectedCategory != null and selectedCategory == cat}">
-                                    </option>
-                                </select>
+                                <label>
+                                    <select name="category" class="form-select">
+                                        <option value="">Все категории</option>
+                                        <option th:each="cat : ${categories}"
+                                                th:value="${cat}"
+                                                th:text="${cat}"
+                                                th:selected="${selectedCategory != null and selectedCategory == cat}">
+                                        </option>
+                                    </select>
+                                </label>
                             </div>
 
                             <!-- ФИЛЬТР ПО СТАТУСУ -->
@@ -145,14 +149,16 @@
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-circle-fill me-1"></i>Статус
                                 </label>
-                                <select name="status" class="form-select">
-                                    <option value="">Все статусы</option>
-                                    <option th:each="statusEntry : ${statusLabels}"
-                                            th:value="${statusEntry.key}"
-                                            th:selected="${param.status != null and param.status[0] == statusEntry.key}"
-                                            th:text="${statusEntry.value}">
-                                    </option>
-                                </select>
+                                <label>
+                                    <select name="status" class="form-select">
+                                        <option value="">Все статусы</option>
+                                        <option th:each="statusEntry : ${statusLabels}"
+                                                th:value="${statusEntry.key}"
+                                                th:selected="${param.status != null and param.status[0] == statusEntry.key}"
+                                                th:text="${statusEntry.value}">
+                                        </option>
+                                    </select>
+                                </label>
                             </div>
 
                             <!-- ГОД СОБЫТИЯ -->
@@ -160,14 +166,16 @@
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-calendar-event me-1"></i>Год события
                                 </label>
-                                <select name="year" class="form-select">
-                                    <option value="">Все годы</option>
-                                    <option th:each="y : ${years}"
-                                            th:value="${y}"
-                                            th:text="${y}"
-                                            th:selected="${selectedYear != null and selectedYear == y}">
-                                    </option>
-                                </select>
+                                <label>
+                                    <select name="year" class="form-select">
+                                        <option value="">Все годы</option>
+                                        <option th:each="y : ${years}"
+                                                th:value="${y}"
+                                                th:text="${y}"
+                                                th:selected="${selectedYear != null and selectedYear == y}">
+                                        </option>
+                                    </select>
+                                </label>
                             </div>
 
                             <!-- КОЛИЧЕСТВО НА СТРАНИЦЕ -->
@@ -175,13 +183,15 @@
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-layout-text-sidebar-reverse me-1"></i>Проектов на странице
                                 </label>
-                                <select name="size" class="form-select">
-                                    <option value="5" th:selected="${projectsPage.size == 5}">5</option>
-                                    <option value="10" th:selected="${projectsPage.size == 10}">10</option>
-                                    <option value="20" th:selected="${projectsPage.size == 20 or projectsPage.size == null}">20</option>
-                                    <option value="50" th:selected="${projectsPage.size == 50}">50</option>
-                                    <option value="100" th:selected="${projectsPage.size == 100}">100</option>
-                                </select>
+                                <label>
+                                    <select name="size" class="form-select">
+                                        <option value="5" th:selected="${projectsPage.size == 5}">5</option>
+                                        <option value="10" th:selected="${projectsPage.size == 10}">10</option>
+                                        <option value="20" th:selected="${projectsPage.size == 20 or projectsPage.size == null}">20</option>
+                                        <option value="50" th:selected="${projectsPage.size == 50}">50</option>
+                                        <option value="100" th:selected="${projectsPage.size == 100}">100</option>
+                                    </select>
+                                </label>
                             </div>
 
                         </form>
@@ -411,13 +421,15 @@
                                         <span class="input-group-text bg-white border-end-0">
                                             <i class="bi bi-list-ul text-muted"></i>
                                         </span>
-                                        <select class="form-select border-start-0 ps-0"
-                                                onchange="changePageSize(this.value)">
-                                            <option value="5" th:selected="${projectsPage.size == 5}">5</option>
-                                            <option value="10" th:selected="${projectsPage.size == 10}">10</option>
-                                            <option value="20" th:selected="${projectsPage.size == 20}">20</option>
-                                            <option value="50" th:selected="${projectsPage.size == 50}">50</option>
-                                        </select>
+                                        <label>
+                                            <select class="form-select border-start-0 ps-0"
+                                                    onchange="changePageSize(this.value)">
+                                                <option value="5" th:selected="${projectsPage.size == 5}">5</option>
+                                                <option value="10" th:selected="${projectsPage.size == 10}">10</option>
+                                                <option value="20" th:selected="${projectsPage.size == 20}">20</option>
+                                                <option value="50" th:selected="${projectsPage.size == 50}">50</option>
+                                            </select>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -551,8 +563,8 @@
         // ========== ИНИЦИАЛИЗАЦИЯ BOOTSTRAP КОМПОНЕНТОВ ==========
 
         // Инициализация tooltips для всей страницы
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
 
@@ -622,68 +634,68 @@
 </script>
 
 <!-- СКРИПТ ДЛЯ ВИДЕО (ОТДЕЛЬНЫЙ, НЕЗАВИСИМЫЙ) -->
-<script>
-    // Функция для копирования ссылки на видео
-    function copyVideoUrl(url) {
-        if (!url) return;
+<!--<script>-->
+<!--    // // Функция для копирования ссылки на видео-->
+<!--    // function copyVideoUrl(url) {-->
+<!--    //     if (!url) return;-->
+<!--    //-->
+<!--    // Пытаемся использовать современный API-->
+<!--    //     if (navigator.clipboard && window.isSecureContext) {-->
+<!--    //         navigator.clipboard.writeText(url).then(function() {-->
+<!--    //             showVideoNotification('Ссылка скопирована');-->
+<!--    //         });-->
+<!--    //     } else {-->
+<!--    //         // Старый метод-->
+<!--    //         const textarea = document.createElement('textarea');-->
+<!--    //         textarea.value = url;-->
+<!--    //         textarea.style.position = 'fixed';-->
+<!--    //         document.body.appendChild(textarea);-->
+<!--    //         textarea.select();-->
+<!--    //         document.execCommand('copy');-->
+<!--    //         document.body.removeChild(textarea);-->
+<!--    //         showVideoNotification('Ссылка скопирована');-->
+<!--    //     }-->
+<!--    // }-->
 
-        // Пытаемся использовать современный API
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(url).then(function() {
-                showVideoNotification('Ссылка скопирована');
-            });
-        } else {
-            // Старый метод
-            const textarea = document.createElement('textarea');
-            textarea.value = url;
-            textarea.style.position = 'fixed';
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            showVideoNotification('Ссылка скопирована');
-        }
-    }
+<!--    // // Функция показа уведомления-->
+<!--    // function showVideoNotification(message) {-->
+<!--    //     // Создаём уведомление-->
+<!--    //     const notification = document.createElement('div');-->
+<!--    //     notification.className = 'position-fixed top-0 end-0 p-3';-->
+<!--    //     notification.style.zIndex = '9999';-->
+<!--    //-->
+<!--    //     notification.innerHTML = `-->
+<!--    //         <div class="toast show" role="alert">-->
+<!--    //             <div class="toast-header bg-success text-white">-->
+<!--    //                 <i class="bi bi-check-circle me-2"></i>-->
+<!--    //                 <strong class="me-auto">Видео</strong>-->
+<!--    //                 <button type="button" class="btn-close btn-close-white"-->
+<!--    //                         onclick="this.closest('.position-fixed').remove()"></button>-->
+<!--    //             </div>-->
+<!--    //             <div class="toast-body">-->
+<!--    //                 ${message}-->
+<!--    //             </div>-->
+<!--    //         </div>-->
+<!--    //     `;-->
+<!--    //-->
+<!--    //     document.body.appendChild(notification);-->
+<!--    //-->
+<!--    //     // Автоудаление через 3 секунды-->
+<!--    //     setTimeout(() => {-->
+<!--    //         if (notification.parentNode) {-->
+<!--    //             notification.remove();-->
+<!--    //         }-->
+<!--    //     }, 3000);-->
+<!--    // }-->
 
-    // Функция показа уведомления
-    function showVideoNotification(message) {
-        // Создаём уведомление
-        const notification = document.createElement('div');
-        notification.className = 'position-fixed top-0 end-0 p-3';
-        notification.style.zIndex = '9999';
-
-        notification.innerHTML = `
-            <div class="toast show" role="alert">
-                <div class="toast-header bg-success text-white">
-                    <i class="bi bi-check-circle me-2"></i>
-                    <strong class="me-auto">Видео</strong>
-                    <button type="button" class="btn-close btn-close-white"
-                            onclick="this.closest('.position-fixed').remove()"></button>
-                </div>
-                <div class="toast-body">
-                    ${message}
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(notification);
-
-        // Автоудаление через 3 секунды
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 3000);
-    }
-
-    // Инициализация при загрузке
-    document.addEventListener('DOMContentLoaded', function() {
-        // Инициализация тултипов для видео
-        const videoTooltips = document.querySelectorAll('[title*="видео" i]');
-        videoTooltips.forEach(el => {
-            new bootstrap.Tooltip(el);
-        });
-    });
-</script>
+<!--    // // Инициализация при загрузке-->
+<!--    // document.addEventListener('DOMContentLoaded', function() {-->
+<!--    // Инициализация тултипов для видео-->
+<!--    //     const videoTooltips = document.querySelectorAll('[title*="видео" i]');-->
+<!--    //     videoTooltips.forEach(el => {-->
+<!--    //         new bootstrap.Tooltip(el);-->
+<!--    //     });-->
+<!--    // });-->
+<!--</script>-->
 </body>
 </html>
