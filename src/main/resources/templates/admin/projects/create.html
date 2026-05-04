@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{fragments/layout}">
+      layout:decorate="~{fragments/layout}" lang="ru">
 <head>
     <title>Добавить проект - Админ панель</title>
 
@@ -14,6 +14,7 @@
     <!-- Quill.js Editor CSS -->
     <link href="/static/js/quill/quill.snow.css" rel="stylesheet">
 
+    <!--suppress CssUnusedSymbol -->
     <style>
         .create-project-container {
             max-width: 900px;
@@ -47,6 +48,7 @@
 
 
     <!-- === DROP END DROPS === -->
+    <!--suppress CssUnusedSymbol -->
     <style>
         .create-project-container {
             max-width: 900px;
@@ -270,6 +272,7 @@
     </style>
 
     <!-- ==== СТИЛИ ДЛЯ Quill РЕДАКТОРА ==== -->
+    <!--suppress CssUnusedSymbol -->
     <style>
         /* Стили для Quill редактора */
         #editor-container {
@@ -883,6 +886,7 @@
                                                         <span class="badge bg-light text-dark ms-2" id="availablePartnersCount">0</span>
                                                     </h6>
                                                 </div>
+                                                <!--suppress JSDeprecatedSymbols -->
                                                 <div class="card-body"
                                                      id="availablePartnersContainer"
                                                      style="min-height: 250px; max-height: 350px; overflow-y: auto;"
@@ -890,6 +894,7 @@
                                                      ondragover="allowDropPartner(event)">
 
                                                     <div th:if="${allPartners != null && !allPartners.isEmpty()}">
+                                                        <!--suppress JSDeprecatedSymbols -->
                                                         <div th:each="partner : ${allPartners}"
                                                              class="partner-draggable mb-2 p-2 border rounded"
                                                              draggable="true"
@@ -956,6 +961,7 @@
                                                         <span class="badge bg-light text-dark ms-2" id="projectPartnersDragCount">0</span>
                                                     </h6>
                                                 </div>
+                                                <!--suppress JSDeprecatedSymbols -->
                                                 <div class="card-body"
                                                      id="projectPartnersContainer"
                                                      style="min-height: 250px; max-height: 350px; overflow-y: auto;"
@@ -1442,7 +1448,8 @@
                         <input type="text"
                                class="form-control"
                                id="gallerySearch"
-                               placeholder="Поиск галереи по названию или году...">
+                               placeholder="Поиск галереи по названию или году..."
+                               aria-label="Поиск галереи по названию или году">
                         <button class="btn btn-outline-secondary" type="button" onclick="clearGallerySearch()">
                             <i class="bi bi-x-circle"></i>
                         </button>
@@ -1552,7 +1559,7 @@
     (function () {
         'use strict'
 
-        var forms = document.querySelectorAll('.needs-validation')
+        const forms = document.querySelectorAll('.needs-validation');
 
         Array.prototype.slice.call(forms)
             .forEach(function (form) {
@@ -1784,29 +1791,29 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-function allowDrop(event) {
-    event.preventDefault();
-}
+// function allowDrop(event) {
+//     event.preventDefault();
+// }
 
-function dragMember(event) {
-    event.dataTransfer.setData('text/plain', event.target.getAttribute('data-member-id'));
-    event.target.classList.add('dragging');
-}
+// function dragMember(event) {
+//     event.dataTransfer.setData('text/plain', event.target.getAttribute('data-member-id'));
+//     event.target.classList.add('dragging');
+// }
 
-function dropMember(event) {
-    event.preventDefault();
-    const memberId = event.dataTransfer.getData('text/plain');
-    const draggedElement = document.querySelector(`[data-member-id="${memberId}"]`);
-    const targetContainer = event.target.closest('#availableMembersContainer, #projectTeamContainer');
-
-    if (draggedElement && targetContainer && draggedElement.parentElement !== targetContainer) {
-        const isMovingToProject = targetContainer.id === 'projectTeamContainer';
-        moveMemberToContainer(memberId, targetContainer.id);
-    }
-
-    // Убираем класс dragging со всех элементов
-    document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
-}
+// function dropMember(event) {
+//     event.preventDefault();
+//     const memberId = event.dataTransfer.getData('text/plain');
+//     const draggedElement = document.querySelector(`[data-member-id="${memberId}"]`);
+//     const targetContainer = event.target.closest('#availableMembersContainer, #projectTeamContainer');
+//
+//     if (draggedElement && targetContainer && draggedElement.parentElement !== targetContainer) {
+//         const isMovingToProject = targetContainer.id === 'projectTeamContainer';
+//         moveMemberToContainer(memberId, targetContainer.id);
+//     }
+//
+//     // Убираем класс dragging со всех элементов
+//     document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+// }
 
 function initDragAndDrop() {
     // Настраиваем перетаскивание для всех членов команды
@@ -1949,19 +1956,19 @@ function removeSelectedFromProject() {
     });
 }
 
-function updateSelectionButtons() {
-    const hasAvailableSelected = document.querySelectorAll('#availableMembersContainer .member-draggable.selected').length > 0;
-    const hasProjectSelected = document.querySelectorAll('#projectTeamContainer .member-draggable.selected').length > 0;
-
-    // Можно добавить визуальную индикацию для кнопок если нужно
-}
+// function updateSelectionButtons() {
+//     const hasAvailableSelected = document.querySelectorAll('#availableMembersContainer .member-draggable.selected').length > 0;
+//     const hasProjectSelected = document.querySelectorAll('#projectTeamContainer .member-draggable.selected').length > 0;
+//
+//     // Можно добавить визуальную индикацию для кнопок если нужно
+// }
 
 function updateCounters() {
     const availableCount = document.querySelectorAll('#availableMembersContainer .member-draggable').length;
     const projectCount = document.querySelectorAll('#projectTeamContainer .member-draggable').length;
 
-    document.getElementById('availableCount').textContent = availableCount;
-    document.getElementById('projectTeamCount').textContent = projectCount;
+    document.getElementById('availableCount').textContent = String(availableCount);
+    document.getElementById('projectTeamCount').textContent = String(projectCount);
 
     // ОБНОВЛЯЕМ СТАТИСТИКУ
     updateProjectMembersCount();
@@ -1992,20 +1999,21 @@ function updateProjectMembersCount() {
 
     const statElement = document.getElementById('projectMembersCount');
     if (statElement) {
-        statElement.textContent = count;
+        statElement.textContent = String(count);
     }
 }
 </script>
 
 
     <!-- === УПРАВЛЕНИЕ МОДАЛЬНЫМ ОКНОМ ВЫБОРА ФОТО ИЗ ГАЛЕРЕЙ === -->
+<!--suppress HtmlDeprecatedAttribute -->
 <script>
     // === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
     let allGalleries = [];          // Все галереи
     let currentGalleryId = null;    // ID текущей галереи
     let currentGalleryPhotos = [];  // Фото текущей галереи
     let selectedPhotos = [];        // Выбранные фото для проекта [{id, title, webPath, galleryTitle}]
-    let selectedPhotosModal = null; // Bootstrap modal instance
+    // let selectedPhotosModal = null; // Bootstrap modal instance
 
     // === ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ===
     document.addEventListener('DOMContentLoaded', function() {
@@ -2125,7 +2133,6 @@ function updateProjectMembersCount() {
                 console.log('Первое фото (полная структура):', photos[0]);
                 console.log('Все ключи первого фото:', Object.keys(photos[0]));
                 console.log('ID первого фото (photo.id):', photos[0].id);
-                console.log('photoId первого фото:', photos[0].photoId);
                 console.log('Проверка существования полей:');
                 console.log('  - photos[0].id существует?', photos[0].hasOwnProperty('id'));
                 console.log('  - photos[0].photoId существует?', photos[0].hasOwnProperty('photoId'));
@@ -2294,18 +2301,12 @@ function updateProjectMembersCount() {
 
         currentGalleryPhotos.forEach(photo => {
 
-         console.log('Фото для отображения:', {
-            все_поля: photo,
-            id_значение: photo.id,
-            photoId_значение: photo.photoId,
-            какой_id_будет_использован: photo.id || photo.photoId
-        });
-
 
             const isSelected = selectedPhotos.some(sp => sp.id === photo.id);
             const isPrimary = photo.isPrimary ? 'border-warning' : '';
             const selectedClass = isSelected ? 'selected-photo' : '';
 
+            // noinspection JSDeprecatedSymbols
             html += `
                 <div class="col">
                     <div class="card h-100 photo-card ${selectedClass} ${isPrimary}"
@@ -2662,7 +2663,7 @@ function updateProjectMembersCount() {
     function updateGalleriesCount() {
         const countElement = document.getElementById('galleriesCount');
         if (countElement) {
-            countElement.textContent = allGalleries.length;
+            countElement.textContent = String(allGalleries.length);
         }
     }
 
@@ -2700,7 +2701,7 @@ function updateProjectMembersCount() {
     function updateSelectedCount() {
         const countElement = document.getElementById('selectedCount');
         if (countElement) {
-            countElement.textContent = selectedPhotos.length;
+            countElement.textContent = String(selectedPhotos.length);
         }
     }
 
@@ -2884,7 +2885,7 @@ function updateProjectMembersCount() {
 function updateSelectedPhotosCounter() {
     const counterElement = document.getElementById('selectedPhotosCount');
     if (counterElement) {
-        counterElement.textContent = selectedPhotos.length;
+        counterElement.textContent = String(selectedPhotos.length);
     }
 }
 </script>
@@ -2939,13 +2940,13 @@ function updateSelectedPhotosCounter() {
 
         if (embedUrl && videoId) {
             // Создаем embed код
+            // noinspection UnnecessaryLocalVariableJS
             const embedCode = `
                 <div class="ratio ratio-16x9">
                     <iframe src="${embedUrl}"
-                            frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen
-                            style="border-radius: 8px;">
+                            style="border: 0; border-radius: 8px;">
                     </iframe>
                 </div>
             `;
@@ -2968,10 +2969,10 @@ function updateSelectedPhotosCounter() {
     // Функции для извлечения ID видео
     function extractYouTubeId(url) {
         const patterns = [
-            /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)/,
-            /(?:youtu\.be\/)([a-zA-Z0-9_-]+)/,
-            /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/,
-            /(?:youtube\.com\/v\/)([a-zA-Z0-9_-]+)/
+            /youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/,
+            /youtu\.be\/([a-zA-Z0-9_-]+)/,
+            /youtube\.com\/embed\/([a-zA-Z0-9_-]+)/,
+            /youtube\.com\/v\/([a-zA-Z0-9_-]+)/
         ];
 
         for (const pattern of patterns) {
@@ -2984,17 +2985,17 @@ function updateSelectedPhotosCounter() {
     }
 
     function extractVimeoId(url) {
-        const pattern = /(?:vimeo\.com\/)(\d+)/;
+        const pattern = /vimeo\.com\/(\d+)/;
         const match = url.match(pattern);
         return match ? match[1] : null;
     }
 
     function extractRutubeId(url) {
-    const patterns = [
-        /rutube\.ru\/video\/([a-zA-Z0-9\._-]+)/,
-        /rutube\.ru\/play\/embed\/([a-zA-Z0-9\._-]+)/,
-        /rutube\.ru\/shorts\/([a-zA-Z0-9\._-]+)/  // ← вот эта строка добавит shorts
-    ];
+        const patterns = [
+            /rutube.ru\/video\/([a-zA-Z0-9._-]+)/,
+            /rutube.ru\/play\/embed\/([a-zA-Z0-9._-]+)/,
+            /rutube.ru\/shorts\/([a-zA-Z0-9._-]+)/
+        ];
 
     for (const pattern of patterns) {
         const match = url.match(pattern);
@@ -3325,25 +3326,25 @@ function updateSelectedPhotosCounter() {
         // 1. Счетчик доступных партнёров (есть в обеих страницах)
         const availableCountElement = document.getElementById('availablePartnersCount');
         if (availableCountElement) {
-            availableCountElement.textContent = availableCount;
+            availableCountElement.textContent = String(availableCount);
         }
 
         // 2. Счетчик партнёров в DnD колонке (есть в обеих страницах)
         const projectDragCountElement = document.getElementById('projectPartnersDragCount');
         if (projectDragCountElement) {
-            projectDragCountElement.textContent = projectCount;
+            projectDragCountElement.textContent = String(projectCount);
         }
 
         // 3. Общий счетчик выбранных партнёров (есть в обеих страницах)
         const selectedCountElement = document.getElementById('selectedPartnersCount');
         if (selectedCountElement) {
-            selectedCountElement.textContent = projectCount;
+            selectedCountElement.textContent = String(projectCount);
         }
 
         // 4. Счетчик в заголовке секции (ТОЛЬКО в edit.html)
         const projectCountElement = document.getElementById('projectPartnersCount');
         if (projectCountElement) {
-            projectCountElement.textContent = projectCount;
+            projectCountElement.textContent = String(projectCount);
         }
 
         // 5. Обновляем превью
@@ -3454,7 +3455,7 @@ function updatePartnersPreview() {
     // Создаем превью карточек
     let html = '<div class="col-12 mb-2"><strong>Выбранные партнёры:</strong></div>';
 
-    selectedElements.forEach((element, index) => {
+    selectedElements.forEach((element, _index) => {
         const partnerId = element.getAttribute('data-partner-id');
         const logoUrl = element.getAttribute('data-logo-url') || ''; // ВОТ ЭТО ДОБАВИТЬ
         const name = element.querySelector('strong')?.textContent || `Партнёр ${partnerId}`;
@@ -3527,22 +3528,22 @@ function updatePartnersPreview() {
         return div.innerHTML;
     }
 
-    // Функция для отладки - показывает все партнёры
-    function debugShowPartners() {
-        console.log('=== DEBUG: Все партнёры ===');
-
-        const available = document.querySelectorAll('#availablePartnersContainer [data-partner-id]');
-        const project = document.querySelectorAll('#projectPartnersContainer [data-partner-id]');
-
-        console.log('Доступные партнёры:', available.length);
-        available.forEach(p => console.log('  ID:', p.getAttribute('data-partner-id')));
-
-        console.log('Партнёры в проекте:', project.length);
-        project.forEach(p => console.log('  ID:', p.getAttribute('data-partner-id')));
-
-        const hiddenField = document.getElementById('selectedPartnerIds');
-        console.log('Скрытое поле:', hiddenField ? hiddenField.value : 'не найдено');
-    }
+    // // Функция для отладки - показывает все партнёры
+    // function debugShowPartners() {
+    //     console.log('=== DEBUG: Все партнёры ===');
+    //
+    //     const available = document.querySelectorAll('#availablePartnersContainer [data-partner-id]');
+    //     const project = document.querySelectorAll('#projectPartnersContainer [data-partner-id]');
+    //
+    //     console.log('Доступные партнёры:', available.length);
+    //     available.forEach(p => console.log('  ID:', p.getAttribute('data-partner-id')));
+    //
+    //     console.log('Партнёры в проекте:', project.length);
+    //     project.forEach(p => console.log('  ID:', p.getAttribute('data-partner-id')));
+    //
+    //     const hiddenField = document.getElementById('selectedPartnerIds');
+    //     console.log('Скрытое поле:', hiddenField ? hiddenField.value : 'не найдено');
+    // }
 </script>
 
 <!-- ПОЛНОЕ ОПИСАНИЕ Quill.js Script -->
@@ -3568,6 +3569,7 @@ function updatePartnersPreview() {
 
         try {
             // Создаем Quill редактор
+            // noinspection JSUnresolvedReference
             const quill = new Quill(editorContainer, {
                 theme: 'snow',
                 modules: {
@@ -3609,16 +3611,7 @@ function updatePartnersPreview() {
             // 2. Синхронизация с textarea при изменении
             quill.on('text-change', function(delta, oldDelta, source) {
                 if (source === 'user') {
-                    const html = quill.root.innerHTML;
-                    textarea.value = html;
-
-                    // Отладочная информация
-                    const text = quill.getText();
-                    console.log('📝 Контент обновлен:', {
-                        символов: text.length,
-                        символов_без_пробелов: text.replace(/\s/g, '').length,
-                        html_длина: html.length
-                    });
+                    textarea.value = quill.root.innerHTML;
                 }
             });
 
@@ -3711,6 +3704,7 @@ function updatePartnersPreview() {
 </script>
 
 <!-- ===== ВАЛИДАЦИЯ И СЧЕТЧИК КРАТКОГО ОПИСАНИЯ ===== -->
+<!--suppress JSUnusedGlobalSymbols -->
 <script>
     // Максимальное количество символов
     const MAX_SHORT_DESCRIPTION_LENGTH = 2000;
