@@ -1250,28 +1250,8 @@
     </div>
 </div>
 
-
-<!-- Скрипт для валидации формы -->
-<script>
-    // Валидация Bootstrap
-    (function () {
-        'use strict'
-
-        const forms = document.querySelectorAll('.needs-validation');
-
-        Array.prototype.slice.call(forms)
-            .forEach(function (form) {
-                form.addEventListener('submit', function (event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
-
-                    form.classList.add('was-validated')
-                }, false)
-            })
-    })()
-</script>
+<!-- Общие скрипты -->
+<script src="/js/admin/projects/common.js"></script>
 
 
 <!-- Скрипт для автогенерации slug -->
@@ -2361,59 +2341,6 @@ function updateProjectMembersCount() {
 
         // Показываем уведомление
         showAlert(`Выбрано ${selectedPhotos.length} фото`, 'success');
-    }
-
-    // === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
-
-    /**
-     * Экранирует HTML-символы для безопасного отображения.
-     * Escapes HTML characters for safe display.
-     *
-     * @param {string} text текст для экранирования / text to escape
-     * @return {string} экранированный текст / escaped text
-     */
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    /**
-     * Показывает всплывающее уведомление.
-     * Shows popup notification.
-     *
-     * @param {string} message текст сообщения / message text
-     * @param {string} type тип уведомления (success, warning, danger) / notification type
-     */
-    function showAlert(message, type = 'success') {
-        // Удаляем старые уведомления
-        const oldAlerts = document.querySelectorAll('.custom-alert');
-        oldAlerts.forEach(alert => alert.remove());
-
-        // Создаем новое уведомление
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `custom-alert alert alert-${type} alert-dismissible fade show position-fixed`;
-        alertDiv.style.cssText = `
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            max-width: 300px;
-        `;
-
-        alertDiv.innerHTML = `
-            <i class="bi ${type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'} me-1"></i>
-            ${escapeHtml(message)}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-
-        document.body.appendChild(alertDiv);
-
-        // Автоматически скрыть через 3 секунды
-        setTimeout(() => {
-            const bsAlert = bootstrap.Alert.getOrCreateInstance(alertDiv);
-            if (bsAlert) bsAlert.close();
-        }, 3000);
     }
 
     // === CSS СТИЛИ ===
@@ -3617,64 +3544,6 @@ function updatePartnersPreview() {
             }
         }, 5000);
     }
-</script>
-
-<script>
-    // === СОЗДАНИЕ НОВОЙ КАТЕГОРИИ ПРИ СОЗДАНИИ ===
-    document.addEventListener('DOMContentLoaded', function() {
-        const createBtn = document.getElementById('createCategoryBtn');
-        const categorySelect = document.getElementById('category');
-
-        if (createBtn && categorySelect) {
-            createBtn.addEventListener('click', function() {
-                const newCategory = prompt('Введите название новой категории:');
-
-                if (newCategory && newCategory.trim()) {
-                    const trimmedName = newCategory.trim();
-
-                    // Проверяем, нет ли уже такой категории
-                    let exists = false;
-                    for (let i = 0; i < categorySelect.options.length; i++) {
-                        if (categorySelect.options[i].value === trimmedName) {
-                            exists = true;
-                            break;
-                        }
-                    }
-
-                    if (exists) {
-                        alert('Категория "' + trimmedName + '" уже существует!');
-                        categorySelect.value = trimmedName;
-                    } else {
-                        // Добавляем новую опцию в select
-                        const newOption = document.createElement('option');
-                        newOption.value = trimmedName;
-                        newOption.textContent = trimmedName;
-                        categorySelect.appendChild(newOption);
-
-                        // Выбираем новую категорию
-                        categorySelect.value = trimmedName;
-
-                        // Показываем уведомление
-                        const alertDiv = document.createElement('div');
-                        alertDiv.className = 'alert alert-success alert-dismissible fade show mt-2';
-                        alertDiv.innerHTML = `
-                            <i class="bi bi-check-circle me-1"></i>
-                            Категория "${trimmedName}" создана и выбрана!
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        `;
-                        categorySelect.parentNode.insertBefore(alertDiv, categorySelect.nextSibling);
-
-                        setTimeout(() => {
-                            if (alertDiv.parentNode) {
-                                const bsAlert = bootstrap.Alert.getOrCreateInstance(alertDiv);
-                                if (bsAlert) bsAlert.close();
-                            }
-                        }, 3000);
-                    }
-                }
-            });
-        }
-    });
 </script>
 </body>
 </html>
