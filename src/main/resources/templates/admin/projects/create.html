@@ -1256,6 +1256,8 @@
 <script src="/js/admin/projects/short-description-counter.js"></script>
 <!-- Превью видео -->
 <script src="/js/admin/projects/video-preview.js"></script>
+<!-- Drag & Drop для команды проекта -->
+<script src="/js/admin/projects/team-drag-drop.js"></script>
 
 <!-- Скрипт для автогенерации slug -->
 <script>
@@ -1376,204 +1378,204 @@
     });
 </script>
 
-<!-- JavaScript для Drag and Drop (редактирование команды) -->
-<script>
-    // Глобальные переменные для редактирования
-document.addEventListener('DOMContentLoaded', function() {
-    // Инициализация перетаскивания
-    initDragAndDrop();
-    updateCounters();
-});
+<!--&lt;!&ndash; JavaScript для Drag and Drop (редактирование команды) &ndash;&gt;-->
+<!--<script>-->
+<!--    // Глобальные переменные для редактирования-->
+<!--document.addEventListener('DOMContentLoaded', function() {-->
+<!--    // Инициализация перетаскивания-->
+<!--    initDragAndDrop();-->
+<!--    updateCounters();-->
+<!--});-->
 
 
-function initDragAndDrop() {
-    // Настраиваем перетаскивание для всех членов команды
-    document.querySelectorAll('.member-draggable').forEach(item => {
-        item.setAttribute('draggable', 'true');
+<!--function initDragAndDrop() {-->
+<!--    // Настраиваем перетаскивание для всех членов команды-->
+<!--    document.querySelectorAll('.member-draggable').forEach(item => {-->
+<!--        item.setAttribute('draggable', 'true');-->
 
-        item.addEventListener('dragstart', function(e) {
-            e.dataTransfer.setData('text/plain', this.getAttribute('data-member-id'));
-            this.classList.add('dragging');
-        });
+<!--        item.addEventListener('dragstart', function(e) {-->
+<!--            e.dataTransfer.setData('text/plain', this.getAttribute('data-member-id'));-->
+<!--            this.classList.add('dragging');-->
+<!--        });-->
 
-        item.addEventListener('dragend', function() {
-            this.classList.remove('dragging');
-        });
+<!--        item.addEventListener('dragend', function() {-->
+<!--            this.classList.remove('dragging');-->
+<!--        });-->
 
-        // Клик для выделения
-        item.addEventListener('click', function(e) {
-            if (!e.ctrlKey && !e.metaKey) {
-                // Снимаем выделение со всех
-                document.querySelectorAll('.member-draggable.selected').forEach(el => {
-                    el.classList.remove('selected');
-                });
-            }
-            this.classList.toggle('selected');
-            updateSelectionButtons();
-        });
-    });
+<!--        // Клик для выделения-->
+<!--        item.addEventListener('click', function(e) {-->
+<!--            if (!e.ctrlKey && !e.metaKey) {-->
+<!--                // Снимаем выделение со всех-->
+<!--                document.querySelectorAll('.member-draggable.selected').forEach(el => {-->
+<!--                    el.classList.remove('selected');-->
+<!--                });-->
+<!--            }-->
+<!--            this.classList.toggle('selected');-->
+<!--            updateSelectionButtons();-->
+<!--        });-->
+<!--    });-->
 
-    // Настраиваем зоны drop
-    const availableContainer = document.getElementById('availableMembersContainer');
-    const projectContainer = document.getElementById('projectTeamContainer');
+<!--    // Настраиваем зоны drop-->
+<!--    const availableContainer = document.getElementById('availableMembersContainer');-->
+<!--    const projectContainer = document.getElementById('projectTeamContainer');-->
 
-    [availableContainer, projectContainer].forEach(container => {
-        container.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            this.classList.add('drop-zone-active');
-        });
+<!--    [availableContainer, projectContainer].forEach(container => {-->
+<!--        container.addEventListener('dragover', function(e) {-->
+<!--            e.preventDefault();-->
+<!--            this.classList.add('drop-zone-active');-->
+<!--        });-->
 
-        container.addEventListener('dragleave', function() {
-            this.classList.remove('drop-zone-active');
-        });
+<!--        container.addEventListener('dragleave', function() {-->
+<!--            this.classList.remove('drop-zone-active');-->
+<!--        });-->
 
-        container.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.classList.remove('drop-zone-active');
+<!--        container.addEventListener('drop', function(e) {-->
+<!--            e.preventDefault();-->
+<!--            this.classList.remove('drop-zone-active');-->
 
-            const memberId = e.dataTransfer.getData('text/plain');
-            const draggedElement = document.querySelector(`[data-member-id="${memberId}"]`);
+<!--            const memberId = e.dataTransfer.getData('text/plain');-->
+<!--            const draggedElement = document.querySelector(`[data-member-id="${memberId}"]`);-->
 
-            if (draggedElement && draggedElement.parentElement !== this) {
-                moveMemberToContainer(memberId, this.id);
-            }
-        });
-    });
-}
+<!--            if (draggedElement && draggedElement.parentElement !== this) {-->
+<!--                moveMemberToContainer(memberId, this.id);-->
+<!--            }-->
+<!--        });-->
+<!--    });-->
+<!--}-->
 
-function moveMemberToContainer(memberId, targetContainerId) {
-    const memberElement = document.querySelector(`[data-member-id="${memberId}"]`);
-    if (!memberElement) return;
+<!--function moveMemberToContainer(memberId, targetContainerId) {-->
+<!--    const memberElement = document.querySelector(`[data-member-id="${memberId}"]`);-->
+<!--    if (!memberElement) return;-->
 
-    const targetContainer = document.getElementById(targetContainerId);
-    const isMovingToProject = targetContainerId === 'projectTeamContainer';
+<!--    const targetContainer = document.getElementById(targetContainerId);-->
+<!--    const isMovingToProject = targetContainerId === 'projectTeamContainer';-->
 
-    // Клонируем элемент с новыми стилями
-    const cloned = memberElement.cloneNode(true);
+<!--    // Клонируем элемент с новыми стилями-->
+<!--    const cloned = memberElement.cloneNode(true);-->
 
-    if (isMovingToProject) {
-    // Перемещаем в проект - меняем только иконку и бейдж
-    const icon = cloned.querySelector('.bi-person-circle');
-    if (icon) icon.className = 'bi bi-person-check fs-4 text-success';
+<!--    if (isMovingToProject) {-->
+<!--    // Перемещаем в проект - меняем только иконку и бейдж-->
+<!--    const icon = cloned.querySelector('.bi-person-circle');-->
+<!--    if (icon) icon.className = 'bi bi-person-check fs-4 text-success';-->
 
-    const badge = cloned.querySelector('.badge');
-    if (badge) {
-        badge.className = 'badge bg-success text-white';
-        badge.textContent = 'В проекте';
-    }
-} else {
-    // Перемещаем обратно в доступные - меняем только иконку и бейдж
-    const icon = cloned.querySelector('.bi-person-check');
-    if (icon) icon.className = 'bi bi-person-circle fs-4 text-primary';
+<!--    const badge = cloned.querySelector('.badge');-->
+<!--    if (badge) {-->
+<!--        badge.className = 'badge bg-success text-white';-->
+<!--        badge.textContent = 'В проекте';-->
+<!--    }-->
+<!--} else {-->
+<!--    // Перемещаем обратно в доступные - меняем только иконку и бейдж-->
+<!--    const icon = cloned.querySelector('.bi-person-check');-->
+<!--    if (icon) icon.className = 'bi bi-person-circle fs-4 text-primary';-->
 
-    const badge = cloned.querySelector('.badge');
-    if (badge) {
-        badge.className = 'badge bg-primary text-white';
-        badge.textContent = 'Доступен';
-    }
-}
+<!--    const badge = cloned.querySelector('.badge');-->
+<!--    if (badge) {-->
+<!--        badge.className = 'badge bg-primary text-white';-->
+<!--        badge.textContent = 'Доступен';-->
+<!--    }-->
+<!--}-->
 
-    // Удаляем старый элемент
-    memberElement.remove();
+<!--    // Удаляем старый элемент-->
+<!--    memberElement.remove();-->
 
-    // Добавляем новый в целевую колонку
-    targetContainer.appendChild(cloned);
+<!--    // Добавляем новый в целевую колонку-->
+<!--    targetContainer.appendChild(cloned);-->
 
-    // Реинициализируем события для нового элемента
-    cloned.setAttribute('draggable', 'true');
-    cloned.addEventListener('dragstart', function(e) {
-        e.dataTransfer.setData('text/plain', this.getAttribute('data-member-id'));
-        this.classList.add('dragging');
-    });
-    cloned.addEventListener('dragend', function() {
-        this.classList.remove('dragging');
-    });
-    cloned.addEventListener('click', function(e) {
-        if (!e.ctrlKey && !e.metaKey) {
-            document.querySelectorAll('.member-draggable.selected').forEach(el => {
-                el.classList.remove('selected');
-            });
-        }
-        this.classList.toggle('selected');
-        updateSelectionButtons();
-    });
+<!--    // Реинициализируем события для нового элемента-->
+<!--    cloned.setAttribute('draggable', 'true');-->
+<!--    cloned.addEventListener('dragstart', function(e) {-->
+<!--        e.dataTransfer.setData('text/plain', this.getAttribute('data-member-id'));-->
+<!--        this.classList.add('dragging');-->
+<!--    });-->
+<!--    cloned.addEventListener('dragend', function() {-->
+<!--        this.classList.remove('dragging');-->
+<!--    });-->
+<!--    cloned.addEventListener('click', function(e) {-->
+<!--        if (!e.ctrlKey && !e.metaKey) {-->
+<!--            document.querySelectorAll('.member-draggable.selected').forEach(el => {-->
+<!--                el.classList.remove('selected');-->
+<!--            });-->
+<!--        }-->
+<!--        this.classList.toggle('selected');-->
+<!--        updateSelectionButtons();-->
+<!--    });-->
 
-    // Обновляем UI
-    updateCounters();
-    updateHiddenInput();
+<!--    // Обновляем UI-->
+<!--    updateCounters();-->
+<!--    updateHiddenInput();-->
 
-    // Скрываем/показываем сообщения о пустоте
-    const projectEmptyMsg = document.getElementById('emptyTeamMessage');
-    if (projectEmptyMsg) {
-        projectEmptyMsg.style.display =
-            document.querySelectorAll('#projectTeamContainer .member-draggable').length === 0 ? 'block' : 'none';
-    }
-}
+<!--    // Скрываем/показываем сообщения о пустоте-->
+<!--    const projectEmptyMsg = document.getElementById('emptyTeamMessage');-->
+<!--    if (projectEmptyMsg) {-->
+<!--        projectEmptyMsg.style.display =-->
+<!--            document.querySelectorAll('#projectTeamContainer .member-draggable').length === 0 ? 'block' : 'none';-->
+<!--    }-->
+<!--}-->
 
-// Кнопки для массового перемещения
-function addSelectedToProject() {
-    const selected = document.querySelectorAll('#availableMembersContainer .member-draggable.selected');
-    selected.forEach(member => {
-        const memberId = member.getAttribute('data-member-id');
-        moveMemberToContainer(memberId, 'projectTeamContainer');
-    });
-}
+<!--// Кнопки для массового перемещения-->
+<!--function addSelectedToProject() {-->
+<!--    const selected = document.querySelectorAll('#availableMembersContainer .member-draggable.selected');-->
+<!--    selected.forEach(member => {-->
+<!--        const memberId = member.getAttribute('data-member-id');-->
+<!--        moveMemberToContainer(memberId, 'projectTeamContainer');-->
+<!--    });-->
+<!--}-->
 
-function removeSelectedFromProject() {
-    const selected = document.querySelectorAll('#projectTeamContainer .member-draggable.selected');
-    selected.forEach(member => {
-        const memberId = member.getAttribute('data-member-id');
-        moveMemberToContainer(memberId, 'availableMembersContainer');
-    });
-}
+<!--function removeSelectedFromProject() {-->
+<!--    const selected = document.querySelectorAll('#projectTeamContainer .member-draggable.selected');-->
+<!--    selected.forEach(member => {-->
+<!--        const memberId = member.getAttribute('data-member-id');-->
+<!--        moveMemberToContainer(memberId, 'availableMembersContainer');-->
+<!--    });-->
+<!--}-->
 
-// function updateSelectionButtons() {
-//     const hasAvailableSelected = document.querySelectorAll('#availableMembersContainer .member-draggable.selected').length > 0;
-//     const hasProjectSelected = document.querySelectorAll('#projectTeamContainer .member-draggable.selected').length > 0;
-//
-//     // Можно добавить визуальную индикацию для кнопок если нужно
-// }
+<!--// function updateSelectionButtons() {-->
+<!--//     const hasAvailableSelected = document.querySelectorAll('#availableMembersContainer .member-draggable.selected').length > 0;-->
+<!--//     const hasProjectSelected = document.querySelectorAll('#projectTeamContainer .member-draggable.selected').length > 0;-->
+<!--//-->
+<!--// Можно добавить визуальную индикацию для кнопок если нужно-->
+<!--// }-->
 
-function updateCounters() {
-    const availableCount = document.querySelectorAll('#availableMembersContainer .member-draggable').length;
-    const projectCount = document.querySelectorAll('#projectTeamContainer .member-draggable').length;
+<!--function updateCounters() {-->
+<!--    const availableCount = document.querySelectorAll('#availableMembersContainer .member-draggable').length;-->
+<!--    const projectCount = document.querySelectorAll('#projectTeamContainer .member-draggable').length;-->
 
-    document.getElementById('availableCount').textContent = String(availableCount);
-    document.getElementById('projectTeamCount').textContent = String(projectCount);
+<!--    document.getElementById('availableCount').textContent = String(availableCount);-->
+<!--    document.getElementById('projectTeamCount').textContent = String(projectCount);-->
 
-    // ОБНОВЛЯЕМ СТАТИСТИКУ
-    updateProjectMembersCount();
-}
+<!--    // ОБНОВЛЯЕМ СТАТИСТИКУ-->
+<!--    updateProjectMembersCount();-->
+<!--}-->
 
-function updateHiddenInput() {
-    const selectedElements = document.querySelectorAll('#projectTeamContainer [data-member-id]');
-    const ids = Array.from(selectedElements).map(el => el.getAttribute('data-member-id'));
+<!--function updateHiddenInput() {-->
+<!--    const selectedElements = document.querySelectorAll('#projectTeamContainer [data-member-id]');-->
+<!--    const ids = Array.from(selectedElements).map(el => el.getAttribute('data-member-id'));-->
 
-    document.getElementById('selectedTeamMemberIds').value = ids.join(',');
+<!--    document.getElementById('selectedTeamMemberIds').value = ids.join(',');-->
 
-    // Синхронизируем с мультиселектом
-    const teamSelect = document.getElementById('teamMembers');
-    if (teamSelect) {
-        Array.from(teamSelect.options).forEach(option => {
-            option.selected = ids.includes(option.value);
-        });
-    }
+<!--    // Синхронизируем с мультиселектом-->
+<!--    const teamSelect = document.getElementById('teamMembers');-->
+<!--    if (teamSelect) {-->
+<!--        Array.from(teamSelect.options).forEach(option => {-->
+<!--            option.selected = ids.includes(option.value);-->
+<!--        });-->
+<!--    }-->
 
-    // ОБНОВЛЯЕМ СТАТИСТИКУ
-    updateProjectMembersCount();
-}
+<!--    // ОБНОВЛЯЕМ СТАТИСТИКУ-->
+<!--    updateProjectMembersCount();-->
+<!--}-->
 
-// Функция для обновления счетчика в статистике
-function updateProjectMembersCount() {
-    const projectMembers = document.querySelectorAll('#projectTeamContainer .member-draggable');
-    const count = projectMembers.length;
+<!--// Функция для обновления счетчика в статистике-->
+<!--function updateProjectMembersCount() {-->
+<!--    const projectMembers = document.querySelectorAll('#projectTeamContainer .member-draggable');-->
+<!--    const count = projectMembers.length;-->
 
-    const statElement = document.getElementById('projectMembersCount');
-    if (statElement) {
-        statElement.textContent = String(count);
-    }
-}
-</script>
+<!--    const statElement = document.getElementById('projectMembersCount');-->
+<!--    if (statElement) {-->
+<!--        statElement.textContent = String(count);-->
+<!--    }-->
+<!--}-->
+<!--</script>-->
 
 
     <!-- === УПРАВЛЕНИЕ МОДАЛЬНЫМ ОКНОМ ВЫБОРА ФОТО ИЗ ГАЛЕРЕЙ === -->
