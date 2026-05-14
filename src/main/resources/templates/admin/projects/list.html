@@ -11,18 +11,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Кастомные стили -->
+    <link href="/static/css/admin/projects/form.css" rel="stylesheet">
 
-    <style>
-        .projects-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding-left: 20px;
-            padding-right: 20px;
-        }
-        .table-container {
-            margin-bottom: 30px;
-        }
-    </style>
 </head>
 <body>
 <div layout:fragment="content">
@@ -633,69 +624,5 @@
     }
 </script>
 
-<!-- СКРИПТ ДЛЯ ВИДЕО (ОТДЕЛЬНЫЙ, НЕЗАВИСИМЫЙ) -->
-<!--<script>-->
-<!--    // // Функция для копирования ссылки на видео-->
-<!--    // function copyVideoUrl(url) {-->
-<!--    //     if (!url) return;-->
-<!--    //-->
-<!--    // Пытаемся использовать современный API-->
-<!--    //     if (navigator.clipboard && window.isSecureContext) {-->
-<!--    //         navigator.clipboard.writeText(url).then(function() {-->
-<!--    //             showVideoNotification('Ссылка скопирована');-->
-<!--    //         });-->
-<!--    //     } else {-->
-<!--    //         // Старый метод-->
-<!--    //         const textarea = document.createElement('textarea');-->
-<!--    //         textarea.value = url;-->
-<!--    //         textarea.style.position = 'fixed';-->
-<!--    //         document.body.appendChild(textarea);-->
-<!--    //         textarea.select();-->
-<!--    //         document.execCommand('copy');-->
-<!--    //         document.body.removeChild(textarea);-->
-<!--    //         showVideoNotification('Ссылка скопирована');-->
-<!--    //     }-->
-<!--    // }-->
-
-<!--    // // Функция показа уведомления-->
-<!--    // function showVideoNotification(message) {-->
-<!--    //     // Создаём уведомление-->
-<!--    //     const notification = document.createElement('div');-->
-<!--    //     notification.className = 'position-fixed top-0 end-0 p-3';-->
-<!--    //     notification.style.zIndex = '9999';-->
-<!--    //-->
-<!--    //     notification.innerHTML = `-->
-<!--    //         <div class="toast show" role="alert">-->
-<!--    //             <div class="toast-header bg-success text-white">-->
-<!--    //                 <i class="bi bi-check-circle me-2"></i>-->
-<!--    //                 <strong class="me-auto">Видео</strong>-->
-<!--    //                 <button type="button" class="btn-close btn-close-white"-->
-<!--    //                         onclick="this.closest('.position-fixed').remove()"></button>-->
-<!--    //             </div>-->
-<!--    //             <div class="toast-body">-->
-<!--    //                 ${message}-->
-<!--    //             </div>-->
-<!--    //         </div>-->
-<!--    //     `;-->
-<!--    //-->
-<!--    //     document.body.appendChild(notification);-->
-<!--    //-->
-<!--    //     // Автоудаление через 3 секунды-->
-<!--    //     setTimeout(() => {-->
-<!--    //         if (notification.parentNode) {-->
-<!--    //             notification.remove();-->
-<!--    //         }-->
-<!--    //     }, 3000);-->
-<!--    // }-->
-
-<!--    // // Инициализация при загрузке-->
-<!--    // document.addEventListener('DOMContentLoaded', function() {-->
-<!--    // Инициализация тултипов для видео-->
-<!--    //     const videoTooltips = document.querySelectorAll('[title*="видео" i]');-->
-<!--    //     videoTooltips.forEach(el => {-->
-<!--    //         new bootstrap.Tooltip(el);-->
-<!--    //     });-->
-<!--    // });-->
-<!--</script>-->
 </body>
 </html>
