@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{fragments/layout}">
+      layout:decorate="~{fragments/layout}" lang="ru">
 <head>
     <title>Редактировать проект - Админ панель</title>
 
@@ -14,6 +14,7 @@
     <!-- Quill.js Editor CSS -->
     <link href="/static/js/quill/quill.snow.css" rel="stylesheet">
 
+    <!--suppress CssUnusedSymbol -->
     <style>
         .edit-project-container {
             max-width: 900px;
@@ -246,6 +247,7 @@
     </style>
 
     <!-- ==== СТИЛИ ДЛЯ Quill РЕДАКТОРА ==== -->
+    <!--suppress CssUnusedSymbol -->
     <style>
         /* Стили для Quill редактора */
         #editor-container {
@@ -724,6 +726,7 @@
                                                  style="min-height: 200px; max-height: 300px; overflow-y: auto;">
 
                                                 <div th:if="${availableMembers != null && !availableMembers.isEmpty()}">
+                                                    <!--suppress JSDeprecatedSymbols -->
                                                     <div th:each="member : ${availableMembers}"
                                                          class="member-draggable mb-2 p-2 border rounded"
                                                          draggable="true"
@@ -791,6 +794,7 @@
                         </span>
                                                 </h6>
                                             </div>
+                                            <!--suppress JSDeprecatedSymbols -->
                                             <div class="card-body"
                                                  id="projectTeamContainer"
                                                  style="min-height: 200px; max-height: 300px; overflow-y: auto;"
@@ -798,14 +802,13 @@
                                                  ondragover="allowDrop(event)">
 
                                                 <div th:if="${projectTeamMembers != null && !projectTeamMembers.isEmpty()}">
+                                                    <!--suppress JSDeprecatedSymbols -->
                                                     <div th:each="member : ${projectTeamMembers}"
                                                          class="member-draggable mb-2 p-2 border rounded"
                                                          draggable="true"
                                                          th:data-member-id="${member.id}"
                                                          th:id="'project-member-' + ${member.id}"
-                                                         ondragstart="dragMember(event)"
-                                                         ondblclick="removeMemberFromProject('${member.id}')"
-                                                         title="Двойной клик для удаления">
+                                                         ondragstart="dragMember(event)">
                                                         <div class="d-flex align-items-center">
                                                             <div class="me-3">
                                                                 <i class="bi bi-person-check fs-4"></i>
@@ -1521,10 +1524,12 @@
                         <span class="input-group-text">
                             <i class="bi bi-search"></i>
                         </span>
+                        <label>
                         <input type="text"
                                class="form-control"
                                id="gallerySearch"
                                placeholder="Поиск галереи по названию или году...">
+                        </label>
                         <button class="btn btn-outline-secondary" type="button" onclick="clearGallerySearch()">
                             <i class="bi bi-x-circle"></i>
                         </button>
@@ -1635,7 +1640,7 @@
     (function () {
         'use strict'
 
-        var forms = document.querySelectorAll('.needs-validation')
+        const forms = document.querySelectorAll('.needs-validation')
 
         Array.prototype.slice.call(forms)
             .forEach(function (form) {
@@ -1678,7 +1683,7 @@ function dropMember(event) {
     const targetContainer = event.target.closest('#availableMembersContainer, #projectTeamContainer');
 
     if (draggedElement && targetContainer && draggedElement.parentElement !== targetContainer) {
-        const isMovingToProject = targetContainer.id === 'projectTeamContainer';
+        // const isMovingToProject = targetContainer.id === 'projectTeamContainer';
         moveMemberToContainer(memberId, targetContainer.id);
     }
 
@@ -1828,8 +1833,8 @@ function removeSelectedFromProject() {
 }
 
 function updateSelectionButtons() {
-    const hasAvailableSelected = document.querySelectorAll('#availableMembersContainer .member-draggable.selected').length > 0;
-    const hasProjectSelected = document.querySelectorAll('#projectTeamContainer .member-draggable.selected').length > 0;
+    // const hasAvailableSelected = document.querySelectorAll('#availableMembersContainer .member-draggable.selected').length > 0;
+    // const hasProjectSelected = document.querySelectorAll('#projectTeamContainer .member-draggable.selected').length > 0;
 
     // Можно добавить визуальную индикацию для кнопок если нужно
 }
@@ -1838,8 +1843,8 @@ function updateCounters() {
     const availableCount = document.querySelectorAll('#availableMembersContainer .member-draggable').length;
     const projectCount = document.querySelectorAll('#projectTeamContainer .member-draggable').length;
 
-    document.getElementById('availableCount').textContent = availableCount;
-    document.getElementById('projectTeamCount').textContent = projectCount;
+    document.getElementById('availableCount').textContent = String(availableCount);
+    document.getElementById('projectTeamCount').textContent = String(projectCount);
 
     // ОБНОВЛЯЕМ СТАТИСТИКУ
     updateProjectMembersCount();
@@ -1870,13 +1875,14 @@ function updateProjectMembersCount() {
 
     const statElement = document.getElementById('projectMembersCount');
     if (statElement) {
-        statElement.textContent = count;
+        statElement.textContent = String(count);
     }
 }
 </script>
 
 
-<!-- === УПРАВЛЕНИЕ МОДАЛЬНЫМ ОКНОМ ВЫБОРА ФОТО ИЗ ГАЛЕРЕЙ === -->
+<!-- === УПРАВЛЕНИЕ МОДАЛЬНЫМ ОКНОМ ВЫБОРА ФОТО ИЗ ГАЛЕРЕЙ ===, HtmlDeprecatedAttribute -->
+<!--suppress JSDeprecatedSymbols, HtmlDeprecatedAttribute -->
 <script>
     // === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
     let allGalleries = [];          // Все галереи
@@ -1884,7 +1890,6 @@ function updateProjectMembersCount() {
     let currentGalleryPhotos = [];  // Фото текущей галереи
     let selectedPhotos = [];        // Выбранные фото для проекта [{id, title, webPath, galleryTitle}]
     let allPhotosMap = new Map();   // Карта всех фото {id: photoData}
-    let selectedPhotosModal = null; // Bootstrap modal instance
 
     // === ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ===
     document.addEventListener('DOMContentLoaded', function() {
@@ -2619,7 +2624,7 @@ function updateProjectMembersCount() {
     function updateGalleriesCount() {
         const countElement = document.getElementById('galleriesCount');
         if (countElement) {
-            countElement.textContent = allGalleries.length;
+            countElement.textContent = String(allGalleries.length);
         }
     }
 
@@ -2657,7 +2662,7 @@ function updateProjectMembersCount() {
     function updateSelectedCount() {
         const countElement = document.getElementById('selectedCount');
         if (countElement) {
-            countElement.textContent = selectedPhotos.length;
+            countElement.textContent = String(selectedPhotos.length);
         }
     }
 
@@ -2844,13 +2849,14 @@ function updateProjectMembersCount() {
 function updateSelectedPhotosCounter() {
     const counterElement = document.getElementById('selectedPhotosCount');
     if (counterElement) {
-        counterElement.textContent = selectedPhotos.length;
+        counterElement.textContent = String(selectedPhotos.length);
     }
 }
 </script>
 
 
 <!-- Скрипт для работы с видео (добавить перед закрывающим </body>) -->
+<!--suppress HtmlDeprecatedAttribute -->
 <script>
     // Глобальные переменные
     let currentVideoUrl = '';
@@ -2899,6 +2905,7 @@ function updateSelectedPhotosCounter() {
 
         if (embedUrl && videoId) {
             // Создаем embed код
+            // noinspection UnnecessaryLocalVariableJS
             const embedCode = `
                 <div class="ratio ratio-16x9">
                     <iframe src="${embedUrl}"
@@ -2928,10 +2935,10 @@ function updateSelectedPhotosCounter() {
     // Функции для извлечения ID видео
     function extractYouTubeId(url) {
         const patterns = [
-            /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)/,
-            /(?:youtu\.be\/)([a-zA-Z0-9_-]+)/,
-            /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/,
-            /(?:youtube\.com\/v\/)([a-zA-Z0-9_-]+)/
+            /youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/,
+            /youtu\.be\/([a-zA-Z0-9_-]+)/,
+            /youtube\.com\/embed\/([a-zA-Z0-9_-]+)/,
+            /youtube\.com\/v\/([a-zA-Z0-9_-]+)/
         ];
 
         for (const pattern of patterns) {
@@ -2944,15 +2951,15 @@ function updateSelectedPhotosCounter() {
     }
 
     function extractVimeoId(url) {
-        const pattern = /(?:vimeo\.com\/)(\d+)/;
+        const pattern = /vimeo\.com\/(\d+)/;
         const match = url.match(pattern);
         return match ? match[1] : null;
     }
 
     function extractRutubeId(url) {
         const patterns = [
-            /(?:rutube\.ru\/video\/)([a-zA-Z0-9_-]+)/,
-            /(?:rutube\.ru\/play\/embed\/)([a-zA-Z0-9_-]+)/
+            /rutube.ru\/video\/([a-zA-Z0-9_-]+)/,
+            /rutube.ru\/play\/embed\/([a-zA-Z0-9_-]+)/
         ];
 
         for (const pattern of patterns) {
@@ -3037,9 +3044,9 @@ function updateSelectedPhotosCounter() {
     });
 
     // Разрешить перетаскивание
-    function allowDropPartner(event) {
-        event.preventDefault();
-    }
+    // function allowDropPartner(event) {
+    //     event.preventDefault();
+    // }
 
     // Начать перетаскивание
     function dragPartner(event) {
@@ -3291,25 +3298,25 @@ function movePartnerToContainer(partnerId, targetContainerId) {
         // 1. Счетчик доступных партнёров (есть в обеих страницах)
         const availableCountElement = document.getElementById('availablePartnersCount');
         if (availableCountElement) {
-            availableCountElement.textContent = availableCount;
+            availableCountElement.textContent = String(availableCount);
         }
 
         // 2. Счетчик партнёров в DnD колонке (есть в обеих страницах)
         const projectDragCountElement = document.getElementById('projectPartnersDragCount');
         if (projectDragCountElement) {
-            projectDragCountElement.textContent = projectCount;
+            projectDragCountElement.textContent = String(projectCount);
         }
 
         // 3. Общий счетчик выбранных партнёров (есть в обеих страницах)
         const selectedCountElement = document.getElementById('selectedPartnersCount');
         if (selectedCountElement) {
-            selectedCountElement.textContent = projectCount;
+            selectedCountElement.textContent = String(projectCount);
         }
 
         // 4. Счетчик в заголовке секции (ТОЛЬКО в edit.html)
         const projectCountElement = document.getElementById('projectPartnersCount');
         if (projectCountElement) {
-            projectCountElement.textContent = projectCount;
+            projectCountElement.textContent = String(projectCount);
         }
 
         // 5. Обновляем превью
@@ -3420,7 +3427,7 @@ function updatePartnersPreview() {
     // Создаем превью карточек
     let html = '<div class="col-12 mb-2"><strong>Выбранные партнёры:</strong></div>';
 
-    selectedElements.forEach((element, index) => {
+    selectedElements.forEach((element, _index) => {
         const partnerId = element.getAttribute('data-partner-id');
         const logoUrl = element.getAttribute('data-logo-url') || ''; // ВОТ ЭТО ДОБАВИТЬ
         const name = element.querySelector('strong')?.textContent || `Партнёр ${partnerId}`;
@@ -3496,21 +3503,21 @@ function updatePartnersPreview() {
     }
 
     // Функция для отладки - показывает все партнёры
-    function debugShowPartners() {
-        console.log('=== DEBUG: Все партнёры ===');
-
-        const available = document.querySelectorAll('#availablePartnersContainer [data-partner-id]');
-        const project = document.querySelectorAll('#projectPartnersContainer [data-partner-id]');
-
-        console.log('Доступные партнёры:', available.length);
-        available.forEach(p => console.log('  ID:', p.getAttribute('data-partner-id')));
-
-        console.log('Партнёры в проекте:', project.length);
-        project.forEach(p => console.log('  ID:', p.getAttribute('data-partner-id')));
-
-        const hiddenField = document.getElementById('selectedPartnerIds');
-        console.log('Скрытое поле:', hiddenField ? hiddenField.value : 'не найдено');
-    }
+    // function debugShowPartners() {
+    //     console.log('=== DEBUG: Все партнёры ===');
+    //
+    //     const available = document.querySelectorAll('#availablePartnersContainer [data-partner-id]');
+    //     const project = document.querySelectorAll('#projectPartnersContainer [data-partner-id]');
+    //
+    //     console.log('Доступные партнёры:', available.length);
+    //     available.forEach(p => console.log('  ID:', p.getAttribute('data-partner-id')));
+    //
+    //     console.log('Партнёры в проекте:', project.length);
+    //     project.forEach(p => console.log('  ID:', p.getAttribute('data-partner-id')));
+    //
+    //     const hiddenField = document.getElementById('selectedPartnerIds');
+    //     console.log('Скрытое поле:', hiddenField ? hiddenField.value : 'не найдено');
+    // }
 </script>
 
 <!-- Quill.js Script -->
@@ -3536,6 +3543,7 @@ function updatePartnersPreview() {
 
         try {
             // Создаем Quill редактор
+            // noinspection JSUnresolvedReference
             const quill = new Quill(editorContainer, {
                 theme: 'snow',
                 modules: {
@@ -3577,16 +3585,7 @@ function updatePartnersPreview() {
             // 2. Синхронизация с textarea при изменении
             quill.on('text-change', function(delta, oldDelta, source) {
                 if (source === 'user') {
-                    const html = quill.root.innerHTML;
-                    textarea.value = html;
-
-                    // Отладочная информация
-                    const text = quill.getText();
-                    console.log('📝 Контент обновлен:', {
-                        символов: text.length,
-                        символов_без_пробелов: text.replace(/\s/g, '').length,
-                        html_длина: html.length
-                    });
+                    textarea.value = quill.root.innerHTML;
                 }
             });
 
