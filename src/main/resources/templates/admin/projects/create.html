@@ -487,7 +487,8 @@
                                 </div>
 
                                 <!-- Hidden inputs для синхронизации с мультиселектом -->
-                                <input type="hidden" id="selectedTeamMemberIds" name="selectedTeamMemberIds" value="">
+                                <input type="hidden" id="selectedTeamMemberIds" name="selectedTeamMemberIds"
+                                       th:value="${selectedTeamMemberIds != null ? selectedTeamMemberIds : ''}">
 
                                 <!-- Информация -->
                                 <div class="alert alert-info mt-3">
@@ -670,7 +671,8 @@
                                     </div>
 
                                     <!-- Hidden inputs для синхронизации с формой -->
-                                    <input type="hidden" id="selectedPartnerIds" name="selectedPartnerIds" value="">
+                                    <input type="hidden" id="selectedPartnerIds" name="selectedPartnerIds"
+                                           th:value="${selectedPartnerIds != null ? selectedPartnerIds : ''}">
 
                                     <!-- Информация о типах партнёрства -->
                                     <div class="alert alert-info mt-3">
@@ -778,7 +780,8 @@
                                                 </div>
 
                                                 <!-- Скрытое поле для backend -->
-                                                <input type="hidden" id="selectedPhotoIds" name="selectedPhotoIds" value="">
+                                                <input type="hidden" id="selectedPhotoIds" name="selectedPhotoIds"
+                                                       th:value="${selectedPhotoIds != null ? selectedPhotoIds : ''}">
 
                                                 <!-- Ссылка на полную галерею -->
                                                 <div class="mt-4 pt-4 border-top">
@@ -1241,6 +1244,9 @@
         </div>
     </div>
 </div>
+
+<meta name="_csrf" th:content="${_csrf.token}"/>
+<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
 <!-- Общие скрипты -->
 <script src="/js/admin/projects/common.js"></script>

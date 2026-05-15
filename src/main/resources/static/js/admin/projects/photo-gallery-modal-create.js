@@ -25,27 +25,28 @@ let allGalleries = [];          // Все галереи
 let currentGalleryId = null;    // ID текущей галереи
 let currentGalleryPhotos = [];  // Фото текущей галереи
 let selectedPhotos = [];        // Выбранные фото [{id, title, webPath, galleryTitle}]
+console.log('=== photo-gallery-modal-create.js загружен ===');
 
-/**
- * Универсальный обработчик ошибок загрузки изображений
- * Использует делегирование событий, не засоряет HTML
- */
-function setupImageErrorHandler() {
-    document.body.addEventListener('error', function(e) {
-        const img = e.target;
-        if (img.tagName === 'IMG') {
-            // Предотвращаем зацикливание
-            img.onerror = null;
-            // Заменяем на заглушку
-            img.src = '/static/images/placeholder.jpg';
-            // Добавляем класс для стилизации (опционально)
-            img.classList.add('img-load-error');
-        }
-    }, true); // capture фаза для перехвата до всплытия
-}
-
-// Вызываем один раз при загрузке страницы
-document.addEventListener('DOMContentLoaded', setupImageErrorHandler);
+// /**
+//  * Универсальный обработчик ошибок загрузки изображений
+//  * Использует делегирование событий, не засоряет HTML
+//  */
+// function setupImageErrorHandler() {
+//     document.body.addEventListener('error', function(e) {
+//         const img = e.target;
+//         if (img.tagName === 'IMG') {
+//             // Предотвращаем зацикливание
+//             img.onerror = null;
+//             // Заменяем на заглушку
+//             img.src = '/static/images/placeholder.jpg';
+//             // Добавляем класс для стилизации (опционально)
+//             img.classList.add('img-load-error');
+//         }
+//     }, true); // capture фаза для перехвата до всплытия
+// }
+//
+// // Вызываем один раз при загрузке страницы
+// document.addEventListener('DOMContentLoaded', setupImageErrorHandler);
 
 // === ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ===
 document.addEventListener('DOMContentLoaded', function() {
@@ -72,24 +73,49 @@ document.addEventListener('DOMContentLoaded', function() {
 // === ЗАГРУЗКА ДАННЫХ ===
 
 /**
- * Загружает выбранные фото из скрытого поля формы
+ * Загружает выбранные фото из скрытого поля формы и получает их данные с сервера
  */
 function loadSelectedPhotosFromForm() {
     const hiddenField = document.getElementById('selectedPhotoIds');
-    if (hiddenField && hiddenField.value && hiddenField.value.trim() !== '') {
-        const ids = hiddenField.value.split(',')
-            .map(id => parseInt(id.trim()))
-            .filter(id => !isNaN(id) && id > 0);
-
-        selectedPhotos = ids.map(id => ({
-            id: id,
-            title: `Фото ${id}`,
-            webPath: '/static/images/placeholder.jpg',
-            galleryTitle: 'Загрузка...'
-        }));
-
-        console.log('Загружены ID выбранных фото:', ids);
+    if (!hiddenField || !hiddenField.value || hiddenField.value.trim() === '') {
+        selectedPhotos = [];
+        showSelectedPhotosPreview();
+        return;
     }
+
+    const ids = hiddenField.value.split(',')
+        .map(id => parseInt(id.trim()))
+        .filter(id => !isNaN(id) && id > 0);
+
+    if (ids.length === 0) {
+        selectedPhotos = [];
+        showSelectedPhotosPreview();
+        return;
+    }
+
+    const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    fetch('/admin/projects/photos-info', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            [header]: token
+        },
+        body: JSON.stringify(ids)
+    })
+        .then(response => response.json())
+        .then(photos => {
+            selectedPhotos = photos;
+            showSelectedPhotosPreview();
+            updateHiddenField();
+            updateSelectedPhotosCounter();
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки фото:', error);
+            selectedPhotos = [];
+            showSelectedPhotosPreview();
+        });
 }
 
 /**
@@ -290,9 +316,10 @@ function renderGalleryPhotos() {
                      data-gallery-title="${escapeHtml(photo.galleryTitle)}">
                     <div class="position-relative">
                         <img src="${photo.webPath || '/static/images/placeholder.jpg'}"
-                             class="card-img-top"
-                             style="height: 120px; object-fit: cover;"
-                             alt="${escapeHtml(photo.fileName)}">
+                            class="card-img-top"
+                            style="height: 120px; object-fit: cover;"
+                            alt="${escapeHtml(photo.fileName)}"
+                            onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'">
                         ${isSelected ? `
                         <div class="position-absolute top-0 end-0 m-1">
                             <span class="badge bg-success">
@@ -384,9 +411,10 @@ function showSelectedPhotosPreview() {
                 <div class="card h-100">
                     <div class="position-relative">
                         <img src="${photo.webPath || '/static/images/placeholder.jpg'}"
-                             class="card-img-top"
-                             style="height: 120px; object-fit: cover;"
-                             alt="${escapeHtml(photo.title)}">
+                            class="card-img-top"
+                            style="height: 120px; object-fit: cover;"
+                            alt="${escapeHtml(photo.title)}"
+                            onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'">
                         <span class="position-absolute top-0 start-0 badge bg-primary m-1">${index + 1}</span>
                     </div>
                     <div class="card-body p-2">
@@ -439,9 +467,10 @@ function renderSelectedPhotosInModal() {
                 <div class="card selected-photo-card">
                     <div class="position-relative">
                         <img src="${photo.webPath || '/static/images/placeholder.jpg'}"
-                             class="card-img-top"
-                             style="height: 100px; object-fit: cover;"
-                             alt="${escapeHtml(photo.title)}">
+                            class="card-img-top"
+                            style="height: 100px; object-fit: cover;"
+                            alt="${escapeHtml(photo.title)}"
+                            onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'">
                         <span class="position-absolute top-0 start-0 badge bg-primary m-1">${index + 1}</span>
                         <span class="position-absolute top-0 end-0 m-1">
                             <button type="button" class="btn btn-sm btn-danger btn-sm remove-modal-photo-btn"

@@ -44,6 +44,9 @@ function initPartnersDragAndDrop() {
     // Настраиваем зоны Drop
     setupPartnerDropZones(availableContainer, projectContainer);
 
+    // Синхронизируем состояние из hidden поля (восстановление после ошибок)
+    syncPartnersFromHiddenField();
+
     // Обновляем счётчики
     updatePartnerCounters();
 
@@ -54,6 +57,45 @@ function initPartnersDragAndDrop() {
     updatePartnersPreview();
 
     console.log('✅ DnD для партнёров инициализирован');
+}
+
+/**
+ * Синхронизирует DnD компоненты с hidden полем selectedPartnerIds
+ * Вызывается при инициализации для восстановления состояния после ошибки валидации
+ */
+function syncPartnersFromHiddenField() {
+    const hiddenField = document.getElementById('selectedPartnerIds');
+    if (!hiddenField || !hiddenField.value) {
+        console.log('Нет сохранённых ID партнёров, используем начальное состояние');
+        return;
+    }
+
+    const selectedIds = hiddenField.value.split(',').filter(id => id.trim() !== '');
+    if (selectedIds.length === 0) return;
+
+    console.log('🔄 Синхронизация партнёров из hidden поля:', selectedIds);
+
+    // Получаем все элементы партнёров
+    const allPartners = document.querySelectorAll('.partner-draggable');
+
+    allPartners.forEach(partner => {
+        const partnerId = partner.getAttribute('data-partner-id');
+        const isSelected = selectedIds.includes(partnerId);
+        const isInProject = partner.closest('#projectPartnersContainer') !== null;
+
+        // Если должен быть в проекте, но находится в доступных - перемещаем
+        if (isSelected && !isInProject) {
+            movePartner(partnerId, 'projectPartnersContainer');
+        }
+        // Если не должен быть в проекте, но находится в проекте - перемещаем обратно
+        else if (!isSelected && isInProject) {
+            movePartner(partnerId, 'availablePartnersContainer');
+        }
+    });
+
+    updatePartnerCounters();
+    updatePartnersPreview();
+    console.log('✅ Синхронизация партнёров завершена');
 }
 
 /**

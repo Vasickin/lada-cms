@@ -2,6 +2,7 @@ package com.community.cms.web.mvc.controller.admin.content;
 
 import com.community.cms.domain.enums.ProjectStatusType;
 import com.community.cms.domain.model.content.PhotoGallery;
+import com.community.cms.domain.repository.media.MediaFileRepository;
 import com.community.cms.validation.ProjectValidator;
 import com.community.cms.web.mvc.dto.content.PhotoGalleryDTO;
 import com.community.cms.domain.model.media.MediaFile;
@@ -43,6 +44,7 @@ public class ProjectAdminController {
     private final TeamMemberService teamMemberService;
     private final PartnerService partnerService;
     private final ProjectValidator projectValidator;
+    private final MediaFileRepository mediaFileRepository;
 
     @Autowired
     private PhotoGalleryService photoGalleryService;
@@ -51,11 +53,13 @@ public class ProjectAdminController {
     public ProjectAdminController(ProjectService projectService,
                                   TeamMemberService teamMemberService,
                                   PartnerService partnerService,
-                                  ProjectValidator projectValidator) {
+                                  ProjectValidator projectValidator,
+                                  MediaFileRepository mediaFileRepository) {
         this.projectService = projectService;
         this.teamMemberService = teamMemberService;
         this.partnerService = partnerService;
         this.projectValidator = projectValidator;
+        this.mediaFileRepository = mediaFileRepository;
     }
 
     // ================== СПИСОК ПРОЕКТОВ ==================
@@ -158,6 +162,9 @@ public class ProjectAdminController {
         }
 
         if (bindingResult.hasErrors()) {
+            model.addAttribute("selectedTeamMemberIds", selectedTeamMemberIds);
+            model.addAttribute("selectedPartnerIds", selectedPartnerIds);
+            model.addAttribute("selectedPhotoIds", selectedPhotoIds);
             return "admin/projects/create";
         }
 
@@ -594,6 +601,24 @@ public class ProjectAdminController {
         photoMap.put("galleryYear", gallery.getYear());
         photoMap.put("isPrimary", photo.getIsPrimary());
         return photoMap;
+    }
+
+    @PostMapping("/photos-info")
+    @ResponseBody
+    public List<Map<String, Object>> getPhotosInfo(@RequestBody List<Long> photoIds) {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (Long id : photoIds) {
+            mediaFileRepository.findById(id).ifPresent(p -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", p.getId());
+                map.put("title", p.getFileName());
+                map.put("webPath", p.getWebPath());
+                map.put("galleryTitle", "Фото");
+                result.add(map);
+            });
+        }
+        return result;
     }
 
     @GetMapping("/debug-search")

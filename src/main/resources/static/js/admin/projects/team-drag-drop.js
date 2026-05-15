@@ -9,6 +9,7 @@
  * - Автоматически определяет структуру DOM при инициализации
  * - Обновляет скрытое поле с ID выбранных участников
  * - Синхронизирует счётчики в статистике
+ * - ВОССТАНАВЛИВАЕТ состояние после ошибок валидации из hidden поля
  *
  * Используется в:
  * - admin/projects/create.html (создание нового проекта)
@@ -18,9 +19,10 @@
  * - Универсальный код для обеих страниц
  * - Не зависит от имён переменных Thymeleaf
  * - Работает с DOM напрямую через data-атрибуты
+ * - Сохраняет состояние в hidden поле и восстанавливает из него
  *
- * @version 1.0
- * @since 2026-01-14
+ * @version 2.0
+ * @since 2026-01-15
  */
 
 /**
@@ -44,6 +46,9 @@ function initTeamDragAndDrop() {
     // Настраиваем зоны Drop
     setupDropZones(availableContainer, projectContainer);
 
+    // ВАЖНО: Синхронизируем состояние из hidden поля (восстановление после ошибок)
+    syncTeamFromHiddenField();
+
     // Обновляем счётчики
     updateTeamCounters();
 
@@ -51,6 +56,45 @@ function initTeamDragAndDrop() {
     updateTeamHiddenInput();
 
     console.log('✅ DnD для команды инициализирован');
+}
+
+/**
+ * Синхронизирует DnD компоненты с hidden полем selectedTeamMemberIds
+ * Вызывается при инициализации для восстановления состояния после ошибки валидации
+ */
+function syncTeamFromHiddenField() {
+    const hiddenField = document.getElementById('selectedTeamMemberIds');
+    if (!hiddenField || !hiddenField.value) {
+        console.log('Нет сохранённых ID команды, используем начальное состояние');
+        return;
+    }
+
+    const selectedIds = hiddenField.value.split(',').filter(id => id.trim() !== '');
+    if (selectedIds.length === 0) return;
+
+    console.log('🔄 Синхронизация команды из hidden поля:', selectedIds);
+
+    // Получаем все элементы команды
+    const allMembers = document.querySelectorAll('.member-draggable');
+
+    allMembers.forEach(member => {
+        const memberId = member.getAttribute('data-member-id');
+        const isSelected = selectedIds.includes(memberId);
+        const isInProject = member.closest('#projectTeamContainer') !== null;
+
+        // Если должен быть в проекте, но находится в доступных - перемещаем
+        if (isSelected && !isInProject) {
+            moveTeamMember(memberId, 'projectTeamContainer');
+        }
+        // Если не должен быть в проекте, но находится в проекте - перемещаем обратно
+        else if (!isSelected && isInProject) {
+            moveTeamMember(memberId, 'availableMembersContainer');
+        }
+    });
+
+    // Обновляем счётчики после синхронизации
+    updateTeamCounters();
+    console.log('✅ Синхронизация команды завершена');
 }
 
 /**
