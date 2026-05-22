@@ -263,13 +263,11 @@ public class ProjectAdminController {
         // Данные для формы
         prepareFormData(model);
         model.addAttribute("videoUrl", videoUrl);
+        model.addAttribute("forceShowInCarousel", forceShowInCarousel);
 
         // Обработка категории
         if (processCategory(project, newCategoryName, bindingResult, "edit")) {
-            return "admin/projects/edit";
-        }
-
-        if (bindingResult.hasErrors()) {
+            restoreSelectedData(model, selectedTeamMemberIds, selectedPartnerIds, selectedPhotoIds);
             return "admin/projects/edit";
         }
 
@@ -278,7 +276,9 @@ public class ProjectAdminController {
                 .filter(p -> !p.getId().equals(id))
                 .ifPresent(p -> bindingResult.rejectValue("slug", "error.project", "Проект с таким URL уже существует"));
 
+        // ✅ ОСНОВНОЙ БЛОК ОБРАБОТКИ ОШИБОК
         if (bindingResult.hasErrors()) {
+            restoreSelectedData(model, selectedTeamMemberIds, selectedPartnerIds, selectedPhotoIds);
             return "admin/projects/edit";
         }
 
@@ -303,6 +303,7 @@ public class ProjectAdminController {
         } catch (Exception e) {
             log.error("Ошибка при обновлении проекта: {}", e.getMessage(), e);
             bindingResult.reject("error.project", "Ошибка при обновлении проекта: " + e.getMessage());
+            restoreSelectedData(model, selectedTeamMemberIds, selectedPartnerIds, selectedPhotoIds);
             return "admin/projects/edit";
         }
     }
@@ -901,5 +902,72 @@ public class ProjectAdminController {
         log.warn("Некорректный ID {}: {}", entityType, idStr);
     }
 
+// ================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ДЛЯ ВОССТАНОВЛЕНИЯ ==================
 
+    /**
+     * Восстанавливает выбранные данные после ошибок валидации
+     */
+    private void restoreSelectedData(Model model,
+                                     String selectedTeamMemberIds,
+                                     String selectedPartnerIds,
+                                     String selectedPhotoIds) {
+        // Восстанавливаем команду проекта
+        if (selectedTeamMemberIds != null && !selectedTeamMemberIds.trim().isEmpty()) {
+            model.addAttribute("selectedTeamMemberIds", selectedTeamMemberIds);
+
+            // Обновляем списки для корректного отображения в UI
+            List<Long> selectedIds = parseIds(selectedTeamMemberIds);
+            List<TeamMember> allMembers = teamMemberService.findAllActiveOrderBySortOrder();
+
+            List<TeamMember> projectMembers = allMembers.stream()
+                    .filter(m -> selectedIds.contains(m.getId()))
+                    .collect(Collectors.toList());
+
+            List<TeamMember> availableMembers = allMembers.stream()
+                    .filter(m -> !selectedIds.contains(m.getId()))
+                    .collect(Collectors.toList());
+
+            model.addAttribute("projectTeamMembers", projectMembers);
+            model.addAttribute("availableMembers", availableMembers);
+        }
+
+        // Восстанавливаем партнёров
+        if (selectedPartnerIds != null && !selectedPartnerIds.trim().isEmpty()) {
+            model.addAttribute("selectedPartnerIds", selectedPartnerIds);
+
+            List<Long> selectedIds = parseIds(selectedPartnerIds);
+            List<Partner> allPartners = partnerService.findActiveByNameContaining("");
+
+            List<Partner> projectPartners = allPartners.stream()
+                    .filter(p -> selectedIds.contains(p.getId()))
+                    .collect(Collectors.toList());
+
+            List<Partner> availablePartners = allPartners.stream()
+                    .filter(p -> !selectedIds.contains(p.getId()))
+                    .collect(Collectors.toList());
+
+            model.addAttribute("projectPartners", projectPartners);
+            model.addAttribute("availablePartners", availablePartners);
+            model.addAttribute("projectPartnersCount", projectPartners.size());
+        }
+
+        // Восстанавливаем фото
+        if (selectedPhotoIds != null && !selectedPhotoIds.trim().isEmpty()) {
+            model.addAttribute("selectedPhotoIds", selectedPhotoIds);
+        }
+    }
+
+    /**
+     * Парсит строку с ID разделёнными запятыми в список Long
+     */
+    private List<Long> parseIds(String ids) {
+        if (ids == null || ids.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+    }
 }

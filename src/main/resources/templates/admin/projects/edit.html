@@ -512,13 +512,14 @@
                                                     <i class="bi bi-person-check me-1"></i>
                                                     Команда проекта
                                                     <span class="badge bg-light text-dark ms-2" id="projectTeamCount">
-                            <span th:text="${projectTeamMembers != null ? projectTeamMembers.size() : 0}">0</span>
-                        </span>
+                                                        <span th:text="${projectTeamMembers != null ? projectTeamMembers.size() : 0}">0</span>
+                                                    </span>
                                                 </h6>
                                             </div>
                                             <!--suppress JSDeprecatedSymbols -->
                                             <div class="card-body"
                                                  id="projectTeamContainer"
+                                                 data-initial-team-ids="${#strings.listJoin(projectTeamMembers.![id], ',')}"
                                                  style="min-height: 200px; max-height: 300px; overflow-y: auto;">
 
                                                 <div th:if="${projectTeamMembers != null && !projectTeamMembers.isEmpty()}">
@@ -556,7 +557,8 @@
 
                                 <!-- Hidden inputs для синхронизации с мультиселектом -->
                                 <input type="hidden" id="selectedTeamMemberIds" name="selectedTeamMemberIds"
-                                       th:value="${projectTeamMembers != null ? #strings.listJoin(projectTeamMembers.![id], ',') : ''}">
+                                       th:value="${selectedTeamMemberIds != null ? selectedTeamMemberIds :
+                                        (projectTeamMembers != null ? #strings.listJoin(projectTeamMembers.![id], ',') : '')}">
 
                                 <!-- Информация -->
                                 <div class="alert alert-info mt-3">
@@ -576,10 +578,10 @@
                                             Партнёры проекта
                                         </h3>
                                         <div>
-            <span class="badge bg-primary">
-                <i class="bi bi-handshake"></i>
-                <span id="projectPartnersCount" th:text="${projectPartners != null ? projectPartners.size() : 0}">0</span>
-            </span>
+                                            <span class="badge bg-primary">
+                                                <i class="bi bi-handshake"></i>
+                                                <span id="projectPartnersCount" th:text="${projectPartners != null ? projectPartners.size() : 0}">0</span>
+                                            </span>
                                         </div>
                                     </div>
 
@@ -724,6 +726,7 @@
                                                     </div>
                                                     <div class="card-body"
                                                          id="projectPartnersContainer"
+                                                         data-initial-partner-ids="${#strings.listJoin(projectPartners.![id], ',')}"
                                                          style="min-height: 250px; max-height: 350px; overflow-y: auto;">
 
                                                         <div th:if="${projectPartners != null && !projectPartners.isEmpty()}">
@@ -759,7 +762,9 @@
                                         </div>
 
                                         <!-- Hidden inputs для синхронизации с формой -->
-                                        <input type="hidden" id="selectedPartnerIds" name="selectedPartnerIds" value="">
+                                        <input type="hidden" id="selectedPartnerIds" name="selectedPartnerIds"
+                                               th:value="${selectedPartnerIds != null ? selectedPartnerIds :
+                                               (projectPartners != null ? #strings.listJoin(projectPartners.![id], ',') : '')}">
 
                                         <!-- Превью выбранных партнёров -->
                                         <div class="mt-4 pt-4 border-top">
@@ -883,7 +888,8 @@
 
                                                 <!-- Скрытое поле для backend -->
                                                 <input type="hidden" id="selectedPhotoIds" name="selectedPhotoIds"
-                                                       th:value="${#strings.arrayJoin(project.keyPhotoIds, ',')}">
+                                                       th:value="${selectedPhotoIds != null ? selectedPhotoIds :
+                                                       (project.keyPhotoIds != null ? #strings.arrayJoin(project.keyPhotoIds, ',') : '')}">
 
                                                 <!-- Ссылка на полную галерею -->
                                                 <div class="mt-4 pt-4 border-top">

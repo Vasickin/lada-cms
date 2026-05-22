@@ -80,17 +80,19 @@ function loadAllPhotosForEditMode() {
         .then(photos => {
             console.log(`Загружено всех фото: ${photos.length}`);
 
-            // Сохраняем все фото в карту для быстрого поиска
             allPhotosMap.clear();
             photos.forEach(photo => {
                 allPhotosMap.set(photo.id, photo);
             });
 
-            // Загружаем выбранные фото из формы
             loadSelectedPhotosFromForm();
-
-            // Загружаем галереи
             loadGalleries();
+
+            // ✅ ДОБАВИТЬ ЭТУ СТРОКУ - принудительное обновление UI
+            setTimeout(() => {
+                showSelectedPhotosPreview();
+                updateSelectedPhotosCounter();
+            }, 100);
         })
         .catch(error => {
             console.error('Ошибка загрузки всех фото:', error);
