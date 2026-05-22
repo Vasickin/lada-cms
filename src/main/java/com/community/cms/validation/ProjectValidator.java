@@ -29,6 +29,13 @@ public class ProjectValidator {
                     "Дата начала не может быть позже даты окончания");
         }
 
+        //  Дата события не может быть раньше даты начала
+        if (project.getStartDate() != null && project.getEventDate() != null
+                && project.getEventDate().isBefore(project.getStartDate())) {
+            bindingResult.rejectValue("eventDate", "error.project",
+                    "Дата события не может быть раньше даты начала проекта");
+        }
+
         // Дата события должна быть в рамках периода
         if (project.getEventDate() != null && project.getStartDate() != null && project.getEndDate() != null
                 && (project.getEventDate().isBefore(project.getStartDate())
