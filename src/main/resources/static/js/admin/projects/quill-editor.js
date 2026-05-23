@@ -99,18 +99,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Обработка отправки формы
         const form = document.querySelector('form.needs-validation');
         if (form) {
-            form.addEventListener('submit', function(event) {
+            form.addEventListener('submit', function(_) {
                 // Принудительная синхронизация перед отправкой
                 textarea.value = quill.root.innerHTML;
                 console.log('📤 Форма отправляется, сохранено:', textarea.value.length, 'символов');
-
-                // Валидация: проверяем что описание не пустое (минимум 10 символов)
-                const text = quill.getText().trim();
-                if (text.length < 10) {
-                    alert('Пожалуйста, добавьте более подробное описание (минимум 10 символов).');
-                    event.preventDefault();
-                    quill.focus();
-                }
             });
         }
 
