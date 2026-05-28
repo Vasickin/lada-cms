@@ -157,7 +157,8 @@ public class ProjectAdminController {
         prepareFormData(model);
 
         // Обработка категории
-        if (processCategory(project, newCategoryName, bindingResult, "create")) {
+        List<String> allCategories = projectService.findAllDistinctCategories();
+        if (projectValidator.validateAndProcessCategory(project, newCategoryName, allCategories, bindingResult)) {
             return "admin/projects/create";
         }
 
@@ -169,8 +170,8 @@ public class ProjectAdminController {
         }
 
         // Проверка уникальности slug
-        if (projectService.existsBySlug(project.getSlug())) {
-            bindingResult.rejectValue("slug", "error.project", "Проект с таким URL уже существует");
+        projectValidator.validateSlugUniquenessForCreate(project, bindingResult);
+        if (bindingResult.hasErrors()) {
             return "admin/projects/create";
         }
 
@@ -266,15 +267,13 @@ public class ProjectAdminController {
         model.addAttribute("forceShowInCarousel", forceShowInCarousel);
 
         // Обработка категории
-        if (processCategory(project, newCategoryName, bindingResult, "edit")) {
+        if (processCategory(project, newCategoryName, bindingResult)) {
             restoreSelectedData(model, selectedTeamMemberIds, selectedPartnerIds, selectedPhotoIds);
             return "admin/projects/edit";
         }
 
         // Проверка уникальности slug
-        projectService.findBySlug(project.getSlug())
-                .filter(p -> !p.getId().equals(id))
-                .ifPresent(p -> bindingResult.rejectValue("slug", "error.project", "Проект с таким URL уже существует"));
+        projectValidator.validateSlugUniquenessForUpdate(project, id, bindingResult);
 
         // ✅ ОСНОВНОЙ БЛОК ОБРАБОТКИ ОШИБОК
         if (bindingResult.hasErrors()) {
@@ -687,7 +686,7 @@ public class ProjectAdminController {
     }
 
     private boolean processCategory(Project project, String newCategoryName,
-                                    BindingResult bindingResult, String viewName) {
+                                    BindingResult bindingResult) {
         if ("__NEW__".equals(project.getCategory())) {
             if (newCategoryName == null || newCategoryName.trim().isEmpty()) {
                 bindingResult.rejectValue("category", "error.project", "Введите название новой категории");
