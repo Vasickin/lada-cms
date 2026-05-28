@@ -1,12 +1,15 @@
 /**
  * Валидация с модальным окном
- * Поля: название, категория, статус
- * Остальное не трогаем
+ * Поля: название, slug, категория, статус, даты
  */
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form.needs-validation');
     if (!form) return;
+
+    // Определяем режим (создание или редактирование)
+    const projectIdField = document.getElementById('id');
+    const isEditMode = projectIdField && projectIdField.value;
 
     // Добавляем модальное окно, если его нет
     if (!document.getElementById('validationErrorModal')) {
@@ -36,7 +39,150 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
 
-    form.addEventListener('submit', function(event) {
+    // Функция проверки slug (уникальность + формат)
+    async function checkSlugUniqueness(slug, excludeId) {
+        if (!slug || slug.trim() === '') return { valid: false, message: 'URL-адрес (slug) обязателен для заполнения' };
+
+        // Проверка формата
+        const slugPattern = /^[a-z0-9-]+$/;
+        if (!slugPattern.test(slug)) {
+            return { valid: false, message: 'Slug может содержать только латинские буквы в нижнем регистре, цифры и дефисы' };
+        }
+
+        // Проверка уникальности через AJAX
+        try {
+            let url = `/admin/projects/check-slug?slug=${encodeURIComponent(slug)}`;
+            if (excludeId) {
+                url += `&excludeId=${excludeId}`;
+            }
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.exists) {
+                return { valid: false, message: 'Проект с таким URL уже существует' };
+            }
+        } catch (error) {
+            console.error('Ошибка проверки slug:', error);
+        }
+
+        return { valid: true, message: '' };
+    }
+
+    // Функция проверки дат
+    function validateDates(startDate, eventDate, endDate) {
+        const errors = [];
+
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            let parts;
+            if (dateStr.includes('-')) {
+                parts = dateStr.split('-');
+                return new Date(parts[0], parts[1] - 1, parts[2]);
+            } else if (dateStr.includes('.')) {
+                parts = dateStr.split('.');
+                return new Date(parts[2], parts[1] - 1, parts[0]);
+            }
+            return null;
+        }
+
+        const start = parseDate(startDate);
+        const event = parseDate(eventDate);
+        const end = parseDate(endDate);
+
+        // 1. startDate не может быть позже endDate
+        if (start && end && start > end) {
+            errors.push({ field: 'startDate', message: 'Дата начала не может быть позже даты окончания' });
+        }
+
+        // 2. eventDate не может быть раньше startDate
+        if (start && event && event < start) {
+            errors.push({ field: 'eventDate', message: 'Дата события не может быть раньше даты начала' });
+        }
+
+        // 3. eventDate должна быть в рамках периода (между startDate и endDate)
+        if (start && end && event) {
+            if (event < start || event > end) {
+                errors.push({ field: 'eventDate', message: 'Дата события должна быть в рамках проекта' });
+            }
+        }
+
+        // 4. endDate не может быть раньше eventDate (одна проверка, без дублей)
+        if (event && end && end < event) {
+            errors.push({ field: 'endDate', message: 'Дата окончания не может быть раньше даты события' });
+        }
+
+        return errors;
+    }
+
+    // Функция проверки статуса (полностью соответствует серверной логике)
+    function validateStatus(status, startDate, eventDate, endDate) {
+        if (!status || status === '') {
+            return { valid: false, message: 'Выберите статус проекта' };
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            let parts;
+            if (dateStr.includes('-')) {
+                parts = dateStr.split('-');
+                return new Date(parts[0], parts[1] - 1, parts[2]);
+            } else if (dateStr.includes('.')) {
+                parts = dateStr.split('.');
+                return new Date(parts[2], parts[1] - 1, parts[0]);
+            }
+            return null;
+        }
+
+        const start = parseDate(startDate);
+        const event = parseDate(eventDate);
+        const end = parseDate(endDate);
+
+        switch (status) {
+            case 'UPCOMING':
+                // startDate должна быть в будущем (или eventDate, если start нет)
+                if (start && start <= today) {
+                    return { valid: false, message: 'Нельзя выбрать статус "Ближайшие" для проекта, дата начала которого уже наступила' };
+                }
+                if (!start && event && event <= today) {
+                    return { valid: false, message: 'Нельзя выбрать статус "Ближайшие" для проекта, дата события которого уже наступила' };
+                }
+                break;
+
+            case 'ACTIVE':
+                // endDate не должна быть в прошлом (или eventDate, если end нет)
+                if (end && end < today) {
+                    return { valid: false, message: 'Нельзя выбрать статус "Активные" для проекта, дата окончания которого уже прошла' };
+                }
+                if (!end && event && event < today) {
+                    return { valid: false, message: 'Нельзя выбрать статус "Активные" для проекта, дата события которого уже прошла' };
+                }
+                break;
+
+            case 'COMPLETED':
+                // startDate должна быть в прошлом (или eventDate, если start нет)
+                if (start && start >= today) {
+                    return { valid: false, message: 'Нельзя выбрать статус "Завершённые" для проекта, который еще не завершился' };
+                }
+                if (!start && event && event >= today) {
+                    return { valid: false, message: 'Нельзя выбрать статус "Завершённые" для проекта, дата события которого еще не прошла' };
+                }
+                break;
+
+            case 'ANNUAL':
+            case 'ARCHIVED':
+                // Для ежегодных и архивных проектов проверок нет
+                break;
+        }
+
+        return { valid: true, message: '' };
+    }
+
+    // Основная функция валидации
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+
         // Очищаем старые ошибки
         document.querySelectorAll('.is-invalid').forEach(el => {
             el.classList.remove('is-invalid');
@@ -45,8 +191,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const errors = [];
 
-        // Проверка названия
+        // Получаем значения полей
         const title = document.getElementById('title');
+        const slug = document.getElementById('slug');
+        const category = document.getElementById('category');
+        const status = document.getElementById('status');
+        const startDate = document.getElementById('startDate');
+        const eventDate = document.getElementById('eventDate');
+        const endDate = document.getElementById('endDate');
+
+        // 1. Проверка названия
         if (!title.value || title.value.trim() === '') {
             errors.push({ field: title, message: 'Название проекта обязательно для заполнения' });
         } else if (title.value.trim().length < 3) {
@@ -55,23 +209,46 @@ document.addEventListener('DOMContentLoaded', function() {
             errors.push({ field: title, message: 'Название не должно превышать 255 символов' });
         }
 
-        // Проверка категории
-        const category = document.getElementById('category');
+        // 2. Проверка slug (уникальность + формат)
+        if (slug) {
+            const slugCheck = await checkSlugUniqueness(slug.value, isEditMode ? projectIdField.value : null);
+            if (!slugCheck.valid) {
+                errors.push({ field: slug, message: slugCheck.message });
+            }
+        }
+
+        // 3. Проверка категории
         if (!category.value || category.value === '') {
             errors.push({ field: category, message: 'Выберите категорию проекта' });
         }
 
-        // Проверка статуса
-        const status = document.getElementById('status');
-        if (!status.value || status.value === '') {
-            errors.push({ field: status, message: 'Выберите статус проекта' });
+        // 4. Проверка статуса
+        const statusCheck = validateStatus(
+            status.value,
+            startDate ? startDate.value : null,
+            eventDate ? eventDate.value : null,
+            endDate ? endDate.value : null
+        );
+        if (!statusCheck.valid) {
+            errors.push({ field: status, message: statusCheck.message });
         }
+
+        // 5. Проверка дат
+        const dateErrors = validateDates(
+            startDate ? startDate.value : null,
+            eventDate ? eventDate.value : null,
+            endDate ? endDate.value : null
+        );
+        dateErrors.forEach(err => {
+            const field = document.getElementById(err.field);
+            if (field) {
+                errors.push({ field: field, message: err.message });
+            }
+        });
 
         // Если есть ошибки - показываем модальное окно
         if (errors.length > 0) {
-            event.preventDefault();
-
-            // Показываем ошибки под полями (для контекста)
+            // Показываем ошибки под полями
             errors.forEach(err => {
                 err.field.classList.add('is-invalid');
                 const div = document.createElement('div');
@@ -86,7 +263,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 let html = '<ul class="list-unstyled mb-0">';
                 errors.forEach(err => {
                     const fieldName = err.field.id === 'title' ? 'Название проекта' :
-                        err.field.id === 'category' ? 'Категория' : 'Статус';
+                        err.field.id === 'slug' ? 'URL-адрес (slug)' :
+                            err.field.id === 'category' ? 'Категория' :
+                                err.field.id === 'status' ? 'Статус' :
+                                    err.field.id === 'startDate' ? 'Дата начала' :
+                                        err.field.id === 'eventDate' ? 'Дата события' :
+                                            err.field.id === 'endDate' ? 'Дата окончания' : 'Поле';
                     html += `<li class="mb-2 d-flex align-items-start">
                                 <i class="bi bi-x-circle-fill text-danger me-2 mt-1"></i>
                                 <div><strong>${fieldName}:</strong> <span class="text-muted">${err.message}</span></div>
@@ -102,24 +284,73 @@ document.addEventListener('DOMContentLoaded', function() {
             // Показываем модальное окно
             const modal = new bootstrap.Modal(document.getElementById('validationErrorModal'));
             modal.show();
+            return;
         }
+
+        // Если ошибок нет - отправляем форму
+        form.submit();
     });
 
     // Кнопка "Исправить"
     const fixBtn = document.getElementById('fixErrorsBtn');
     if (fixBtn) {
         fixBtn.addEventListener('click', function() {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('validationErrorModal'));
-            if (modal) modal.hide();
+            const modalElement = document.getElementById('validationErrorModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
 
             setTimeout(() => {
                 if (window.validationErrors && window.validationErrors.length > 0) {
                     const firstError = window.validationErrors[0].field;
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    firstError.focus();
+                    if (firstError) {
+                        // Получаем позицию элемента
+                        const elementPosition = firstError.getBoundingClientRect().top;
+                        // Отступ сверху 120px (было 1000 — это слишком много!)
+                        const offsetPosition = elementPosition + window.pageYOffset - 120;
+
+                        // Медленный плавный скролл
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+
+                        setTimeout(() => {
+                            firstError.focus();
+                            firstError.classList.add('is-invalid');
+                        }, 800); // Даём время на завершение скролла
+                    }
                     window.validationErrors = null;
                 }
-            }, 300);
+            }, 200);
+        });
+    }
+
+    // Live-валидация при изменении slug
+    const slugInput = document.getElementById('slug');
+    if (slugInput) {
+        let debounceTimer;
+        slugInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(async () => {
+                const slugCheck = await checkSlugUniqueness(this.value, isEditMode ? projectIdField.value : null);
+                if (!slugCheck.valid) {
+                    this.classList.add('is-invalid');
+                    const existingError = document.getElementById('slug-error');
+                    if (!existingError) {
+                        const div = document.createElement('div');
+                        div.className = 'invalid-feedback';
+                        div.id = 'slug-error';
+                        div.textContent = slugCheck.message;
+                        this.parentNode.insertBefore(div, this.nextSibling);
+                    }
+                } else {
+                    this.classList.remove('is-invalid');
+                    const errorDiv = document.getElementById('slug-error');
+                    if (errorDiv) errorDiv.remove();
+                }
+            }, 500);
         });
     }
 
@@ -150,4 +381,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (err) err.remove();
         });
     }
+
+    const dateFields = ['startDate', 'eventDate', 'endDate'];
+    dateFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('change', function() {
+                this.classList.remove('is-invalid');
+                const err = document.getElementById(this.id + '-error');
+                if (err) err.remove();
+            });
+        }
+    });
 });

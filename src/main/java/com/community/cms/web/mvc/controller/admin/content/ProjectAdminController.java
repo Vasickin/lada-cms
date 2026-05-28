@@ -969,4 +969,27 @@ public class ProjectAdminController {
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Проверка уникальности slug на лету (для клиентской валидации)
+     */
+    @GetMapping("/check-slug")
+    @ResponseBody
+    public Map<String, Boolean> checkSlug(@RequestParam String slug,
+                                          @RequestParam(required = false) Long excludeId) {
+        Map<String, Boolean> response = new HashMap<>();
+
+        if (excludeId != null) {
+            // Режим редактирования: исключаем текущий проект
+            boolean exists = projectService.findBySlug(slug)
+                    .filter(p -> !p.getId().equals(excludeId))
+                    .isPresent();
+            response.put("exists", exists);
+        } else {
+            // Режим создания
+            response.put("exists", projectService.existsBySlug(slug));
+        }
+
+        return response;
+    }
 }
