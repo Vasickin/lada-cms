@@ -36,20 +36,6 @@ function showAlert(message, type = 'success') {
     }, 3000);
 }
 
-// ===== BOOTSTRAP ВАЛИДАЦИЯ =====
-(function() {
-    'use strict'
-    const forms = document.querySelectorAll('.needs-validation');
-    Array.prototype.slice.call(forms).forEach(function(form) {
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault()
-                event.stopPropagation()
-            }
-            form.classList.add('was-validated')
-        }, false)
-    })
-})();
 
 // ===== СОЗДАНИЕ НОВОЙ КАТЕГОРИИ =====
 document.addEventListener('DOMContentLoaded', function() {
