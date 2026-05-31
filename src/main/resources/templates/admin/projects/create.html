@@ -86,8 +86,8 @@
                             <!-- ===== ОСНОВНАЯ ИНФОРМАЦИЯ ===== -->
                             <div class="form-section">
                                 <h3 class="section-title">
-                                    <i class="bi bi-info-circle me-2"></i>
-                                    Основная информация
+                                    <i class="bi bi-info-circle me-2 text-primary"></i>
+                                    Основная информация *
                                 </h3>
 
                                 <!-- Название проекта -->
@@ -157,57 +157,63 @@
                                 </div>
                             </div>
 
-                                <!-- КАТЕГОРИЯ И СТАТУС -->
-                                <div class="row mb-3">
-                                    <!-- == Категория == -->
-                                    <div class="col-md-6">
-                                        <label for="category" class="form-label">Категория *</label>
-                                        <div class="input-group">
-                                            <select th:field="*{category}" class="form-select" id="category" required>
-                                                <option value="">Выберите категорию...</option>
-                                                <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
-                                            </select>
-                                            <button type="button" class="btn btn-outline-primary" id="createCategoryBtn" title="Создать новую категорию">
-                                                <i class="bi bi-plus-lg"></i>
-                                            </button>
-                                        </div>
-                                        <small class="form-text text-muted">
-                                            Выберите существующую категорию или нажмите <kbd>+</kbd> для создания новой
-                                        </small>
-                                        <div class="invalid-feedback">Выберите категорию проекта</div>
-                                    </div>
-
-
-                                    <!-- СТАТУС ПРОЕКТА -->
-                                    <div class="col-md-6">
-                                        <label for="status" class="form-label">
-                                            Статус <span class="text-danger">*</span>
-                                        </label>
-                                        <select th:field="*{status}"
-                                                class="form-select"
-                                                id="status"
-                                                required>
-                                            <option value="">Выберите статус...</option>
-                                            <option th:each="statusEntry : ${statusLabels}"
-                                                    th:value="${statusEntry.key}"
-                                                    th:text="${statusEntry.value}">
-                                            </option>
+                            <!-- КАТЕГОРИЯ И СТАТУС -->
+                            <div class="row mb-3">
+                                <!-- == Категория == -->
+                                <div class="col-md-6">
+                                    <label for="category" class="form-label">Категория *</label>
+                                    <div class="input-group">
+                                        <select th:field="*{category}" class="form-select" id="category" required>
+                                            <option value="">Выберите категорию...</option>
+                                            <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
                                         </select>
-                                        <div class="invalid-feedback">
-                                            Пожалуйста, выберите статус проекта
-                                        </div>
-                                        <small class="form-text text-muted">
-                                            Статус определяет, где и как будет отображаться проект
-                                        </small>
+                                        <button type="button" class="btn btn-outline-primary" id="createCategoryBtn" title="Создать новую категорию">
+                                            <i class="bi bi-plus-lg"></i>
+                                        </button>
                                     </div>
+                                    <small class="form-text text-muted">
+                                        Выберите существующую категорию или нажмите <kbd>+</kbd> для создания новой
+                                    </small>
+                                    <div class="invalid-feedback">Выберите категорию проекта</div>
                                 </div>
 
-                            <!-- ===== ДАТЫ И МЕСТО ПРОВЕДЕНИЯ ===== -->
+
+                                <!-- СТАТУС ПРОЕКТА -->
+                                <div class="col-md-6">
+                                    <label for="status" class="form-label">
+                                        Статус <span class="text-danger">*</span>
+                                    </label>
+                                    <select th:field="*{status}"
+                                            class="form-select"
+                                            id="status"
+                                            required>
+                                        <option value="">Выберите статус...</option>
+                                        <option th:each="statusEntry : ${statusLabels}"
+                                                th:value="${statusEntry.key}"
+                                                th:text="${statusEntry.value}">
+                                        </option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Пожалуйста, выберите статус проекта
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Статус определяет, где и как будет отображаться проект
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- ===== ДАТЫ ПРОВЕДЕНИЯ ===== -->
                             <div class="form-section">
-                                <h3 class="section-title">
-                                    <i class="bi bi-calendar-event me-2"></i>
-                                    Даты и место проведения
-                                </h3>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4 class="section-title mb-0">
+                                        <i class="bi bi-calendar-event me-2 text-primary"></i>
+                                        Даты проведения
+                                    </h4>
+                                    <span class="badge bg-primary">
+                                        <i class="bi bi-calendar3"></i>
+                                        Даты опциональны
+                                    </span>
+                                </div>
 
                                 <div class="row mb-3">
                                     <div class="col-md-4">
@@ -248,33 +254,67 @@
                                     </div>
                                 </div>
 
-                                <!-- Краткое описание -->
-                                <div class="row mb-3">
-                                    <div class="col-12">
-                                        <label for="shortDescription" class="form-label">
-                                            Краткое описание
-                                        </label>
-                                        <textarea th:field="*{shortDescription}"
-                                                  class="form-control"
-                                                  id="shortDescription"
-                                                  rows="3"
-                                                  maxlength="2000"
-                                                  placeholder="Введите краткое описание проекта (до 2000 символов)..."
-                                                  oninput="updateShortDescriptionCounter()"></textarea>
-
-                                        <!-- Счетчик символов -->
-                                        <div class="d-flex justify-content-between align-items-center mt-1">
+                                <!-- ==== МЕСТО ПРОВЕДЕНИЯ ==== -->
+                                <div class="form-section">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h4 class="section-title mb-0">
+                                            <i class="bi bi-geo-alt-fill me-2 text-primary"></i>
+                                            Место проведения
+                                        </h4>
+                                        <span class="badge bg-primary">
+                                                <i class="bi bi-pin-map"></i>
+                                                Место проведения опционально
+                                            </span>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <label for="location" class="form-label"></label>
+                                            <input type="text"
+                                                   th:field="*{location}"
+                                                   class="form-control"
+                                                   id="location"
+                                                   maxlength="255"
+                                                   placeholder="Например: г. Клайпеда, Культурный центр 'ЛАДА'...">
                                             <small class="form-text text-muted">
-                                                До 2000 символов. Будет отображаться в карточке проекта.
-                                            </small>
-                                            <small id="shortDescriptionCounter" class="text-muted">
-                                                <span id="shortDescriptionCount">0</span>/2000 символов
+                                                Укажите место проведения мероприятия
                                             </small>
                                         </div>
+                                    </div>
+                                </div>
 
-                                        <!-- Сообщение об ошибке -->
-                                        <div class="invalid-feedback" id="shortDescriptionError">
-                                            Превышен лимит в 2000 символов. Текущее количество: <span id="shortDescriptionErrorCount">0</span>
+                                <!-- ==== КРАТКОЕ ОПИСАНИЕ ==== -->
+                                <div class="form-section">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h4 class="section-title mb-0">
+                                            <i class="bi bi-text-paragraph me-2 text-primary"></i>
+                                            Краткое описание
+                                        </h4>
+                                        <span class="badge bg-primary">
+                                            <i class="bi bi-info-circle"></i>
+                                            Краткое описание опционально, до 2000 символов
+                                        </span>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <label for="shortDescription" class="form-label"></label>
+                                            <textarea th:field="*{shortDescription}"
+                                                      class="form-control"
+                                                      id="shortDescription"
+                                                      rows="3"
+                                                      maxlength="2000"
+                                                      placeholder="Введите краткое описание проекта (до 2000 символов)..."
+                                                      oninput="updateShortDescriptionCounter()"></textarea>
+                                            <div class="d-flex justify-content-between align-items-center mt-1">
+                                                <small class="form-text text-muted">
+                                                    Будет отображаться в карточке проекта.
+                                                </small>
+                                                <small id="shortDescriptionCounter" class="text-muted">
+                                                    <span id="shortDescriptionCount">0</span>/2000 символов
+                                                </small>
+                                            </div>
+                                            <div class="invalid-feedback" id="shortDescriptionError">
+                                                Превышен лимит в 2000 символов. Текущее количество: <span id="shortDescriptionErrorCount">0</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -283,10 +323,10 @@
 
                             <!-- ===== ПОЛНОЕ ОПИСАНИЕ (Quill Editor) ===== -->
                             <div class="form-section">
-                                <h3 class="section-title">
-                                    <i class="bi bi-text-paragraph me-2"></i>
+                                <h4 class="section-title mb-0">
+                                    <i class="bi bi-text-paragraph me-2 text-primary"></i>
                                     Полное описание
-                                </h3>
+                                </h4>
 
                                 <div class="row mb-3">
                                     <div class="col-12">
@@ -324,10 +364,10 @@
 
                             <!-- ===== КОМАНДА ПРОЕКТА ===== -->
                             <div class="form-section">
-                                <h3 class="section-title">
+                                <h4 class="section-title">
                                     <i class="bi bi-people me-2"></i>
                                     Команда проекта
-                                </h3>
+                                </h4>
 
                                 <div class="row mb-3">
                                     <div class="col-12">
@@ -505,10 +545,10 @@
                             <!-- ===== ПАРТНЁРЫ ПРОЕКТА (DRAG AND DROP) ===== -->
                             <div class="form-section" id="partnersSection">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h3 class="section-title mb-0">
-                                        <i class="bi bi-handshake me-2 text-primary"></i>
+                                    <h4 class="section-title mb-0">
+                                        <i class="bi bi-people me-2 text-primary"></i>
                                         Партнёры проекта
-                                    </h3>
+                                    </h4>
 
                                 </div>
 
@@ -709,10 +749,10 @@
                             <!-- ===== ФОТОГРАФИИ ПРОЕКТА ===== -->
                             <div class="form-section">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h3 class="section-title mb-0">
+                                    <h4 class="section-title mb-0">
                                         <i class="bi bi-images me-2 text-primary"></i>
                                         Фотографии проекта
-                                    </h3>
+                                    </h4>
                                     <span class="badge bg-primary">
                                         <i class="bi bi-camera"></i>
                                         <span id="selectedPhotosCount">0</span>/10 фото
@@ -823,10 +863,10 @@
                             <!-- ===== ВИДЕО ПРОЕКТА (БЫСТРОЕ ДОБАВЛЕНИЕ) ===== -->
                             <div class="form-section">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h3 class="section-title mb-0">
+                                    <h4 class="section-title mb-0">
                                         <i class="bi bi-play-btn me-2 text-primary"></i>
                                         Видео проекта (быстрое добавление)
-                                    </h3>
+                                    </h4>
                                     <span class="badge bg-info">
                                         <i class="bi bi-film"></i>
                                         Простое поле
@@ -987,10 +1027,10 @@
 
                             <!-- ===== СЕКЦИИ ПРОЕКТА ===== -->
                             <div class="form-section">
-                                <h3 class="section-title">
+                                <h4 class="section-title">
                                     <i class="bi bi-toggle-on me-2"></i>
                                     Отображение секций
-                                </h3>
+                                </h4>
 
                                 <div class="row">
                                     <div class="col-md-6">
