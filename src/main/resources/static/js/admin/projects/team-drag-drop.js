@@ -52,6 +52,8 @@ function initTeamDragAndDrop() {
     // Обновляем счётчики
     updateTeamCounters();
 
+    updateTeamPreview();
+
     // Обновляем скрытое поле
     updateTeamHiddenInput();
 
@@ -94,6 +96,7 @@ function syncTeamFromHiddenField() {
 
     // Обновляем счётчики после синхронизации
     updateTeamCounters();
+    updateTeamPreview();
     console.log('✅ Синхронизация команды завершена');
 }
 
@@ -224,6 +227,7 @@ function moveTeamMember(memberId, targetContainerId) {
     updateTeamCounters();
     updateTeamHiddenInput();
     updateEmptyTeamMessage();
+    updateTeamPreview();
 }
 
 /**
@@ -326,3 +330,65 @@ window.removeSelectedFromProject = removeSelectedFromProject;
 document.addEventListener('DOMContentLoaded', function() {
     initTeamDragAndDrop();
 });
+
+/**
+ * Обновляет превью выбранных членов команды (аналогично партнёрам)
+ */
+function updateTeamPreview() {
+    const previewContainer = document.getElementById('selectedTeamPreview');
+    if (!previewContainer) return;
+
+    const projectContainer = document.getElementById('projectTeamContainer');
+    if (!projectContainer) return;
+
+    const selectedElements = projectContainer.querySelectorAll('.member-draggable');
+
+    if (selectedElements.length === 0) {
+        previewContainer.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-light text-center py-4">
+                    <i class="bi bi-people display-4 text-muted mb-3"></i>
+                    <h6 class="text-muted">Члены команды не выбраны</h6>
+                    <p class="text-muted small mb-0">
+                        Добавьте членов команды в проект для отображения в предпросмотре
+                    </p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '<div class="col-12 mb-2"><strong>Выбранные члены команды:</strong></div>';
+
+    selectedElements.forEach(element => {
+        const memberId = element.getAttribute('data-member-id');
+        const name = element.querySelector('strong')?.textContent || `Участник ${memberId}`;
+        const position = element.querySelector('small.text-muted, small:not(.text-muted)')?.textContent || 'Должность не указана';
+
+        // Пытаемся получить фото (аватар) если есть
+        const avatarImg = element.querySelector('img.avatar');
+        let avatarHtml = '';
+        if (avatarImg && avatarImg.src) {
+            avatarHtml = `<img src="${avatarImg.src}" alt="${escapeHtml(name)}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;" class="img-fluid">`;
+        } else {
+            avatarHtml = '<i class="bi bi-person-badge fs-1 text-primary"></i>';
+        }
+
+        html += `
+            <div class="col-6 col-md-4 col-lg-3 mb-3" data-preview-member-id="${memberId}">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-3" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                            ${avatarHtml}
+                        </div>
+                        <h6 class="mb-1">${escapeHtml(name)}</h6>
+                        <small class="text-muted d-block mb-2">${escapeHtml(position)}</small>
+                        <span class="badge bg-success">В проекте</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    previewContainer.innerHTML = html;
+}
