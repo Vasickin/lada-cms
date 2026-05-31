@@ -184,6 +184,12 @@ function moveTeamMember(memberId, targetContainerId) {
     // Клонируем элемент с новыми стилями
     const clonedElement = memberElement.cloneNode(true);
 
+    // ✅ ДОБАВИТЬ ЭТОТ БЛОК - сохраняем URL аватарки
+    const avatarUrl = memberElement.getAttribute('data-avatar-url');
+    if (avatarUrl) {
+        clonedElement.setAttribute('data-avatar-url', avatarUrl);
+    }
+
     // Меняем стили в зависимости от колонки
     if (isMovingToProject) {
         // Перемещаем в проект - меняем иконку и бейдж
@@ -365,11 +371,15 @@ function updateTeamPreview() {
         const name = element.querySelector('strong')?.textContent || `Участник ${memberId}`;
         const position = element.querySelector('small.text-muted, small:not(.text-muted)')?.textContent || 'Должность не указана';
 
-        // Пытаемся получить фото (аватар) если есть
-        const avatarImg = element.querySelector('img.avatar');
+        // Получаем URL аватарки из data-атрибута (как у партнёров)
+        const avatarUrl = element.getAttribute('data-avatar-url');
+
         let avatarHtml = '';
-        if (avatarImg && avatarImg.src) {
-            avatarHtml = `<img src="${avatarImg.src}" alt="${escapeHtml(name)}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;" class="img-fluid">`;
+        if (avatarUrl && avatarUrl.trim() !== '') {
+            avatarHtml = `<img src="${escapeHtml(avatarUrl)}" 
+                               alt="${escapeHtml(name)}" 
+                               style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;" 
+                               class="img-fluid">`;
         } else {
             avatarHtml = '<i class="bi bi-person-badge fs-1 text-primary"></i>';
         }
