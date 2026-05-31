@@ -378,7 +378,7 @@ function updateTeamPreview() {
         if (avatarUrl && avatarUrl.trim() !== '') {
             avatarHtml = `<img src="${escapeHtml(avatarUrl)}" 
                                alt="${escapeHtml(name)}" 
-                               style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;" 
+                               style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;" 
                                class="img-fluid">`;
         } else {
             avatarHtml = '<i class="bi bi-person-badge fs-1 text-primary"></i>';
