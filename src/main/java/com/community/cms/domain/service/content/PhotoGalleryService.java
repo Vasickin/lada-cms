@@ -931,4 +931,28 @@ public class PhotoGalleryService {
 
         return webPath;
     }
+
+    /**
+     * Получает данные для нескольких фото по их ID
+     * Используется для восстановления выбранных фото после ошибок валидации
+     */
+    @Transactional(readOnly = true)
+    public List<PhotoGalleryDTO> getPhotosDTOByIds(List<Long> photoIds) {
+        List<PhotoGalleryDTO> result = new ArrayList<>();
+
+        for (Long id : photoIds) {
+            try {
+                PhotoGalleryDTO dto = getPhotoDTOById(id);
+                if (dto != null) {
+                    result.add(dto);
+                }
+            } catch (Exception e) {
+                logger.error("Ошибка загрузки фото ID {}: {}", id, e.getMessage());
+                // Добавляем заглушку
+                result.add(createFallbackPhotoDTO(id));
+            }
+        }
+
+        return result;
+    }
 }

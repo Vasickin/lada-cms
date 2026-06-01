@@ -2,6 +2,7 @@ package com.community.cms.web.mvc.controller.admin.content;
 
 import com.community.cms.domain.enums.ProjectStatusType;
 import com.community.cms.domain.model.content.PhotoGallery;
+import com.community.cms.domain.repository.media.MediaFileRepository;
 import com.community.cms.validation.ProjectValidator;
 import com.community.cms.web.mvc.dto.content.PhotoGalleryDTO;
 import com.community.cms.domain.model.media.MediaFile;
@@ -43,6 +44,7 @@ public class ProjectAdminController {
     private final TeamMemberService teamMemberService;
     private final PartnerService partnerService;
     private final ProjectValidator projectValidator;
+    private final MediaFileRepository mediaFileRepository;
 
     @Autowired
     private PhotoGalleryService photoGalleryService;
@@ -51,11 +53,13 @@ public class ProjectAdminController {
     public ProjectAdminController(ProjectService projectService,
                                   TeamMemberService teamMemberService,
                                   PartnerService partnerService,
-                                  ProjectValidator projectValidator) {
+                                  ProjectValidator projectValidator,
+                                  MediaFileRepository mediaFileRepository) {
         this.projectService = projectService;
         this.teamMemberService = teamMemberService;
         this.partnerService = partnerService;
         this.projectValidator = projectValidator;
+        this.mediaFileRepository = mediaFileRepository;
     }
 
     // ================== СПИСОК ПРОЕКТОВ ==================
@@ -153,17 +157,21 @@ public class ProjectAdminController {
         prepareFormData(model);
 
         // Обработка категории
-        if (processCategory(project, newCategoryName, bindingResult, "create")) {
+        List<String> allCategories = projectService.findAllDistinctCategories();
+        if (projectValidator.validateAndProcessCategory(project, newCategoryName, allCategories, bindingResult)) {
             return "admin/projects/create";
         }
 
         if (bindingResult.hasErrors()) {
+            model.addAttribute("selectedTeamMemberIds", selectedTeamMemberIds);
+            model.addAttribute("selectedPartnerIds", selectedPartnerIds);
+            model.addAttribute("selectedPhotoIds", selectedPhotoIds);
             return "admin/projects/create";
         }
 
         // Проверка уникальности slug
-        if (projectService.existsBySlug(project.getSlug())) {
-            bindingResult.rejectValue("slug", "error.project", "Проект с таким URL уже существует");
+        projectValidator.validateSlugUniquenessForCreate(project, bindingResult);
+        if (bindingResult.hasErrors()) {
             return "admin/projects/create";
         }
 
@@ -256,22 +264,20 @@ public class ProjectAdminController {
         // Данные для формы
         prepareFormData(model);
         model.addAttribute("videoUrl", videoUrl);
+        model.addAttribute("forceShowInCarousel", forceShowInCarousel);
 
         // Обработка категории
-        if (processCategory(project, newCategoryName, bindingResult, "edit")) {
-            return "admin/projects/edit";
-        }
-
-        if (bindingResult.hasErrors()) {
+        if (processCategory(project, newCategoryName, bindingResult)) {
+            restoreSelectedData(model, selectedTeamMemberIds, selectedPartnerIds, selectedPhotoIds);
             return "admin/projects/edit";
         }
 
         // Проверка уникальности slug
-        projectService.findBySlug(project.getSlug())
-                .filter(p -> !p.getId().equals(id))
-                .ifPresent(p -> bindingResult.rejectValue("slug", "error.project", "Проект с таким URL уже существует"));
+        projectValidator.validateSlugUniquenessForUpdate(project, id, bindingResult);
 
+        // ✅ ОСНОВНОЙ БЛОК ОБРАБОТКИ ОШИБОК
         if (bindingResult.hasErrors()) {
+            restoreSelectedData(model, selectedTeamMemberIds, selectedPartnerIds, selectedPhotoIds);
             return "admin/projects/edit";
         }
 
@@ -296,6 +302,7 @@ public class ProjectAdminController {
         } catch (Exception e) {
             log.error("Ошибка при обновлении проекта: {}", e.getMessage(), e);
             bindingResult.reject("error.project", "Ошибка при обновлении проекта: " + e.getMessage());
+            restoreSelectedData(model, selectedTeamMemberIds, selectedPartnerIds, selectedPhotoIds);
             return "admin/projects/edit";
         }
     }
@@ -596,6 +603,24 @@ public class ProjectAdminController {
         return photoMap;
     }
 
+    @PostMapping("/photos-info")
+    @ResponseBody
+    public List<Map<String, Object>> getPhotosInfo(@RequestBody List<Long> photoIds) {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (Long id : photoIds) {
+            mediaFileRepository.findById(id).ifPresent(p -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", p.getId());
+                map.put("title", p.getFileName());
+                map.put("webPath", p.getWebPath());
+                map.put("galleryTitle", "Фото");
+                result.add(map);
+            });
+        }
+        return result;
+    }
+
     @GetMapping("/debug-search")
     @ResponseBody
     public Map<String, Object> debugSearch(@RequestParam String search) {
@@ -661,7 +686,7 @@ public class ProjectAdminController {
     }
 
     private boolean processCategory(Project project, String newCategoryName,
-                                    BindingResult bindingResult, String viewName) {
+                                    BindingResult bindingResult) {
         if ("__NEW__".equals(project.getCategory())) {
             if (newCategoryName == null || newCategoryName.trim().isEmpty()) {
                 bindingResult.rejectValue("category", "error.project", "Введите название новой категории");
@@ -876,5 +901,95 @@ public class ProjectAdminController {
         log.warn("Некорректный ID {}: {}", entityType, idStr);
     }
 
+// ================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ДЛЯ ВОССТАНОВЛЕНИЯ ==================
 
+    /**
+     * Восстанавливает выбранные данные после ошибок валидации
+     */
+    private void restoreSelectedData(Model model,
+                                     String selectedTeamMemberIds,
+                                     String selectedPartnerIds,
+                                     String selectedPhotoIds) {
+        // Восстанавливаем команду проекта
+        if (selectedTeamMemberIds != null && !selectedTeamMemberIds.trim().isEmpty()) {
+            model.addAttribute("selectedTeamMemberIds", selectedTeamMemberIds);
+
+            // Обновляем списки для корректного отображения в UI
+            List<Long> selectedIds = parseIds(selectedTeamMemberIds);
+            List<TeamMember> allMembers = teamMemberService.findAllActiveOrderBySortOrder();
+
+            List<TeamMember> projectMembers = allMembers.stream()
+                    .filter(m -> selectedIds.contains(m.getId()))
+                    .collect(Collectors.toList());
+
+            List<TeamMember> availableMembers = allMembers.stream()
+                    .filter(m -> !selectedIds.contains(m.getId()))
+                    .collect(Collectors.toList());
+
+            model.addAttribute("projectTeamMembers", projectMembers);
+            model.addAttribute("availableMembers", availableMembers);
+        }
+
+        // Восстанавливаем партнёров
+        if (selectedPartnerIds != null && !selectedPartnerIds.trim().isEmpty()) {
+            model.addAttribute("selectedPartnerIds", selectedPartnerIds);
+
+            List<Long> selectedIds = parseIds(selectedPartnerIds);
+            List<Partner> allPartners = partnerService.findActiveByNameContaining("");
+
+            List<Partner> projectPartners = allPartners.stream()
+                    .filter(p -> selectedIds.contains(p.getId()))
+                    .collect(Collectors.toList());
+
+            List<Partner> availablePartners = allPartners.stream()
+                    .filter(p -> !selectedIds.contains(p.getId()))
+                    .collect(Collectors.toList());
+
+            model.addAttribute("projectPartners", projectPartners);
+            model.addAttribute("availablePartners", availablePartners);
+            model.addAttribute("projectPartnersCount", projectPartners.size());
+        }
+
+        // Восстанавливаем фото
+        if (selectedPhotoIds != null && !selectedPhotoIds.trim().isEmpty()) {
+            model.addAttribute("selectedPhotoIds", selectedPhotoIds);
+        }
+    }
+
+    /**
+     * Парсит строку с ID разделёнными запятыми в список Long
+     */
+    private List<Long> parseIds(String ids) {
+        if (ids == null || ids.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Проверка уникальности slug на лету (для клиентской валидации)
+     */
+    @GetMapping("/check-slug")
+    @ResponseBody
+    public Map<String, Boolean> checkSlug(@RequestParam String slug,
+                                          @RequestParam(required = false) Long excludeId) {
+        Map<String, Boolean> response = new HashMap<>();
+
+        if (excludeId != null) {
+            // Режим редактирования: исключаем текущий проект
+            boolean exists = projectService.findBySlug(slug)
+                    .filter(p -> !p.getId().equals(excludeId))
+                    .isPresent();
+            response.put("exists", exists);
+        } else {
+            // Режим создания
+            response.put("exists", projectService.existsBySlug(slug));
+        }
+
+        return response;
+    }
 }

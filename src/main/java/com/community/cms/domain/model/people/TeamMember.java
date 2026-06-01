@@ -364,6 +364,33 @@ public class TeamMember {
         return avatarPath != null && !avatarPath.trim().isEmpty();
     }
 
+    // ================== ДОПОЛНИТЕЛЬНЫЕ МЕТОДЫ ДЛЯ УДОБСТВА ==================
+
+    /**
+     * Получает полный путь к аватарке члена команды для использования в HTML.
+     *
+     * <p>Этот метод автоматически добавляет базовый путь /data/uploads/ к имени файла,
+     * если аватарка существует. Используется в шаблонах Thymeleaf для отображения
+     * фото членов команды в DnD и предпросмотре.</p>
+     *
+     * <p>Пример использования в шаблоне:</p>
+     * <pre>
+     * &lt;img th:src="${member.avatarFullPath}" alt="${member.fullName}"&gt;
+     * или
+     * th:data-avatar-url="${member.avatarFullPath}"
+     * </pre>
+     *
+     * @return полный путь к аватарке (например, "/data/uploads/photo.jpg")
+     *         или null, если аватарка не задана
+     */
+    public String getAvatarFullPath() {
+        if (avatarPath == null || avatarPath.trim().isEmpty()) {
+            return null;
+        }
+        // Базовый путь к загруженным файлам
+        return "/data/uploads/" + avatarPath;
+    }
+
     /**
      * Проверяет имеет ли член команды биографию.
      *
