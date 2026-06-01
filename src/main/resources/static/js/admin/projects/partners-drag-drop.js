@@ -321,7 +321,7 @@ function updateEmptyPartnerMessage() {
 }
 
 /**
- * Обновляет превью выбранных партнёров
+ * Обновляет превью выбранных партнёров (с возможностью свёртывания/развёртывания)
  */
 function updatePartnersPreview() {
     const previewContainer = document.getElementById('selectedPartnersPreview');
@@ -339,7 +339,7 @@ function updatePartnersPreview() {
                     <i class="bi bi-handshake display-4 text-muted mb-3"></i>
                     <h6 class="text-muted">Партнёры не выбраны</h6>
                     <p class="text-muted small mb-0">
-                        Добавьте партнёров в проект для отображения логотипов на странице
+                        Добавьте партнёров в проект для отображения в предпросмотре
                     </p>
                 </div>
             </div>
@@ -347,35 +347,53 @@ function updatePartnersPreview() {
         return;
     }
 
-    let html = '<div class="col-12 mb-2"><strong>Выбранные партнёры:</strong></div>';
+    const cardsPerRow = 4;
+    const showDefaultCount = cardsPerRow;
+    const totalCount = selectedElements.length;
+    const hasMore = totalCount > showDefaultCount;
+    const hiddenCount = totalCount - showDefaultCount;
 
-    selectedElements.forEach(element => {
+    let html = '<div class="col-12 mb-2 d-flex justify-content-between align-items-center">';
+    html += '<strong>Выбранные партнёры:</strong>';
+    if (hasMore) {
+        html += `<button type="button" class="btn btn-sm btn-outline-primary toggle-partners-preview-btn" data-expanded="false" data-hidden-count="${hiddenCount}">
+                    <i class="bi bi-eye me-1"></i>Посмотреть всех (${totalCount})
+                </button>`;
+    }
+    html += '</div>';
+
+    html += '<div class="row g-3 partners-preview-grid" id="partnersPreviewGrid">';
+
+    selectedElements.forEach((element, index) => {
         const partnerId = element.getAttribute('data-partner-id');
-        const logoUrl = element.getAttribute('data-logo-url') || '';
         const name = element.querySelector('strong')?.textContent || `Партнёр ${partnerId}`;
-        const typeElement = element.querySelector('small.text-muted');
-        const type = typeElement ? typeElement.textContent : 'Тип не указан';
+        const partnerType = element.querySelector('small.text-muted')?.textContent || 'Тип не указан';
+        const logoUrl = element.getAttribute('data-logo-url');
 
-        // Отображение логотипа или иконки
-        let logoHtml;
+        let logoHtml = '';
         if (logoUrl && logoUrl.trim() !== '') {
-            logoHtml = `<img src="${escapeHtml(logoUrl)}"
-                             alt="${escapeHtml(name)}"
-                             style="max-height: 60px; max-width: 100%; object-fit: contain;"
-                             class="img-fluid">`;
+            logoHtml = `<img src="${escapeHtml(logoUrl)}" 
+                               alt="${escapeHtml(name)}" 
+                               style="max-height: 80px; max-width: 100%; object-fit: contain;" 
+                               class="img-fluid">`;
         } else {
-            logoHtml = '<i class="bi bi-handshake fs-1 text-success"></i>';
+            logoHtml = '<i class="bi bi-building fs-1 text-info"></i>';
         }
 
+        const shouldBeHidden = hasMore && index >= showDefaultCount;
+
         html += `
-            <div class="col-6 col-md-4 col-lg-3 mb-3">
+            <div class="col-6 col-md-4 col-lg-3 mb-3 partners-preview-item" 
+                 data-preview-partner-id="${partnerId}" 
+                 data-index="${index}"
+                 data-default-hidden="${shouldBeHidden}">
                 <div class="card h-100">
                     <div class="card-body text-center">
-                        <div class="mb-3" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <div class="mb-3" style="height: 80px; display: flex; align-items: center; justify-content: center;">
                             ${logoHtml}
                         </div>
                         <h6 class="mb-1">${escapeHtml(name)}</h6>
-                        <small class="text-muted d-block mb-2">${escapeHtml(type)}</small>
+                        <small class="text-muted d-block mb-2">${escapeHtml(partnerType)}</small>
                         <span class="badge bg-success">В проекте</span>
                     </div>
                 </div>
@@ -383,7 +401,51 @@ function updatePartnersPreview() {
         `;
     });
 
+    html += '</div>';
+
+    const existingStyle = document.getElementById('team-preview-styles');
+    if (existingStyle) {
+        existingStyle.remove();
+    }
+
     previewContainer.innerHTML = html;
+
+    // Применяем начальное состояние (сворачиваем)
+    const allItems = previewContainer.querySelectorAll('.partners-preview-item');
+    allItems.forEach(item => {
+        const defaultHidden = item.getAttribute('data-default-hidden') === 'true';
+        if (defaultHidden) {
+            item.classList.add('partners-preview-item-collapsed');
+        }
+    });
+
+    // Навешиваем обработчик на кнопку
+    const toggleBtn = previewContainer.querySelector('.toggle-partners-preview-btn');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+            const isExpanded = this.getAttribute('data-expanded') === 'true';
+            const allPreviewItems = previewContainer.querySelectorAll('.partners-preview-item');
+
+            if (isExpanded) {
+                // Сворачиваем: скрываем только те, у которых data-default-hidden = true
+                allPreviewItems.forEach(item => {
+                    const defaultHidden = item.getAttribute('data-default-hidden') === 'true';
+                    if (defaultHidden) {
+                        item.classList.add('partners-preview-item-collapsed');
+                    }
+                });
+                this.setAttribute('data-expanded', 'false');
+                this.innerHTML = `<i class="bi bi-eye me-1"></i>Посмотреть всех (${totalCount})`;
+            } else {
+                // Разворачиваем: показываем все элементы
+                allPreviewItems.forEach(item => {
+                    item.classList.remove('partners-preview-item-collapsed');
+                });
+                this.setAttribute('data-expanded', 'true');
+                this.innerHTML = `<i class="bi bi-eye-slash me-1"></i>Скрыть`;
+            }
+        });
+    }
 }
 
 /**

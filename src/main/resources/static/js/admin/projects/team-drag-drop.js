@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * Обновляет превью выбранных членов команды (аналогично партнёрам)
+ * Обновляет превью выбранных членов команды (с возможностью свёртывания/развёртывания)
  */
 function updateTeamPreview() {
     const previewContainer = document.getElementById('selectedTeamPreview');
@@ -364,14 +364,30 @@ function updateTeamPreview() {
         return;
     }
 
-    let html = '<div class="col-12 mb-2"><strong>Выбранные члены команды:</strong></div>';
+    const cardsPerRow = 4; // показываем 4 карточки в первой строке
+    const showDefaultCount = cardsPerRow;
+    const totalCount = selectedElements.length;
+    const hasMore = totalCount > showDefaultCount;
 
-    selectedElements.forEach(element => {
+    // Сохраняем количество элементов, которые будут скрыты по умолчанию
+    const hiddenCount = totalCount - showDefaultCount;
+
+    let html = '<div class="col-12 mb-2 d-flex justify-content-between align-items-center">';
+    html += '<strong>Выбранные члены команды:</strong>';
+    if (hasMore) {
+        html += `<button type="button" class="btn btn-sm btn-outline-primary toggle-team-preview-btn" data-expanded="false" data-hidden-count="${hiddenCount}">
+                    <i class="bi bi-eye me-1"></i>Посмотреть всех (${totalCount})
+                </button>`;
+    }
+    html += '</div>';
+
+    html += '<div class="row g-3 team-preview-grid" id="teamPreviewGrid">';
+
+    selectedElements.forEach((element, index) => {
         const memberId = element.getAttribute('data-member-id');
         const name = element.querySelector('strong')?.textContent || `Участник ${memberId}`;
         const position = element.querySelector('small.text-muted, small:not(.text-muted)')?.textContent || 'Должность не указана';
 
-        // Получаем URL аватарки из data-атрибута (как у партнёров)
         const avatarUrl = element.getAttribute('data-avatar-url');
 
         let avatarHtml = '';
@@ -384,11 +400,17 @@ function updateTeamPreview() {
             avatarHtml = '<i class="bi bi-person-badge fs-1 text-primary"></i>';
         }
 
+        // Добавляем атрибут data-default-hidden для элементов, которые должны быть скрыты по умолчанию
+        const shouldBeHidden = hasMore && index >= showDefaultCount;
+
         html += `
-            <div class="col-6 col-md-4 col-lg-3 mb-3" data-preview-member-id="${memberId}">
+            <div class="col-6 col-md-4 col-lg-3 mb-3 team-preview-item" 
+                 data-preview-member-id="${memberId}" 
+                 data-index="${index}"
+                 data-default-hidden="${shouldBeHidden}">
                 <div class="card h-100">
                     <div class="card-body text-center">
-                        <div class="mb-3" style="height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <div class="mb-3" style="height: 80px; display: flex; align-items: center; justify-content: center;">
                             ${avatarHtml}
                         </div>
                         <h6 class="mb-1">${escapeHtml(name)}</h6>
@@ -400,5 +422,51 @@ function updateTeamPreview() {
         `;
     });
 
+    html += '</div>';
+
+    // Добавляем CSS для скрытых элементов
+    const existingStyle = document.getElementById('team-preview-styles');
+    if (existingStyle) {
+        existingStyle.remove();
+    }
+
     previewContainer.innerHTML = html;
+
+    // Применяем начальное состояние (сворачиваем)
+    const allItems = previewContainer.querySelectorAll('.team-preview-item');
+    allItems.forEach(item => {
+        const defaultHidden = item.getAttribute('data-default-hidden') === 'true';
+        if (defaultHidden) {
+            item.classList.add('team-preview-item-collapsed');
+        }
+    });
+
+    // Навешиваем обработчик на кнопку
+    const toggleBtn = previewContainer.querySelector('.toggle-team-preview-btn');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+            const isExpanded = this.getAttribute('data-expanded') === 'true';
+            const allPreviewItems = previewContainer.querySelectorAll('.team-preview-item');
+
+            if (isExpanded) {
+                // Сворачиваем: скрываем только те, у которых data-default-hidden = true
+                allPreviewItems.forEach(item => {
+                    const defaultHidden = item.getAttribute('data-default-hidden') === 'true';
+                    if (defaultHidden) {
+                        item.classList.add('team-preview-item-collapsed');
+                    }
+                });
+                this.setAttribute('data-expanded', 'false');
+                const hiddenCount = this.getAttribute('data-hidden-count');
+                this.innerHTML = `<i class="bi bi-eye me-1"></i>Посмотреть всех (${totalCount})`;
+            } else {
+                // Разворачиваем: показываем все элементы
+                allPreviewItems.forEach(item => {
+                    item.classList.remove('team-preview-item-collapsed');
+                });
+                this.setAttribute('data-expanded', 'true');
+                this.innerHTML = `<i class="bi bi-eye-slash me-1"></i>Скрыть`;
+            }
+        });
+    }
 }
