@@ -364,8 +364,7 @@ function updateTeamPreview() {
         return;
     }
 
-    const cardsPerRow = 4; // показываем 4 карточки в первой строке
-    const showDefaultCount = cardsPerRow;
+    const showDefaultCount = 4; // показываем 4 карточки в первой строке
     const totalCount = selectedElements.length;
     const hasMore = totalCount > showDefaultCount;
 
@@ -390,7 +389,7 @@ function updateTeamPreview() {
 
         const avatarUrl = element.getAttribute('data-avatar-url');
 
-        let avatarHtml = '';
+        let avatarHtml;
         if (avatarUrl && avatarUrl.trim() !== '') {
             avatarHtml = `<img src="${escapeHtml(avatarUrl)}" 
                                alt="${escapeHtml(name)}" 
@@ -457,7 +456,6 @@ function updateTeamPreview() {
                     }
                 });
                 this.setAttribute('data-expanded', 'false');
-                const hiddenCount = this.getAttribute('data-hidden-count');
                 this.innerHTML = `<i class="bi bi-eye me-1"></i>Посмотреть всех (${totalCount})`;
             } else {
                 // Разворачиваем: показываем все элементы

@@ -347,8 +347,7 @@ function updatePartnersPreview() {
         return;
     }
 
-    const cardsPerRow = 4;
-    const showDefaultCount = cardsPerRow;
+    const showDefaultCount = 4; // показываем 4 карточки в первой строке
     const totalCount = selectedElements.length;
     const hasMore = totalCount > showDefaultCount;
     const hiddenCount = totalCount - showDefaultCount;
@@ -370,7 +369,7 @@ function updatePartnersPreview() {
         const partnerType = element.querySelector('small.text-muted')?.textContent || 'Тип не указан';
         const logoUrl = element.getAttribute('data-logo-url');
 
-        let logoHtml = '';
+        let logoHtml;
         if (logoUrl && logoUrl.trim() !== '') {
             logoHtml = `<img src="${escapeHtml(logoUrl)}" 
                                alt="${escapeHtml(name)}" 
